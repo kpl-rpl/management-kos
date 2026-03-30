@@ -1,5 +1,10 @@
 # Boilerplate Management Kos (C# WinForms)
 
+<p align="center">
+  <b>Demo Penggunaan Awal</b><br>
+  <img src="docs/tutorial-start.mp4" width="600" alt="Demo Management Kos" />
+</p>
+
 Project ini adalah template awal aplikasi **Management Kos** dengan fokus modul pertama: **Data Kos**.
 Arsitektur dibuat sederhana agar mudah dipahami mahasiswa dan mudah dikembangkan tim.
 
