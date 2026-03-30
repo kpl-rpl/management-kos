@@ -4,5 +4,11 @@
     <Compile Update="UI\FormKos.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="UI\FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\HomeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

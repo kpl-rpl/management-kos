@@ -53,8 +53,9 @@ management-kos/
 └── README.md
 ```
 
+
 Fungsi folder:
-- `UI/`: tampilan form dan event user.
+- `UI/`: tampilan form, navigasi, dan event user.
 - `Services/`: validasi dan business logic.
 - `Models/`: representasi data/domain.
 - `Repositories/`: akses database (CRUD).
