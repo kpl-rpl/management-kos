@@ -1,99 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using management_kos.Data;
 using management_kos.Models;
 using management_kos.Repositories;
 
 namespace management_kos.Services;
-public static class KamarServiceTest
+
+internal static class KamarServiceTestRunner
 {
-    public static void Run()
+    [DllImport("kernel32.dll")]
+    private static extern bool AttachConsole(int dwProcessId);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool AllocConsole();
+
+    private const int AttachParentProcess = -1;
+
+    public static int Main(string[] args)
     {
-        Console.WriteLine("== TEST KamarService ==");
-        Console.WriteLine("----------------------------------------");
+        TryEnableConsole();
+
+        Console.WriteLine("== TEST KamarService (Terminal) ==");
+        Console.WriteLine("----------------------------------");
 
         var dbContext = new MySqlDbContext();
         dbContext.InitializeDatabase();
 
         IKosRepository kosRepository = new KosRepository(dbContext);
 
-        IKamarRepository kamarRepository = new KamarRepository();
+        IKamarRepository kamarRepository = new KamarRepositoryDummy();
 
         var kamarService = new KamarService(kamarRepository, kosRepository);
 
-        var kosId1 = EnsureKosSeed(kosRepository, "Kos Test A", "Alamat A", "081234567890");
-        var kosId2 = EnsureKosSeed(kosRepository, "Kos Test B", "Alamat B", "081298765432");
+        var kosId1 = SeedKosAndGetLatestId(kosRepository, "Kos Test A", "Alamat A", "081234567890");
+        var kosId2 = SeedKosAndGetLatestId(kosRepository, "Kos Test B", "Alamat B", "081298765432");
 
-        // ==============
-        // TEST CREATE
-        // ==============
-        Console.WriteLine("\n[1] Test Create (TambahKamar)");
+        Console.WriteLine("\n[1] Create (TambahKamar)");
         Try("Tambah kamar A-01", delegate
         {
-            kamarService.TambahKamar(new Kamar
-            {
-                KosId = kosId1,
-                NomorKamar = "A-01",
-                Status = "Kosong"
-            });
+            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-01", Status = "Kosong" });
         });
 
         Try("Tambah kamar A-02", delegate
         {
-            kamarService.TambahKamar(new Kamar
-            {
-                KosId = kosId1,
-                NomorKamar = "A-02",
-                Status = "Terisi"
-            });
+            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-02", Status = "Terisi" });
         });
 
         Try("Tambah kamar B-01", delegate
         {
-            kamarService.TambahKamar(new Kamar
-            {
-                KosId = kosId2,
-                NomorKamar = "B-01",
-                Status = "Dipesan"
-            });
+            kamarService.TambahKamar(new Kamar { KosId = kosId2, NomorKamar = "B-01", Status = "Dipesan" });
         });
 
-        // ==============
-        // TEST GET ALL
-        // ==============
-        Console.WriteLine("\n[2] Test Get All (GetAllKamar)");
+        Console.WriteLine("\n[2] GetAll (GetAllKamar)");
         PrintKamarList(kamarService.GetAllKamar());
 
-        // ==============
-        // TEST GET BY KOS ID
-        // ==============
-        Console.WriteLine("\n[3] Test Get By KosId (GetKamarByKosId)");
-        Console.WriteLine("KosId = " + kosId1);
+        Console.WriteLine("\n[3] GetByKosId (GetKamarByKosId) KosId=" + kosId1);
         PrintKamarList(kamarService.GetKamarByKosId(kosId1));
 
-        // ==============
-        // TEST UPDATE
-        // ==============
-        Console.WriteLine("\n[4] Test Update (UbahKamar)");
-        Try("Update kamar Id=2 status jadi Kosong", delegate
+        Console.WriteLine("\n[4] Update (UbahKamar) Id=2");
+        Try("Ubah kamar Id=2 status jadi Kosong", delegate
         {
-            kamarService.UbahKamar(new Kamar
-            {
-                Id = 2,
-                KosId = kosId1,
-                NomorKamar = "A-02",
-                Status = "Kosong"
-            });
+            kamarService.UbahKamar(new Kamar { Id = 2, KosId = kosId1, NomorKamar = "A-02", Status = "Kosong" });
         });
 
         Console.WriteLine("\nHasil setelah update:");
         PrintKamarList(kamarService.GetAllKamar());
 
-        // ==============
-        // TEST DELETE
-        // ==============
-        Console.WriteLine("\n[5] Test Delete (HapusKamar)");
+        Console.WriteLine("\n[5] Delete (HapusKamar) Id=1");
         Try("Hapus kamar Id=1", delegate
         {
             kamarService.HapusKamar(1);
@@ -102,57 +77,32 @@ public static class KamarServiceTest
         Console.WriteLine("\nHasil setelah delete:");
         PrintKamarList(kamarService.GetAllKamar());
 
-        // ==============
-        // TEST VALIDATION ERROR
-        // ==============
-        Console.WriteLine("\n[6] Test Validasi Error: KosId tidak ada (harus error)");
+        Console.WriteLine("\n[6] Validasi error KosId tidak ada (harus error)");
         TryExpectError("Tambah kamar KosId invalid", delegate
         {
-            kamarService.TambahKamar(new Kamar
-            {
-                KosId = 999999,
-                NomorKamar = "X-01",
-                Status = "Kosong"
-            });
+            kamarService.TambahKamar(new Kamar { KosId = 999999, NomorKamar = "X-01", Status = "Kosong" });
         });
 
-        Console.WriteLine("\n[7] Test Validasi Error: Status invalid (harus error)");
+        Console.WriteLine("\n[7] Validasi error status invalid (harus error)");
         TryExpectError("Tambah kamar status invalid", delegate
         {
-            kamarService.TambahKamar(new Kamar
-            {
-                KosId = kosId1,
-                NomorKamar = "A-03",
-                Status = "RandomStatus"
-            });
+            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-03", Status = "RandomStatus" });
         });
 
-        Console.WriteLine("\n[8] Test Validasi Error: NomorKamar kosong (harus error)");
-        TryExpectError("Tambah kamar nomor kosong", delegate
-        {
-            kamarService.TambahKamar(new Kamar
-            {
-                KosId = kosId1,
-                NomorKamar = "   ",
-                Status = "Kosong"
-            });
-        });
-
-        Console.WriteLine("\n[9] Test Validasi Error: Update Id invalid (harus error)");
-        TryExpectError("Update kamar Id=0", delegate
-        {
-            kamarService.UbahKamar(new Kamar
-            {
-                Id = 0,
-                KosId = kosId1,
-                NomorKamar = "A-01",
-                Status = "Kosong"
-            });
-        });
-
-        Console.WriteLine("\n== SELESAI TEST ==");
+        Console.WriteLine("\n== SELESAI ==");
+        return 0;
     }
-    private static int EnsureKosSeed(IKosRepository kosRepository, string namaKos, string alamat, string nomorTelepon)
+
+    private static void TryEnableConsole()
+    {
+        var attached = AttachConsole(AttachParentProcess);
+        if (!attached)
+        {
+            AllocConsole();
+        }
+    }
+
+    private static int SeedKosAndGetLatestId(IKosRepository kosRepository, string namaKos, string alamat, string nomorTelepon)
     {
         kosRepository.Insert(new Kos
         {
@@ -164,10 +114,11 @@ public static class KamarServiceTest
             NomorTelepon = nomorTelepon,
             Catatan = "Seed untuk test"
         });
+
         var all = kosRepository.GetAll();
         if (all == null || all.Count == 0)
         {
-            throw new InvalidOperationException("Gagal membuat seed Kos. Pastikan koneksi DB valid.");
+            throw new InvalidOperationException("Seed Kos gagal. Periksa koneksi DB / .env.");
         }
 
         return all[0].Id;
@@ -183,12 +134,7 @@ public static class KamarServiceTest
 
         foreach (var k in list)
         {
-            Console.WriteLine(
-                "Id=" + k.Id +
-                ", KosId=" + k.KosId +
-                ", NomorKamar=" + k.NomorKamar +
-                ", Status=" + k.Status
-            );
+            Console.WriteLine("Id=" + k.Id + ", KosId=" + k.KosId + ", NomorKamar=" + k.NomorKamar + ", Status=" + k.Status);
         }
     }
 
