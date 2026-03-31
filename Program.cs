@@ -2,6 +2,7 @@ using management_kos.Data;
 using management_kos.Repositories;
 using management_kos.Services;
 using management_kos.UI;
+using System.Runtime.InteropServices;
 
 namespace management_kos
 {
