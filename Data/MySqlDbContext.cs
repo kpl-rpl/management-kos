@@ -29,38 +29,114 @@ public class MySqlDbContext
 
     public void InitializeDatabase()
     {
-        using (var serverConnection = new MySqlConnection(_serverConnectionString))
-        {
-            serverConnection.Open();
-            using var createDbCommand = serverConnection.CreateCommand();
-            createDbCommand.CommandText = $"CREATE DATABASE IF NOT EXISTS `{_databaseName}`;";
-            createDbCommand.ExecuteNonQuery();
-        }
-
+        EnsureDatabaseExists();
         using var connection = CreateConnection();
+        EnsureMigrationTable(connection);
+        ApplyMigrations(connection);
+    }
+
+    private void EnsureDatabaseExists()
+    {
+        using var serverConnection = new MySqlConnection(_serverConnectionString);
+        serverConnection.Open();
+        using var createDbCommand = serverConnection.CreateCommand();
+        createDbCommand.CommandText = $"CREATE DATABASE IF NOT EXISTS `{_databaseName}`;";
+        createDbCommand.ExecuteNonQuery();
+    }
+
+    private static void EnsureMigrationTable(MySqlConnection connection)
+    {
         using var command = connection.CreateCommand();
         command.CommandText = @"
-            CREATE TABLE IF NOT EXISTS Kos (
-                Id INT AUTO_INCREMENT PRIMARY KEY,
-                NamaKos VARCHAR(200) NOT NULL,
-                Alamat VARCHAR(300) NOT NULL,
-                HargaDasar DECIMAL(18,2) NOT NULL,
-                JumlahKamar INT NOT NULL,
-                NamaPemilik VARCHAR(200) NOT NULL,
-                NomorTelepon VARCHAR(30) NOT NULL,
-                Catatan TEXT NULL
-            ) ENGINE=InnoDB;
-
-            CREATE TABLE IF NOT EXISTS Kamar (
-                Id INT AUTO_INCREMENT PRIMARY KEY,
-                KosId INT NOT NULL,
-                NomorKamar VARCHAR(50) NOT NULL,
-                Status VARCHAR(30) NOT NULL,
-                CONSTRAINT FK_Kamar_Kos FOREIGN KEY (KosId) REFERENCES Kos(Id) ON DELETE CASCADE
-            ) ENGINE=InnoDB;
-        ";
-
+            CREATE TABLE IF NOT EXISTS SchemaMigrations (
+                MigrationId VARCHAR(150) NOT NULL PRIMARY KEY,
+                AppliedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB;";
         command.ExecuteNonQuery();
+    }
+
+    private void ApplyMigrations(MySqlConnection connection)
+    {
+        var appliedMigrations = GetAppliedMigrationIds(connection);
+
+        foreach (var migrationFile in GetMigrationFiles())
+        {
+            var migrationId = Path.GetFileNameWithoutExtension(migrationFile);
+            if (string.IsNullOrWhiteSpace(migrationId) || appliedMigrations.Contains(migrationId))
+            {
+                continue;
+            }
+
+            var sql = File.ReadAllText(migrationFile);
+            if (string.IsNullOrWhiteSpace(sql))
+            {
+                continue;
+            }
+
+            using var transaction = connection.BeginTransaction();
+
+            using var migrationCommand = connection.CreateCommand();
+            migrationCommand.Transaction = transaction;
+            migrationCommand.CommandText = sql;
+            migrationCommand.ExecuteNonQuery();
+
+            using var insertCommand = connection.CreateCommand();
+            insertCommand.Transaction = transaction;
+            insertCommand.CommandText = "INSERT INTO SchemaMigrations (MigrationId) VALUES (@MigrationId);";
+            insertCommand.Parameters.AddWithValue("@MigrationId", migrationId);
+            insertCommand.ExecuteNonQuery();
+
+            transaction.Commit();
+        }
+    }
+
+    private static HashSet<string> GetAppliedMigrationIds(MySqlConnection connection)
+    {
+        var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT MigrationId FROM SchemaMigrations;";
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(reader.GetString(0));
+        }
+
+        return result;
+    }
+
+    private List<string> GetMigrationFiles()
+    {
+        var migrationsDirectory = FindMigrationsDirectoryPath();
+        if (migrationsDirectory is null)
+        {
+            return new List<string>();
+        }
+
+        return Directory
+            .GetFiles(migrationsDirectory, "*.sql", SearchOption.TopDirectoryOnly)
+            .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static string? FindMigrationsDirectoryPath()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(directory.FullName, "Data", "Migrations");
+            if (Directory.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        var workingDirCandidate = Path.Combine(Environment.CurrentDirectory, "Data", "Migrations");
+        return Directory.Exists(workingDirCandidate) ? workingDirCandidate : null;
     }
 
     private static Dictionary<string, string> LoadEnvFile()
