@@ -8,6 +8,8 @@ public partial class FormMain : Form
     private readonly HomeView _homeView;
     private FormKos? _formKos;
 
+    private FormPenghuni? _formPenghuni;
+
     public FormMain(KosService kosService)
     {
         _kosService = kosService;
@@ -54,5 +56,29 @@ public partial class FormMain : Form
         _formKos.Show();
         _formKos.BringToFront();
         lblCurrentView.Text = "Data Kos";
+    }
+
+    private void ShowDataPenghuniView()
+    {
+        if (_formPenghuni is null || _formPenghuni.IsDisposed)
+        {
+            _formPenghuni = new FormPenghuni()
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+        }
+
+        pnlContent.Controls.Clear();
+        pnlContent.Controls.Add(_formPenghuni);
+        _formPenghuni.Show();
+        _formPenghuni.BringToFront();
+        lblCurrentView.Text = "Data Penghuni";
+    }
+
+    private void btnDataPenghuni_Click(object sender, EventArgs e)
+    {
+        ShowDataPenghuniView();
     }
 }
