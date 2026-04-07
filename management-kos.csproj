@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <StartupObject>management_kos.Services.KamarServiceTestRunner</StartupObject>
+	  <StartupObject>management_kos.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

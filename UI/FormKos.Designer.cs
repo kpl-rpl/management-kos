@@ -45,7 +45,7 @@ partial class FormKos
         lblNamaKos.AutoSize = true;
         lblNamaKos.Location = new Point(20, 20);
         lblNamaKos.Name = "lblNamaKos";
-        lblNamaKos.Size = new Size(62, 15);
+        lblNamaKos.Size = new Size(61, 15);
         lblNamaKos.TabIndex = 0;
         lblNamaKos.Text = "Nama Kos";
         // 
@@ -93,7 +93,7 @@ partial class FormKos
         lblJumlahKamar.AutoSize = true;
         lblJumlahKamar.Location = new Point(20, 116);
         lblJumlahKamar.Name = "lblJumlahKamar";
-        lblJumlahKamar.Size = new Size(83, 15);
+        lblJumlahKamar.Size = new Size(82, 15);
         lblJumlahKamar.TabIndex = 6;
         lblJumlahKamar.Text = "Jumlah Kamar";
         // 
@@ -109,7 +109,7 @@ partial class FormKos
         lblNamaPemilik.AutoSize = true;
         lblNamaPemilik.Location = new Point(20, 148);
         lblNamaPemilik.Name = "lblNamaPemilik";
-        lblNamaPemilik.Size = new Size(82, 15);
+        lblNamaPemilik.Size = new Size(81, 15);
         lblNamaPemilik.TabIndex = 8;
         lblNamaPemilik.Text = "Nama Pemilik";
         // 
@@ -125,7 +125,7 @@ partial class FormKos
         lblNomorTelepon.AutoSize = true;
         lblNomorTelepon.Location = new Point(20, 180);
         lblNomorTelepon.Name = "lblNomorTelepon";
-        lblNomorTelepon.Size = new Size(87, 15);
+        lblNomorTelepon.Size = new Size(90, 15);
         lblNomorTelepon.TabIndex = 10;
         lblNomorTelepon.Text = "Nomor Telepon";
         // 
@@ -205,6 +205,7 @@ partial class FormKos
         dgvKos.Size = new Size(730, 220);
         dgvKos.TabIndex = 18;
         dgvKos.CellClick += dgvKos_CellClick;
+        dgvKos.CellContentClick += dgvKos_CellContentClick;
         // 
         // FormKos
         // 
