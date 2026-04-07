@@ -30,7 +30,7 @@ internal static class KamarServiceTestRunner
 
         IKosRepository kosRepository = new KosRepository(dbContext);
 
-        IKamarRepository kamarRepository = new KamarRepositoryDummy();
+        IKamarRepository kamarRepository = new KamarRepository(dbContext);
 
         var kamarService = new KamarService(kamarRepository, kosRepository);
 
@@ -40,17 +40,17 @@ internal static class KamarServiceTestRunner
         Console.WriteLine("\n[1] Create (TambahKamar)");
         Try("Tambah kamar A-01", delegate
         {
-            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-01", Status = "Kosong" });
+            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-01", HargaKamar = 1000000, Status = "Kosong" });
         });
 
         Try("Tambah kamar A-02", delegate
         {
-            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-02", Status = "Terisi" });
+            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-02", HargaKamar = 1000000, Status = "Terisi" });
         });
 
         Try("Tambah kamar B-01", delegate
         {
-            kamarService.TambahKamar(new Kamar { KosId = kosId2, NomorKamar = "B-01", Status = "Dipesan" });
+            kamarService.TambahKamar(new Kamar { KosId = kosId2, NomorKamar = "B-01", HargaKamar = 1000000, Status = "Dipesan" });
         });
 
         Console.WriteLine("\n[2] GetAll (GetAllKamar)");
