@@ -158,4 +158,9 @@ public partial class FormKos : Form
         txtCatatan.Clear();
         txtNamaKos.Focus();
     }
+
+    private void dgvKos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+    {
+
+    }
 }

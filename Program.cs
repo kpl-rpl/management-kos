@@ -19,7 +19,10 @@ namespace management_kos
             IKosRepository kosRepository = new KosRepository(dbContext);
             var kosService = new KosService(kosRepository);
 
-            Application.Run(new FormMain(kosService));
+            IKamarRepository kamarRepository = new KamarRepository(dbContext);
+            var kamarService = new KamarService(kamarRepository, kosRepository);
+
+            Application.Run(new FormMain(kosService, kamarService));
         }
     }
 }

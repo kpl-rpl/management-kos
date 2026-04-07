@@ -218,6 +218,7 @@ partial class FormKos
         dgvKos.Size = new Size(834, 293);
         dgvKos.TabIndex = 18;
         dgvKos.CellClick += dgvKos_CellClick;
+        dgvKos.CellContentClick += dgvKos_CellContentClick;
         // 
         // FormKos
         // 

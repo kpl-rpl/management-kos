@@ -14,6 +14,7 @@ public class KamarService
         _kamarRepository = kamarRepository;
         _kosRepository = kosRepository;
     }
+
     public List<Kamar> GetAllKamar()
     {
         return _kamarRepository.GetAll();

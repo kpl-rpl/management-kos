@@ -5,5 +5,6 @@ public class Kamar
     public int Id { get; set; }
     public int KosId { get; set; }
     public string NomorKamar { get; set; } = string.Empty;
+    public int HargaKamar { get; set; }
     public string Status { get; set; } = "Kosong";
 }

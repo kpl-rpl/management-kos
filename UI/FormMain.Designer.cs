@@ -26,6 +26,7 @@ partial class FormMain
         pnlTopBar = new Panel();
         lblCurrentView = new Label();
         pnlContent = new Panel();
+        btnDataKamar = new Button();
         pnlSidebar.SuspendLayout();
         pnlTopBar.SuspendLayout();
         SuspendLayout();
@@ -34,6 +35,7 @@ partial class FormMain
         // 
         pnlSidebar.BackColor = Color.FromArgb(32, 43, 59);
         pnlSidebar.Controls.Add(btnDataPenghuni);
+        pnlSidebar.Controls.Add(btnDataKamar);
         pnlSidebar.Controls.Add(btnDataKos);
         pnlSidebar.Controls.Add(btnHome);
         pnlSidebar.Controls.Add(lblAppTitle);
@@ -90,7 +92,7 @@ partial class FormMain
         lblAppTitle.ForeColor = Color.White;
         lblAppTitle.Location = new Point(23, 45);
         lblAppTitle.Name = "lblAppTitle";
-        lblAppTitle.Size = new Size(167, 25);
+        lblAppTitle.Size = new Size(132, 20);
         lblAppTitle.TabIndex = 0;
         lblAppTitle.Text = "Management Kos";
         // 
@@ -111,7 +113,7 @@ partial class FormMain
         lblCurrentView.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
         lblCurrentView.Location = new Point(23, 24);
         lblCurrentView.Name = "lblCurrentView";
-        lblCurrentView.Size = new Size(68, 28);
+        lblCurrentView.Size = new Size(56, 21);
         lblCurrentView.TabIndex = 0;
         lblCurrentView.Text = "Home";
         // 
@@ -124,6 +126,18 @@ partial class FormMain
         pnlContent.Name = "pnlContent";
         pnlContent.Size = new Size(1102, 833);
         pnlContent.TabIndex = 2;
+        // 
+        // btnDataKamar
+        // 
+        btnDataKamar.FlatStyle = FlatStyle.Flat;
+        btnDataKamar.ForeColor = Color.White;
+        btnDataKamar.Location = new Point(20, 174);
+        btnDataKamar.Name = "btnDataKamar";
+        btnDataKamar.Size = new Size(180, 36);
+        btnDataKamar.TabIndex = 3;
+        btnDataKamar.Text = "Data Kamar";
+        btnDataKamar.UseVisualStyleBackColor = true;
+        btnDataKamar.Click += btnDataKamar_Click;
         // 
         // FormMain
         // 
@@ -155,4 +169,5 @@ partial class FormMain
     private Label lblCurrentView;
     private Panel pnlContent;
     private Button btnDataPenghuni;
+    private Button btnDataKamar;
 }
