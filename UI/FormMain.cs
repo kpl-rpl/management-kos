@@ -10,6 +10,8 @@ public partial class FormMain : Form
     private FormKos? _formKos;
     private FormKamar? _formKamar;
 
+    private FormPenghuni? _formPenghuni;
+
     public FormMain(KosService kosService, KamarService kamarService)
     {
         _kosService = kosService;
@@ -58,6 +60,31 @@ public partial class FormMain : Form
         _formKos.BringToFront();
         lblCurrentView.Text = "Data Kos";
     }
+
+    private void ShowDataPenghuniView()
+    {
+        if (_formPenghuni is null || _formPenghuni.IsDisposed)
+        {
+            _formPenghuni = new FormPenghuni()
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+        }
+
+        pnlContent.Controls.Clear();
+        pnlContent.Controls.Add(_formPenghuni);
+        _formPenghuni.Show();
+        _formPenghuni.BringToFront();
+        lblCurrentView.Text = "Data Penghuni";
+    }
+
+    private void btnDataPenghuni_Click(object sender, EventArgs e)
+    {
+        ShowDataPenghuniView();
+    }
+
 
     private void btnDataKamar_Click(object sender, EventArgs e)
     {
