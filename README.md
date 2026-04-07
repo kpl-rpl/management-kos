@@ -42,6 +42,10 @@ Arsitektur dibuat sederhana agar mudah dipahami mahasiswa dan mudah dikembangkan
 management-kos/
 ├── .env.example
 ├── Data/
+│   ├── Migrations/
+│   │   ├── 202604010001_create_kos_table.sql
+│   │   ├── 202604010002_create_kamar_table.sql
+│   │   └── 202604010003_add_harga_kamar_to_kamar.sql
 │   └── MySqlDbContext.cs
 ├── Models/
 │   ├── Kos.cs
@@ -64,7 +68,7 @@ Fungsi folder:
 - `Services/`: validasi dan business logic.
 - `Models/`: representasi data/domain.
 - `Repositories/`: akses database (CRUD).
-- `Data/`: koneksi database dan inisialisasi schema.
+- `Data/`: koneksi database dan runner migration.
 
 ## 3. Implementasi Boilerplate Modul Data Kos
 
@@ -123,6 +127,29 @@ DB_NAME=management_kos
 3. Buat service baru di `Services/` untuk validasi dan logic.
 4. Buat form baru di `UI/`.
 5. Hubungkan form dengan service di `Program.cs` atau navigasi menu utama.
+
+### Cara migration per-file (mirip Laravel)
+
+Setiap perubahan schema dibuat dalam **1 file SQL** di folder `Data/Migrations`.
+File akan dijalankan otomatis saat aplikasi start jika belum tercatat di tabel `SchemaMigrations`.
+
+Generate file migration baru:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\new-migration.ps1 -Name "add lantai kamar"
+```
+
+Contoh hasil file:
+
+```text
+Data/Migrations/20260401124530_add_lantai_kamar.sql
+```
+
+Lalu isi SQL di file tersebut, contoh:
+
+```sql
+ALTER TABLE Kamar ADD COLUMN Lantai INT NOT NULL DEFAULT 1;
+```
 
 ## 6. Standar Coding
 
