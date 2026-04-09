@@ -7,6 +7,7 @@ namespace management_kos.Services;
 public class KosService
 {
     private readonly IKosRepository _kosRepository;
+    private readonly IKamarRepository _kamarRepository;
 
     public KosService(IKosRepository kosRepository)
     {
