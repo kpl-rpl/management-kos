@@ -6,10 +6,12 @@ namespace management_kos.Repositories;
 public class KosRepository : IKosRepository
 {
     private readonly MySqlDbContext _dbContext;
+    private readonly int _commandTimeoutSeconds;
 
     public KosRepository(MySqlDbContext dbContext)
     {
-        _dbContext = dbContext;
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _commandTimeoutSeconds = _dbContext.GetCommandTimeoutSeconds();
     }
 
     public List<Kos> GetAll()
@@ -18,6 +20,7 @@ public class KosRepository : IKosRepository
 
         using var connection = _dbContext.CreateConnection();
         using var command = connection.CreateCommand();
+        command.CommandTimeout = _commandTimeoutSeconds;
         command.CommandText = @"
             SELECT Id, NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan
             FROM Kos
@@ -46,6 +49,7 @@ public class KosRepository : IKosRepository
     {
         using var connection = _dbContext.CreateConnection();
         using var command = connection.CreateCommand();
+        command.CommandTimeout = _commandTimeoutSeconds;
         command.CommandText = @"
             SELECT Id, NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan
             FROM Kos
@@ -73,8 +77,11 @@ public class KosRepository : IKosRepository
 
     public void Insert(Kos kos)
     {
+        ArgumentNullException.ThrowIfNull(kos);
+
         using var connection = _dbContext.CreateConnection();
         using var command = connection.CreateCommand();
+        command.CommandTimeout = _commandTimeoutSeconds;
         command.CommandText = @"
             INSERT INTO Kos (NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan)
             VALUES (@NamaKos, @Alamat, @HargaDasar, @JumlahKamar, @NamaPemilik, @NomorTelepon, @Catatan);";
@@ -92,8 +99,11 @@ public class KosRepository : IKosRepository
 
     public void Update(Kos kos)
     {
+        ArgumentNullException.ThrowIfNull(kos);
+
         using var connection = _dbContext.CreateConnection();
         using var command = connection.CreateCommand();
+        command.CommandTimeout = _commandTimeoutSeconds;
         command.CommandText = @"
             UPDATE Kos
             SET NamaKos = @NamaKos,
@@ -114,16 +124,25 @@ public class KosRepository : IKosRepository
         command.Parameters.AddWithValue("@NomorTelepon", kos.NomorTelepon);
         command.Parameters.AddWithValue("@Catatan", (object?)kos.Catatan ?? DBNull.Value);
 
-        command.ExecuteNonQuery();
+        var affectedRows = command.ExecuteNonQuery();
+        if (affectedRows == 0)
+        {
+            throw new InvalidOperationException("Update gagal. Data kos tidak ditemukan.");
+        }
     }
 
     public void Delete(int id)
     {
         using var connection = _dbContext.CreateConnection();
         using var command = connection.CreateCommand();
+        command.CommandTimeout = _commandTimeoutSeconds;
         command.CommandText = "DELETE FROM Kos WHERE Id = @Id;";
         command.Parameters.AddWithValue("@Id", id);
 
-        command.ExecuteNonQuery();
+        var affectedRows = command.ExecuteNonQuery();
+        if (affectedRows == 0)
+        {
+            throw new InvalidOperationException("Delete gagal. Data kos tidak ditemukan.");
+        }
     }
 }

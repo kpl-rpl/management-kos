@@ -6,6 +6,7 @@ public class MySqlDbContext
 {
     private readonly string _databaseName;
     private readonly string _serverConnectionString;
+    private readonly int _commandTimeoutSeconds;
 
     public MySqlDbContext()
     {
@@ -16,6 +17,7 @@ public class MySqlDbContext
         var user = GetEnvValue(env, "DB_USER", "root");
         var password = GetEnvValue(env, "DB_PASSWORD", string.Empty);
         _databaseName = GetEnvValue(env, "DB_NAME", "management_kos");
+        _commandTimeoutSeconds = GetPositiveIntEnvValue(env, "DB_COMMAND_TIMEOUT_SECONDS", 30);
 
         _serverConnectionString = $"Server={server};Port={port};User ID={user};Password={password};";
     }
@@ -25,6 +27,11 @@ public class MySqlDbContext
         var connection = new MySqlConnection($"{_serverConnectionString}Database={_databaseName};");
         connection.Open();
         return connection;
+    }
+
+    public int GetCommandTimeoutSeconds()
+    {
+        return _commandTimeoutSeconds;
     }
 
     public void InitializeDatabase()
@@ -207,6 +214,14 @@ public class MySqlDbContext
 
         return env.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value)
             ? value
+            : defaultValue;
+    }
+
+    private static int GetPositiveIntEnvValue(Dictionary<string, string> env, string key, int defaultValue)
+    {
+        var raw = GetEnvValue(env, key, defaultValue.ToString());
+        return int.TryParse(raw, out var parsed) && parsed > 0
+            ? parsed
             : defaultValue;
     }
 }
