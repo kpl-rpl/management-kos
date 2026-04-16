@@ -4,101 +4,63 @@ using MySqlConnector;
 
 namespace management_kos.Repositories;
 
-public class PembayaranRepository : IPembayaranRepository
+public class PembayaranRepository : RepositoryBase, IPembayaranRepository
 {
-    private readonly MySqlDbContext _dbContext;
-
     public PembayaranRepository(MySqlDbContext dbContext)
+        : base(dbContext)
     {
-        _dbContext = dbContext;
     }
 
     public List<Pembayaran> GetAll()
     {
-        var result = new List<Pembayaran>();
-
-        using var connection = _dbContext.CreateConnection();
-        using var command = connection.CreateCommand();
-        command.CommandText = @"
+        return QueryList(@"
             SELECT Id, KontrakSewaId, Periode, TanggalBayar, JumlahTagihan, JumlahDibayar, MetodePembayaran, Status, Catatan
             FROM Pembayaran
-            ORDER BY Id DESC;";
-
-        using var reader = command.ExecuteReader();
-        while (reader.Read())
-        {
-            result.Add(Map(reader));
-        }
-
-        return result;
+            ORDER BY Id DESC;", Map);
     }
 
     public Pembayaran? GetById(int id)
     {
-        using var connection = _dbContext.CreateConnection();
-        using var command = connection.CreateCommand();
-        command.CommandText = @"
+        return QuerySingle(@"
             SELECT Id, KontrakSewaId, Periode, TanggalBayar, JumlahTagihan, JumlahDibayar, MetodePembayaran, Status, Catatan
             FROM Pembayaran
-            WHERE Id = @Id;";
-        command.Parameters.AddWithValue("@Id", id);
-
-        using var reader = command.ExecuteReader();
-        if (!reader.Read())
-        {
-            return null;
-        }
-
-        return Map(reader);
+            WHERE Id = @Id;",
+            Map,
+            command => command.Parameters.AddWithValue("@Id", id));
     }
 
     public List<Pembayaran> GetByKontrakSewaId(int kontrakSewaId)
     {
-        var result = new List<Pembayaran>();
-
-        using var connection = _dbContext.CreateConnection();
-        using var command = connection.CreateCommand();
-        command.CommandText = @"
+        return QueryList(@"
             SELECT Id, KontrakSewaId, Periode, TanggalBayar, JumlahTagihan, JumlahDibayar, MetodePembayaran, Status, Catatan
             FROM Pembayaran
             WHERE KontrakSewaId = @KontrakSewaId
-            ORDER BY Periode DESC;";
-        command.Parameters.AddWithValue("@KontrakSewaId", kontrakSewaId);
-
-        using var reader = command.ExecuteReader();
-        while (reader.Read())
-        {
-            result.Add(Map(reader));
-        }
-
-        return result;
+            ORDER BY Periode DESC;",
+            Map,
+            command => command.Parameters.AddWithValue("@KontrakSewaId", kontrakSewaId));
     }
 
     public void Insert(Pembayaran pembayaran)
     {
-        using var connection = _dbContext.CreateConnection();
-        using var command = connection.CreateCommand();
-        command.CommandText = @"
+        Execute(@"
             INSERT INTO Pembayaran (KontrakSewaId, Periode, TanggalBayar, JumlahTagihan, JumlahDibayar, MetodePembayaran, Status, Catatan)
-            VALUES (@KontrakSewaId, @Periode, @TanggalBayar, @JumlahTagihan, @JumlahDibayar, @MetodePembayaran, @Status, @Catatan);";
-
-        command.Parameters.AddWithValue("@KontrakSewaId", pembayaran.KontrakSewaId);
-        command.Parameters.AddWithValue("@Periode", pembayaran.Periode);
-        command.Parameters.AddWithValue("@TanggalBayar", (object?)pembayaran.TanggalBayar ?? DBNull.Value);
-        command.Parameters.AddWithValue("@JumlahTagihan", pembayaran.JumlahTagihan);
-        command.Parameters.AddWithValue("@JumlahDibayar", pembayaran.JumlahDibayar);
-        command.Parameters.AddWithValue("@MetodePembayaran", pembayaran.MetodePembayaran);
-        command.Parameters.AddWithValue("@Status", pembayaran.Status);
-        command.Parameters.AddWithValue("@Catatan", (object?)pembayaran.Catatan ?? DBNull.Value);
-
-        command.ExecuteNonQuery();
+            VALUES (@KontrakSewaId, @Periode, @TanggalBayar, @JumlahTagihan, @JumlahDibayar, @MetodePembayaran, @Status, @Catatan);",
+            command =>
+            {
+                command.Parameters.AddWithValue("@KontrakSewaId", pembayaran.KontrakSewaId);
+                command.Parameters.AddWithValue("@Periode", pembayaran.Periode);
+                command.Parameters.AddWithValue("@TanggalBayar", (object?)pembayaran.TanggalBayar ?? DBNull.Value);
+                command.Parameters.AddWithValue("@JumlahTagihan", pembayaran.JumlahTagihan);
+                command.Parameters.AddWithValue("@JumlahDibayar", pembayaran.JumlahDibayar);
+                command.Parameters.AddWithValue("@MetodePembayaran", pembayaran.MetodePembayaran);
+                command.Parameters.AddWithValue("@Status", pembayaran.Status);
+                command.Parameters.AddWithValue("@Catatan", (object?)pembayaran.Catatan ?? DBNull.Value);
+            });
     }
 
     public void Update(Pembayaran pembayaran)
     {
-        using var connection = _dbContext.CreateConnection();
-        using var command = connection.CreateCommand();
-        command.CommandText = @"
+        Execute(@"
             UPDATE Pembayaran
             SET KontrakSewaId = @KontrakSewaId,
                 Periode = @Periode,
@@ -108,29 +70,26 @@ public class PembayaranRepository : IPembayaranRepository
                 MetodePembayaran = @MetodePembayaran,
                 Status = @Status,
                 Catatan = @Catatan
-            WHERE Id = @Id;";
-
-        command.Parameters.AddWithValue("@Id", pembayaran.Id);
-        command.Parameters.AddWithValue("@KontrakSewaId", pembayaran.KontrakSewaId);
-        command.Parameters.AddWithValue("@Periode", pembayaran.Periode);
-        command.Parameters.AddWithValue("@TanggalBayar", (object?)pembayaran.TanggalBayar ?? DBNull.Value);
-        command.Parameters.AddWithValue("@JumlahTagihan", pembayaran.JumlahTagihan);
-        command.Parameters.AddWithValue("@JumlahDibayar", pembayaran.JumlahDibayar);
-        command.Parameters.AddWithValue("@MetodePembayaran", pembayaran.MetodePembayaran);
-        command.Parameters.AddWithValue("@Status", pembayaran.Status);
-        command.Parameters.AddWithValue("@Catatan", (object?)pembayaran.Catatan ?? DBNull.Value);
-
-        command.ExecuteNonQuery();
+            WHERE Id = @Id;",
+            command =>
+            {
+                command.Parameters.AddWithValue("@Id", pembayaran.Id);
+                command.Parameters.AddWithValue("@KontrakSewaId", pembayaran.KontrakSewaId);
+                command.Parameters.AddWithValue("@Periode", pembayaran.Periode);
+                command.Parameters.AddWithValue("@TanggalBayar", (object?)pembayaran.TanggalBayar ?? DBNull.Value);
+                command.Parameters.AddWithValue("@JumlahTagihan", pembayaran.JumlahTagihan);
+                command.Parameters.AddWithValue("@JumlahDibayar", pembayaran.JumlahDibayar);
+                command.Parameters.AddWithValue("@MetodePembayaran", pembayaran.MetodePembayaran);
+                command.Parameters.AddWithValue("@Status", pembayaran.Status);
+                command.Parameters.AddWithValue("@Catatan", (object?)pembayaran.Catatan ?? DBNull.Value);
+            });
     }
 
     public void Delete(int id)
     {
-        using var connection = _dbContext.CreateConnection();
-        using var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM Pembayaran WHERE Id = @Id;";
-        command.Parameters.AddWithValue("@Id", id);
-
-        command.ExecuteNonQuery();
+        Execute(
+            "DELETE FROM Pembayaran WHERE Id = @Id;",
+            command => command.Parameters.AddWithValue("@Id", id));
     }
 
     private static Pembayaran Map(MySqlDataReader reader)
