@@ -6,16 +6,18 @@ public partial class FormMain : Form
 {
     private readonly KosService _kosService;
     private readonly KamarService _kamarService;
+    private readonly PenghuniService _penghuniService;
     private readonly HomeView _homeView;
     private FormKos? _formKos;
     private FormKamar? _formKamar;
 
     private FormPenghuni? _formPenghuni;
 
-    public FormMain(KosService kosService, KamarService kamarService)
+    public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService)
     {
         _kosService = kosService;
         _kamarService = kamarService;
+        _penghuniService = penghuniService;
         _homeView = new HomeView { Dock = DockStyle.Fill };
         InitializeComponent();
     }
@@ -65,7 +67,7 @@ public partial class FormMain : Form
     {
         if (_formPenghuni is null || _formPenghuni.IsDisposed)
         {
-            _formPenghuni = new FormPenghuni()
+            _formPenghuni = new FormPenghuni(_penghuniService, _kamarService)
             {
                 TopLevel = false,
                 FormBorderStyle = FormBorderStyle.None,

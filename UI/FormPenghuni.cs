@@ -5,18 +5,23 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using management_kos.Services;
+using management_kos.Models;
 
 namespace management_kos.UI
 {
     public partial class FormPenghuni : Form
     {
         private readonly PenghuniService _penghuniService;
+        private readonly KamarService _kamarService;
         private int _selectedPenghuniId = 0;
 
-        public FormPenghuni(PenghuniService penghuniService)
+        public FormPenghuni(PenghuniService penghuniService, KamarService kamarService)
         {
             _penghuniService = penghuniService;
+            _kamarService = kamarService;
             InitializeComponent();
+            this.Load += FormPenghuni_Load;
         }
 
         private void btnTambah_Click(object sender, EventArgs e)
@@ -92,12 +97,16 @@ namespace management_kos.UI
                 throw new ArgumentException("NIK wajib diisi.");
             if (string.IsNullOrWhiteSpace(txtTelpon.Text))
                 throw new ArgumentException("No. Telpon wajib diisi.");
+            if (dropDownKamar.SelectedValue == null)
+                throw new ArgumentException("Kamar harus dipilih.");
+
+            int kamarId = (int)dropDownKamar.SelectedValue;
 
             return new Penghuni
             {
                 Nama = txtNama.Text.Trim(),
-                NIK = txtNIK.Text.Trim(),
-                Telpon = txtTelpon.Text.Trim()
+                NomorTelepon = txtTelpon.Text.Trim(),
+                KamarId = kamarId
             };
         }
 
@@ -113,8 +122,23 @@ namespace management_kos.UI
         private void RefreshGrid()
         {
             var items = _penghuniService.GetAllPenghuni();
-            dgvPenghuni.DataSource = null;
-            dgvPenghuni.DataSource = items;
+            dataGridView1.DataSource = null;
+            dataGridView1.DataSource = items;
+        }
+
+        private void FormPenghuni_Load(object sender, EventArgs e)
+        {
+            LoadKamarDropdown();
+            RefreshGrid();
+            ClearInput();
+        }
+
+        private void LoadKamarDropdown()
+        {
+            var kamarList = _kamarService.GetAllKamar();
+            dropDownKamar.DataSource = kamarList;
+            dropDownKamar.DisplayMember = "Nama"; // Asumsikan Kamar punya properti Nama
+            dropDownKamar.ValueMember = "Id"; // Asumsikan Kamar punya properti Id
         }
     }
 }
