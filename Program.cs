@@ -22,7 +22,10 @@ namespace management_kos
             IKamarRepository kamarRepository = new KamarRepository(dbContext);
             var kamarService = new KamarService(kamarRepository, kosRepository);
 
-            Application.Run(new FormMain(kosService, kamarService));
+            IPenghuniRepository penghuniRepository = new PenghuniRepository(dbContext);
+            var penghuniService = new PenghuniService(penghuniRepository, kamarRepository);
+
+            Application.Run(new FormMain(kosService, kamarService, penghuniService));
         }
     }
 }

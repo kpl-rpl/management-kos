@@ -6,14 +6,18 @@ public partial class FormMain : Form
 {
     private readonly KosService _kosService;
     private readonly KamarService _kamarService;
+    private readonly PenghuniService _penghuniService;
     private readonly HomeView _homeView;
     private FormKos? _formKos;
     private FormKamar? _formKamar;
 
-    public FormMain(KosService kosService, KamarService kamarService)
+    private FormPenghuni? _formPenghuni;
+
+    public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService)
     {
         _kosService = kosService;
         _kamarService = kamarService;
+        _penghuniService = penghuniService;
         _homeView = new HomeView { Dock = DockStyle.Fill };
         InitializeComponent();
     }
@@ -58,6 +62,31 @@ public partial class FormMain : Form
         _formKos.BringToFront();
         lblCurrentView.Text = "Data Kos";
     }
+
+    private void ShowDataPenghuniView()
+    {
+        if (_formPenghuni is null || _formPenghuni.IsDisposed)
+        {
+            _formPenghuni = new FormPenghuni(_penghuniService, _kamarService)
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+        }
+
+        pnlContent.Controls.Clear();
+        pnlContent.Controls.Add(_formPenghuni);
+        _formPenghuni.Show();
+        _formPenghuni.BringToFront();
+        lblCurrentView.Text = "Data Penghuni";
+    }
+
+    private void btnDataPenghuni_Click(object sender, EventArgs e)
+    {
+        ShowDataPenghuniView();
+    }
+
 
     private void btnDataKamar_Click(object sender, EventArgs e)
     {
