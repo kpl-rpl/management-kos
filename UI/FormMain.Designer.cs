@@ -19,13 +19,14 @@ partial class FormMain
     private void InitializeComponent()
     {
         pnlSidebar = new Panel();
+        btnDataPenghuni = new Button();
+        btnDataKamar = new Button();
         btnDataKos = new Button();
         btnHome = new Button();
         lblAppTitle = new Label();
         pnlTopBar = new Panel();
         lblCurrentView = new Label();
         pnlContent = new Panel();
-        btnDataKamar = new Button();
         pnlSidebar.SuspendLayout();
         pnlTopBar.SuspendLayout();
         SuspendLayout();
@@ -33,6 +34,7 @@ partial class FormMain
         // pnlSidebar
         // 
         pnlSidebar.BackColor = Color.FromArgb(32, 43, 59);
+        pnlSidebar.Controls.Add(btnDataPenghuni);
         pnlSidebar.Controls.Add(btnDataKamar);
         pnlSidebar.Controls.Add(btnDataKos);
         pnlSidebar.Controls.Add(btnHome);
@@ -42,6 +44,31 @@ partial class FormMain
         pnlSidebar.Name = "pnlSidebar";
         pnlSidebar.Size = new Size(220, 681);
         pnlSidebar.TabIndex = 0;
+        // 
+        // btnDataPenghuni
+        // 
+        btnDataPenghuni.FlatStyle = FlatStyle.Flat;
+        btnDataPenghuni.ForeColor = Color.White;
+        btnDataPenghuni.Location = new Point(20, 174);
+        btnDataPenghuni.Name = "btnDataPenghuni";
+        btnDataPenghuni.Size = new Size(180, 36);
+        btnDataPenghuni.TabIndex = 3;
+        btnDataPenghuni.Text = "Data Penghuni";
+        btnDataPenghuni.UseVisualStyleBackColor = true;
+        btnDataPenghuni.Click += btnDataPenghuni_Click;
+        // 
+        // btnDataKamar
+        // 
+        btnDataKamar.FlatStyle = FlatStyle.Flat;
+        btnDataKamar.ForeColor = Color.White;
+        btnDataKamar.Location = new Point(20, 132);
+        btnDataKamar.Margin = new Padding(3, 2, 3, 2);
+        btnDataKamar.Name = "btnDataKamar";
+        btnDataKamar.Size = new Size(158, 27);
+        btnDataKamar.TabIndex = 3;
+        btnDataKamar.Text = "Data Kamar";
+        btnDataKamar.UseVisualStyleBackColor = true;
+        btnDataKamar.Click += btnDataKamar_Click;
         // 
         // btnDataKos
         // 
@@ -107,18 +134,6 @@ partial class FormMain
         pnlContent.Size = new Size(964, 625);
         pnlContent.TabIndex = 2;
         // 
-        // btnDataKamar
-        // 
-        btnDataKamar.FlatStyle = FlatStyle.Flat;
-        btnDataKamar.ForeColor = Color.White;
-        btnDataKamar.Location = new Point(20, 174);
-        btnDataKamar.Name = "btnDataKamar";
-        btnDataKamar.Size = new Size(180, 36);
-        btnDataKamar.TabIndex = 3;
-        btnDataKamar.Text = "Data Kamar";
-        btnDataKamar.UseVisualStyleBackColor = true;
-        btnDataKamar.Click += btnDataKamar_Click;
-        // 
         // FormMain
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
@@ -147,5 +162,6 @@ partial class FormMain
     private Panel pnlTopBar;
     private Label lblCurrentView;
     private Panel pnlContent;
+    private Button btnDataPenghuni;
     private Button btnDataKamar;
 }

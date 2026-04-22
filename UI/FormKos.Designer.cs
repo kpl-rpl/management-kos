@@ -43,120 +43,128 @@ partial class FormKos
         // lblNamaKos
         // 
         lblNamaKos.AutoSize = true;
-        lblNamaKos.Location = new Point(20, 20);
+        lblNamaKos.Location = new Point(23, 27);
         lblNamaKos.Name = "lblNamaKos";
-        lblNamaKos.Size = new Size(61, 15);
+        lblNamaKos.Size = new Size(77, 20);
         lblNamaKos.TabIndex = 0;
         lblNamaKos.Text = "Nama Kos";
         // 
         // txtNamaKos
         // 
-        txtNamaKos.Location = new Point(140, 17);
+        txtNamaKos.Location = new Point(160, 23);
+        txtNamaKos.Margin = new Padding(3, 4, 3, 4);
         txtNamaKos.Name = "txtNamaKos";
-        txtNamaKos.Size = new Size(260, 23);
+        txtNamaKos.Size = new Size(297, 27);
         txtNamaKos.TabIndex = 1;
         // 
         // lblAlamat
         // 
         lblAlamat.AutoSize = true;
-        lblAlamat.Location = new Point(20, 52);
+        lblAlamat.Location = new Point(23, 69);
         lblAlamat.Name = "lblAlamat";
-        lblAlamat.Size = new Size(45, 15);
+        lblAlamat.Size = new Size(57, 20);
         lblAlamat.TabIndex = 2;
         lblAlamat.Text = "Alamat";
         // 
         // txtAlamat
         // 
-        txtAlamat.Location = new Point(140, 49);
+        txtAlamat.Location = new Point(160, 65);
+        txtAlamat.Margin = new Padding(3, 4, 3, 4);
         txtAlamat.Name = "txtAlamat";
-        txtAlamat.Size = new Size(260, 23);
+        txtAlamat.Size = new Size(297, 27);
         txtAlamat.TabIndex = 3;
         // 
         // lblHargaDasar
         // 
         lblHargaDasar.AutoSize = true;
-        lblHargaDasar.Location = new Point(20, 84);
+        lblHargaDasar.Location = new Point(23, 112);
         lblHargaDasar.Name = "lblHargaDasar";
-        lblHargaDasar.Size = new Size(71, 15);
+        lblHargaDasar.Size = new Size(92, 20);
         lblHargaDasar.TabIndex = 4;
         lblHargaDasar.Text = "Harga Dasar";
         // 
         // txtHargaDasar
         // 
-        txtHargaDasar.Location = new Point(140, 81);
+        txtHargaDasar.Location = new Point(160, 108);
+        txtHargaDasar.Margin = new Padding(3, 4, 3, 4);
         txtHargaDasar.Name = "txtHargaDasar";
-        txtHargaDasar.Size = new Size(260, 23);
+        txtHargaDasar.Size = new Size(297, 27);
         txtHargaDasar.TabIndex = 5;
         // 
         // lblJumlahKamar
         // 
         lblJumlahKamar.AutoSize = true;
-        lblJumlahKamar.Location = new Point(20, 116);
+        lblJumlahKamar.Location = new Point(23, 155);
         lblJumlahKamar.Name = "lblJumlahKamar";
-        lblJumlahKamar.Size = new Size(82, 15);
+        lblJumlahKamar.Size = new Size(102, 20);
         lblJumlahKamar.TabIndex = 6;
         lblJumlahKamar.Text = "Jumlah Kamar";
         // 
         // txtJumlahKamar
         // 
-        txtJumlahKamar.Location = new Point(140, 113);
+        txtJumlahKamar.Location = new Point(160, 151);
+        txtJumlahKamar.Margin = new Padding(3, 4, 3, 4);
         txtJumlahKamar.Name = "txtJumlahKamar";
-        txtJumlahKamar.Size = new Size(260, 23);
+        txtJumlahKamar.Size = new Size(297, 27);
         txtJumlahKamar.TabIndex = 7;
         // 
         // lblNamaPemilik
         // 
         lblNamaPemilik.AutoSize = true;
-        lblNamaPemilik.Location = new Point(20, 148);
+        lblNamaPemilik.Location = new Point(23, 197);
         lblNamaPemilik.Name = "lblNamaPemilik";
-        lblNamaPemilik.Size = new Size(81, 15);
+        lblNamaPemilik.Size = new Size(100, 20);
         lblNamaPemilik.TabIndex = 8;
         lblNamaPemilik.Text = "Nama Pemilik";
         // 
         // txtNamaPemilik
         // 
-        txtNamaPemilik.Location = new Point(140, 145);
+        txtNamaPemilik.Location = new Point(160, 193);
+        txtNamaPemilik.Margin = new Padding(3, 4, 3, 4);
         txtNamaPemilik.Name = "txtNamaPemilik";
-        txtNamaPemilik.Size = new Size(260, 23);
+        txtNamaPemilik.Size = new Size(297, 27);
         txtNamaPemilik.TabIndex = 9;
         // 
         // lblNomorTelepon
         // 
         lblNomorTelepon.AutoSize = true;
-        lblNomorTelepon.Location = new Point(20, 180);
+        lblNomorTelepon.Location = new Point(23, 240);
         lblNomorTelepon.Name = "lblNomorTelepon";
-        lblNomorTelepon.Size = new Size(90, 15);
+        lblNomorTelepon.Size = new Size(113, 20);
         lblNomorTelepon.TabIndex = 10;
         lblNomorTelepon.Text = "Nomor Telepon";
         // 
         // txtNomorTelepon
         // 
-        txtNomorTelepon.Location = new Point(140, 177);
+        txtNomorTelepon.Location = new Point(160, 236);
+        txtNomorTelepon.Margin = new Padding(3, 4, 3, 4);
         txtNomorTelepon.Name = "txtNomorTelepon";
-        txtNomorTelepon.Size = new Size(260, 23);
+        txtNomorTelepon.Size = new Size(297, 27);
         txtNomorTelepon.TabIndex = 11;
         // 
         // lblCatatan
         // 
         lblCatatan.AutoSize = true;
-        lblCatatan.Location = new Point(20, 212);
+        lblCatatan.Location = new Point(23, 283);
         lblCatatan.Name = "lblCatatan";
-        lblCatatan.Size = new Size(48, 15);
+        lblCatatan.Size = new Size(60, 20);
         lblCatatan.TabIndex = 12;
         lblCatatan.Text = "Catatan";
         // 
         // txtCatatan
         // 
-        txtCatatan.Location = new Point(140, 209);
+        txtCatatan.Location = new Point(160, 279);
+        txtCatatan.Margin = new Padding(3, 4, 3, 4);
         txtCatatan.Name = "txtCatatan";
-        txtCatatan.Size = new Size(260, 23);
+        txtCatatan.Size = new Size(297, 27);
         txtCatatan.TabIndex = 13;
         // 
         // btnTambah
         // 
-        btnTambah.Location = new Point(430, 17);
+        btnTambah.Location = new Point(491, 23);
+        btnTambah.Margin = new Padding(3, 4, 3, 4);
         btnTambah.Name = "btnTambah";
-        btnTambah.Size = new Size(100, 30);
+        btnTambah.Size = new Size(114, 40);
         btnTambah.TabIndex = 14;
         btnTambah.Text = "Tambah";
         btnTambah.UseVisualStyleBackColor = true;
@@ -164,9 +172,10 @@ partial class FormKos
         // 
         // btnUpdate
         // 
-        btnUpdate.Location = new Point(540, 17);
+        btnUpdate.Location = new Point(617, 23);
+        btnUpdate.Margin = new Padding(3, 4, 3, 4);
         btnUpdate.Name = "btnUpdate";
-        btnUpdate.Size = new Size(100, 30);
+        btnUpdate.Size = new Size(114, 40);
         btnUpdate.TabIndex = 15;
         btnUpdate.Text = "Update";
         btnUpdate.UseVisualStyleBackColor = true;
@@ -174,9 +183,10 @@ partial class FormKos
         // 
         // btnHapus
         // 
-        btnHapus.Location = new Point(650, 17);
+        btnHapus.Location = new Point(743, 23);
+        btnHapus.Margin = new Padding(3, 4, 3, 4);
         btnHapus.Name = "btnHapus";
-        btnHapus.Size = new Size(100, 30);
+        btnHapus.Size = new Size(114, 40);
         btnHapus.TabIndex = 16;
         btnHapus.Text = "Hapus";
         btnHapus.UseVisualStyleBackColor = true;
@@ -184,9 +194,10 @@ partial class FormKos
         // 
         // btnReset
         // 
-        btnReset.Location = new Point(430, 53);
+        btnReset.Location = new Point(491, 71);
+        btnReset.Margin = new Padding(3, 4, 3, 4);
         btnReset.Name = "btnReset";
-        btnReset.Size = new Size(100, 30);
+        btnReset.Size = new Size(114, 40);
         btnReset.TabIndex = 17;
         btnReset.Text = "Reset Form";
         btnReset.UseVisualStyleBackColor = true;
@@ -197,21 +208,23 @@ partial class FormKos
         dgvKos.AllowUserToAddRows = false;
         dgvKos.AllowUserToDeleteRows = false;
         dgvKos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvKos.Location = new Point(20, 250);
+        dgvKos.Location = new Point(23, 333);
+        dgvKos.Margin = new Padding(3, 4, 3, 4);
         dgvKos.MultiSelect = false;
         dgvKos.Name = "dgvKos";
         dgvKos.ReadOnly = true;
+        dgvKos.RowHeadersWidth = 51;
         dgvKos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvKos.Size = new Size(730, 220);
+        dgvKos.Size = new Size(834, 293);
         dgvKos.TabIndex = 18;
         dgvKos.CellClick += dgvKos_CellClick;
         dgvKos.CellContentClick += dgvKos_CellContentClick;
         // 
         // FormKos
         // 
-        AutoScaleDimensions = new SizeF(7F, 15F);
+        AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(780, 490);
+        ClientSize = new Size(891, 653);
         Controls.Add(dgvKos);
         Controls.Add(btnReset);
         Controls.Add(btnHapus);
@@ -231,6 +244,7 @@ partial class FormKos
         Controls.Add(lblAlamat);
         Controls.Add(txtNamaKos);
         Controls.Add(lblNamaKos);
+        Margin = new Padding(3, 4, 3, 4);
         Name = "FormKos";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "Management Kos - Data Kos";
