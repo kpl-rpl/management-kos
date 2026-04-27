@@ -277,6 +277,12 @@ Bagian ini merangkum requirement tugas besar yang diterapkan pada project ini.
    ```powershell
    dotnet run --project .\management-kos.csproj -p:StartupObject=management_kos.Services.KamarServiceTestRunner
    ```
+   **Cara terbaru untuk test** 
+   - Tes menggunakan Library Xunit dan Moq
+   - Contohnya ada di modul Pembayaran service dan repository
+   - Formatnya adalah `namamodul.test.cs` (contoh: `PembayaranService.test.cs`)
+   - Jalankan test menggunakan perintah `dotnet test` di terminal atau gunakan test runner yang sesuai.
+
 
 3. **Performance testing pada halaman/modul**
    - Setiap anggota wajib melakukan performance testing pada bagian yang dikerjakan.
