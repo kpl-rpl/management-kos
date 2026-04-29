@@ -8,16 +8,18 @@ public partial class FormMain : Form
     private readonly KamarService _kamarService;
     private readonly PenghuniService _penghuniService;
     private readonly HomeView _homeView;
+    private readonly PembayaranService _pembayaranService;
     private FormKos? _formKos;
     private FormKamar? _formKamar;
-
     private FormPenghuni? _formPenghuni;
+    private FormPembayaran? _formPembayaran;
 
-    public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService)
+    public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService, PembayaranService pembayaranService)
     {
         _kosService = kosService;
         _kamarService = kamarService;
         _penghuniService = penghuniService;
+        _pembayaranService = pembayaranService;
         _homeView = new HomeView { Dock = DockStyle.Fill };
         InitializeComponent();
     }
@@ -93,6 +95,11 @@ public partial class FormMain : Form
         ShowDataKamarView();
     }
 
+    private void btnDataPembayaran_Click(object sender, EventArgs e)
+    {
+        ShowDataPembayaranView();
+    }
+
     private void ShowDataKamarView()
     {
         if (_formKamar is null || _formKamar.IsDisposed)
@@ -110,5 +117,24 @@ public partial class FormMain : Form
         _formKamar.Show();
         _formKamar.BringToFront();
         lblCurrentView.Text = "Data Kamar";
+    }
+
+    private void ShowDataPembayaranView()
+    {
+        if (_formPembayaran is null || _formPembayaran.IsDisposed)
+        {
+            _formPembayaran = new FormPembayaran(_pembayaranService)
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+        }
+
+        pnlContent.Controls.Clear();
+        pnlContent.Controls.Add(_formPembayaran);
+        _formPembayaran.Show();
+        _formPembayaran.BringToFront();
+        lblCurrentView.Text = "Data Pembayaran";
     }
 }
