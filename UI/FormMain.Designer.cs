@@ -22,6 +22,7 @@ partial class FormMain
         btnDataPenghuni = new Button();
         btnDataKamar = new Button();
         btnDataKos = new Button();
+        btnDataPembayaran = new Button();
         btnHome = new Button();
         lblAppTitle = new Label();
         pnlTopBar = new Panel();
@@ -37,6 +38,7 @@ partial class FormMain
         pnlSidebar.Controls.Add(btnDataPenghuni);
         pnlSidebar.Controls.Add(btnDataKamar);
         pnlSidebar.Controls.Add(btnDataKos);
+        pnlSidebar.Controls.Add(btnDataPembayaran);
         pnlSidebar.Controls.Add(btnHome);
         pnlSidebar.Controls.Add(lblAppTitle);
         pnlSidebar.Dock = DockStyle.Left;
@@ -49,7 +51,7 @@ partial class FormMain
         // 
         btnDataPenghuni.FlatStyle = FlatStyle.Flat;
         btnDataPenghuni.ForeColor = Color.White;
-        btnDataPenghuni.Location = new Point(20, 174);
+        btnDataPenghuni.Location = new Point(20, 216);
         btnDataPenghuni.Name = "btnDataPenghuni";
         btnDataPenghuni.Size = new Size(180, 36);
         btnDataPenghuni.TabIndex = 3;
@@ -61,14 +63,27 @@ partial class FormMain
         // 
         btnDataKamar.FlatStyle = FlatStyle.Flat;
         btnDataKamar.ForeColor = Color.White;
-        btnDataKamar.Location = new Point(20, 132);
+        btnDataKamar.Location = new Point(20, 174);
         btnDataKamar.Margin = new Padding(3, 2, 3, 2);
         btnDataKamar.Name = "btnDataKamar";
-        btnDataKamar.Size = new Size(158, 27);
+        btnDataKamar.Size = new Size(180, 36);
         btnDataKamar.TabIndex = 3;
         btnDataKamar.Text = "Data Kamar";
         btnDataKamar.UseVisualStyleBackColor = true;
         btnDataKamar.Click += btnDataKamar_Click;
+        //
+        // btnDataPembayaran  
+        // 
+        btnDataPembayaran.FlatStyle = FlatStyle.Flat;
+        btnDataPembayaran.ForeColor = Color.White;
+        btnDataPembayaran.Location = new Point(20, 258);
+        btnDataPembayaran.Name = "btnDataPembayaran";
+        btnDataPembayaran.Size = new Size(180, 36);
+        btnDataPembayaran.TabIndex = 5;
+        btnDataPembayaran.Text = "Data Pembayaran";
+        btnDataPembayaran.UseVisualStyleBackColor = true;
+        btnDataPembayaran.Click += btnDataPembayaran_Click;
+
         // 
         // btnDataKos
         // 
@@ -151,6 +166,7 @@ partial class FormMain
         pnlTopBar.ResumeLayout(false);
         pnlTopBar.PerformLayout();
         ResumeLayout(false);
+        
     }
 
     #endregion
@@ -164,4 +180,5 @@ partial class FormMain
     private Panel pnlContent;
     private Button btnDataPenghuni;
     private Button btnDataKamar;
+    private Button btnDataPembayaran;
 }

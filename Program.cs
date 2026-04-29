@@ -25,7 +25,10 @@ namespace management_kos
             IPenghuniRepository penghuniRepository = new PenghuniRepository(dbContext);
             var penghuniService = new PenghuniService(penghuniRepository, kamarRepository);
 
-            Application.Run(new FormMain(kosService, kamarService, penghuniService));
+            IPembayaranRepository pembayaranRepository = new PembayaranRepository(dbContext);
+            var pembayaranService = new PembayaranService(pembayaranRepository);
+
+            Application.Run(new FormMain(kosService, kamarService, penghuniService, pembayaranService));
         }
     }
 }
