@@ -3,6 +3,7 @@ using management_kos.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace management_kos.Repositories
 {
@@ -83,6 +84,8 @@ namespace management_kos.Repositories
 
         public void Insert(Penghuni penghuni)
         {
+            ValidatePenghuni(penghuni);
+
             using var connection = _dbContext.CreateConnection();
             using var command = connection.CreateCommand();
 
@@ -103,6 +106,8 @@ namespace management_kos.Repositories
 
         public void Update(Penghuni penghuni)
         {
+            ValidatePenghuni(penghuni);
+
             using var connection = _dbContext.CreateConnection();
             using var command = connection.CreateCommand();
 
@@ -138,6 +143,37 @@ namespace management_kos.Repositories
             command.Parameters.AddWithValue("@Id", id);
 
             command.ExecuteNonQuery();
+        }
+
+        private static void ValidatePenghuni(Penghuni penghuni)
+        {
+            if (string.IsNullOrWhiteSpace(penghuni.Nama))
+            {
+                throw new ArgumentException("Nama penghuni tidak boleh kosong.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(penghuni.Email))
+            {
+                var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+                if (!emailRegex.IsMatch(penghuni.Email))
+                {
+                    throw new ArgumentException("Format email tidak valid.");
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(penghuni.NomorTelepon))
+            {
+                var phoneRegex = new Regex(@"^\+?[0-9]{10,15}$");
+                if (!phoneRegex.IsMatch(penghuni.NomorTelepon))
+                {
+                    throw new ArgumentException("Format nomor telepon tidak valid.");
+                }
+            }
+
+            if (penghuni.TanggalKeluar.HasValue && penghuni.TanggalKeluar < penghuni.TanggalMasuk)
+            {
+                throw new ArgumentException("Tanggal keluar tidak boleh lebih awal dari tanggal masuk.");
+            }
         }
 
         private static Penghuni Map(MySqlConnector.MySqlDataReader reader)
