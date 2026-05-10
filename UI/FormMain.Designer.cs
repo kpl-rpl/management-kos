@@ -23,6 +23,7 @@ partial class FormMain
         btnDataKamar = new Button();
         btnDataKos = new Button();
         btnDataPembayaran = new Button();
+        btnDataKontrakSewa = new Button();
         btnHome = new Button();
         lblAppTitle = new Label();
         pnlTopBar = new Panel();
@@ -39,6 +40,7 @@ partial class FormMain
         pnlSidebar.Controls.Add(btnDataKamar);
         pnlSidebar.Controls.Add(btnDataKos);
         pnlSidebar.Controls.Add(btnDataPembayaran);
+        pnlSidebar.Controls.Add(btnDataKontrakSewa);
         pnlSidebar.Controls.Add(btnHome);
         pnlSidebar.Controls.Add(lblAppTitle);
         pnlSidebar.Dock = DockStyle.Left;
@@ -83,8 +85,20 @@ partial class FormMain
         btnDataPembayaran.Text = "Data Pembayaran";
         btnDataPembayaran.UseVisualStyleBackColor = true;
         btnDataPembayaran.Click += btnDataPembayaran_Click;
+        //
+        // btnDataKontrakSewa
+        //
+        btnDataKontrakSewa.FlatStyle = FlatStyle.Flat;
+        btnDataKontrakSewa.ForeColor = Color.White;
+        btnDataKontrakSewa.Location = new Point(20, 300);
+        btnDataKontrakSewa.Name = "btnDataKontrakSewa";
+        btnDataKontrakSewa.Size = new Size(180, 36);
+        btnDataKontrakSewa.TabIndex = 6;
+        btnDataKontrakSewa.Text = "Kontrak Sewa";
+        btnDataKontrakSewa.UseVisualStyleBackColor = true;
+        btnDataKontrakSewa.Click += btnDataKontrakSewa_Click;
 
-        // 
+        //
         // btnDataKos
         // 
         btnDataKos.FlatStyle = FlatStyle.Flat;
@@ -181,4 +195,5 @@ partial class FormMain
     private Button btnDataPenghuni;
     private Button btnDataKamar;
     private Button btnDataPembayaran;
+    private Button btnDataKontrakSewa;
 }
