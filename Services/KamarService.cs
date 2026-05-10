@@ -17,14 +17,18 @@ public class KamarService
         _kamarRepository = kamarRepository;
         _kosRepository = kosRepository;
 
-        // Runtime configuration: membaca batas harga kamar dari .env
-        var envVars = File.ReadAllLines(".env");
-        foreach (var line in envVars)
+        // Runtime configuration: membaca batas harga kamar dari .env, default jika key tidak ada
+        _maxHargaKamar = 10_000_000;
+        if (File.Exists(".env"))
         {
-            if (line.StartsWith("MAX_HARGA_KAMAR="))
+            foreach (var line in File.ReadAllLines(".env"))
             {
-                _maxHargaKamar = int.Parse(line.Split('=')[1]);
-                break;
+                if (line.StartsWith("MAX_HARGA_KAMAR=") &&
+                    int.TryParse(line.Split('=')[1], out var parsed))
+                {
+                    _maxHargaKamar = parsed;
+                    break;
+                }
             }
         }
     }
