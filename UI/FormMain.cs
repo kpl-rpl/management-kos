@@ -9,17 +9,20 @@ public partial class FormMain : Form
     private readonly PenghuniService _penghuniService;
     private readonly HomeView _homeView;
     private readonly PembayaranService _pembayaranService;
+    private readonly KontrakSewaService _kontrakSewaService;
     private FormKos? _formKos;
     private FormKamar? _formKamar;
     private FormPenghuni? _formPenghuni;
     private FormPembayaran? _formPembayaran;
+    private FormKontrakSewa? _formKontrakSewa;
 
-    public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService, PembayaranService pembayaranService)
+    public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService, PembayaranService pembayaranService, KontrakSewaService kontrakSewaService)
     {
         _kosService = kosService;
         _kamarService = kamarService;
         _penghuniService = penghuniService;
         _pembayaranService = pembayaranService;
+        _kontrakSewaService = kontrakSewaService;
         _homeView = new HomeView { Dock = DockStyle.Fill };
         InitializeComponent();
     }
@@ -136,5 +139,29 @@ public partial class FormMain : Form
         _formPembayaran.Show();
         _formPembayaran.BringToFront();
         lblCurrentView.Text = "Data Pembayaran";
+    }
+
+    private void btnDataKontrakSewa_Click(object sender, EventArgs e)
+    {
+        ShowDataKontrakSewaView();
+    }
+
+    private void ShowDataKontrakSewaView()
+    {
+        if (_formKontrakSewa is null || _formKontrakSewa.IsDisposed)
+        {
+            _formKontrakSewa = new FormKontrakSewa(_kontrakSewaService)
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+        }
+
+        pnlContent.Controls.Clear();
+        pnlContent.Controls.Add(_formKontrakSewa);
+        _formKontrakSewa.Show();
+        _formKontrakSewa.BringToFront();
+        lblCurrentView.Text = "Data Kontrak Sewa";
     }
 }
