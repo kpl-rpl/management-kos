@@ -2,33 +2,20 @@
 {
     partial class FormPenghuni
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && (components != null)) components.Dispose();
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            dataGridView1 = new DataGridView();
+            pnlInput = new Panel();
+            lblTitle = new Label();
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
@@ -36,162 +23,128 @@
             txtNIK = new TextBox();
             txtNama = new TextBox();
             txtTelpon = new TextBox();
-            btnReset = new Button();
-            btnHapus = new Button();
-            btnUpdate = new Button();
-            btnTambah = new Button();
             dropDownKamar = new ComboBox();
+            btnTambah = new Button();
+            btnUpdate = new Button();
+            btnHapus = new Button();
+            btnReset = new Button();
+            dataGridView1 = new DataGridView();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
-            // 
-            // dataGridView1
-            // 
-            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(36, 222);
-            dataGridView1.Margin = new Padding(3, 2, 3, 2);
-            dataGridView1.Name = "dataGridView1";
-            dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(693, 245);
-            dataGridView1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(36, 38);
-            label1.Name = "label1";
-            label1.Size = new Size(26, 15);
-            label1.TabIndex = 1;
-            label1.Text = "NIK";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(36, 79);
-            label2.Name = "label2";
-            label2.Size = new Size(39, 15);
-            label2.TabIndex = 2;
-            label2.Text = "Nama";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(36, 125);
-            label3.Name = "label3";
-            label3.Size = new Size(62, 15);
-            label3.TabIndex = 3;
-            label3.Text = "No Telpon";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(36, 175);
-            label4.Name = "label4";
-            label4.Size = new Size(41, 15);
-            label4.TabIndex = 4;
-            label4.Text = "Kamar";
-            // 
-            // txtNIK
-            // 
-            txtNIK.Location = new Point(132, 36);
-            txtNIK.Margin = new Padding(3, 2, 3, 2);
-            txtNIK.Multiline = true;
-            txtNIK.Name = "txtNIK";
-            txtNIK.Size = new Size(239, 26);
-            txtNIK.TabIndex = 5;
-            // 
-            // txtNama
-            // 
-            txtNama.Location = new Point(132, 76);
-            txtNama.Margin = new Padding(3, 2, 3, 2);
-            txtNama.Multiline = true;
-            txtNama.Name = "txtNama";
-            txtNama.Size = new Size(239, 26);
-            txtNama.TabIndex = 6;
-            // 
-            // txtTelpon
-            // 
-            txtTelpon.Location = new Point(132, 123);
-            txtTelpon.Margin = new Padding(3, 2, 3, 2);
-            txtTelpon.Multiline = true;
-            txtTelpon.Name = "txtTelpon";
-            txtTelpon.Size = new Size(239, 26);
-            txtTelpon.TabIndex = 7;
-            // 
-            // btnReset
-            // 
-            btnReset.Location = new Point(409, 74);
-            btnReset.Name = "btnReset";
-            btnReset.Size = new Size(100, 30);
-            btnReset.TabIndex = 21;
-            btnReset.Text = "Reset Form";
-            btnReset.UseVisualStyleBackColor = true;
-            // 
-            // btnHapus
-            // 
-            btnHapus.Location = new Point(629, 38);
-            btnHapus.Name = "btnHapus";
-            btnHapus.Size = new Size(100, 30);
-            btnHapus.TabIndex = 20;
-            btnHapus.Text = "Hapus";
-            btnHapus.UseVisualStyleBackColor = true;
-            // 
-            // btnUpdate
-            // 
-            btnUpdate.Location = new Point(519, 38);
-            btnUpdate.Name = "btnUpdate";
-            btnUpdate.Size = new Size(100, 30);
-            btnUpdate.TabIndex = 19;
-            btnUpdate.Text = "Update";
-            btnUpdate.UseVisualStyleBackColor = true;
-            // 
-            // btnTambah
-            // 
-            btnTambah.Location = new Point(409, 38);
-            btnTambah.Name = "btnTambah";
-            btnTambah.Size = new Size(100, 30);
-            btnTambah.TabIndex = 18;
-            btnTambah.Text = "Tambah";
-            btnTambah.UseVisualStyleBackColor = true;
-            btnTambah.Click += btnTambah_Click;
-            // 
-            // dropDownKamar
-            // 
+
+            //pnlInput
+            pnlInput.BackColor = Color.FromArgb(245, 247, 250);
+            pnlInput.Dock = DockStyle.Top;
+            pnlInput.Height = 230;
+            pnlInput.Padding = new Padding(16);
+
+            //Title
+            lblTitle.Text = "Data Penghuni";
+            lblTitle.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.FromArgb(32, 43, 59);
+            lblTitle.Location = new Point(16, 12);
+            lblTitle.AutoSize = true;
+
+            //Input fields
+            int lx = 16, tx = 160, startY = 48, rowH = 37;
+
+            label1.Text = "NIK:"; label1.AutoSize = true;
+            label1.Location = new Point(lx, startY + 4);
+            txtNIK.Location = new Point(tx, startY); txtNIK.Size = new Size(220, 24);
+
+            label2.Text = "Nama:"; label2.AutoSize = true;
+            label2.Location = new Point(lx, startY + rowH + 4);
+            txtNama.Location = new Point(tx, startY + rowH); txtNama.Size = new Size(220, 24);
+
+            label3.Text = "No. Telepon:"; label3.AutoSize = true;
+            label3.Location = new Point(lx, startY + rowH * 2 + 4);
+            txtTelpon.Location = new Point(tx, startY + rowH * 2); txtTelpon.Size = new Size(220, 24);
+
+            label4.Text = "Kamar:"; label4.AutoSize = true;
+            label4.Location = new Point(lx, startY + rowH * 3 + 4);
+            dropDownKamar.Location = new Point(tx, startY + rowH * 3);
+            dropDownKamar.Size = new Size(220, 24);
             dropDownKamar.FormattingEnabled = true;
-            dropDownKamar.Location = new Point(132, 172);
-            dropDownKamar.Name = "dropDownKamar";
-            dropDownKamar.Size = new Size(239, 23);
-            dropDownKamar.TabIndex = 22;
-            // 
-            // FormPenghuni
-            // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(780, 490);
-            Controls.Add(dropDownKamar);
-            Controls.Add(btnReset);
-            Controls.Add(btnHapus);
-            Controls.Add(btnUpdate);
-            Controls.Add(btnTambah);
-            Controls.Add(txtTelpon);
-            Controls.Add(txtNama);
-            Controls.Add(txtNIK);
-            Controls.Add(label4);
-            Controls.Add(label3);
-            Controls.Add(label2);
-            Controls.Add(label1);
-            Controls.Add(dataGridView1);
-            Margin = new Padding(3, 2, 3, 2);
-            Name = "FormPenghuni";
-            Text = "FormPenghuni";
+
+            //Tombol kanan atas berwarna
+            int bx = 430, by = startY, bw = 100, bh = 30, bg = 8;
+
+            btnTambah.Text = "Tambah";
+            btnTambah.Location = new Point(bx, by);
+            btnTambah.Size = new Size(bw, bh);
+            btnTambah.BackColor = Color.FromArgb(37, 99, 235);
+            btnTambah.ForeColor = Color.White;
+            btnTambah.FlatStyle = FlatStyle.Flat;
+            btnTambah.Click += btnTambah_Click;
+
+            btnUpdate.Text = "Update";
+            btnUpdate.Location = new Point(bx + bw + bg, by);
+            btnUpdate.Size = new Size(bw, bh);
+            btnUpdate.BackColor = Color.FromArgb(245, 158, 11);
+            btnUpdate.ForeColor = Color.White;
+            btnUpdate.FlatStyle = FlatStyle.Flat;
+            btnUpdate.Click += btnUpdate_Click;
+
+            btnHapus.Text = "Hapus";
+            btnHapus.Location = new Point(bx + (bw + bg) * 2, by);
+            btnHapus.Size = new Size(bw, bh);
+            btnHapus.BackColor = Color.FromArgb(220, 38, 38);
+            btnHapus.ForeColor = Color.White;
+            btnHapus.FlatStyle = FlatStyle.Flat;
+            btnHapus.Click += btnHapus_Click;
+
+            btnReset.Text = "Reset Form";
+            btnReset.Location = new Point(bx, by + bh + bg);
+            btnReset.Size = new Size(bw, bh);
+            btnReset.FlatStyle = FlatStyle.Flat;
+            btnReset.Click += btnReset_Click;
+
+            //Tambah ke pnlInput
+            pnlInput.Controls.AddRange(new Control[]
+            {
+                lblTitle,
+                label1, txtNIK,
+                label2, txtNama,
+                label3, txtTelpon,
+                label4, dropDownKamar,
+                btnTambah, btnUpdate, btnHapus, btnReset
+            });
+
+            //DataGridView
+            dataGridView1.Dock = DockStyle.Fill;
+            dataGridView1.ReadOnly = true;
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.AllowUserToAddRows = false;
+            dataGridView1.AllowUserToDeleteRows = false;
+            dataGridView1.BackgroundColor = Color.White;
+            dataGridView1.BorderStyle = BorderStyle.None;
+            dataGridView1.RowHeadersVisible = false;
+            dataGridView1.Font = new Font("Segoe UI", 9F);
+            dataGridView1.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.FromArgb(32, 43, 59),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold)
+            };
+            dataGridView1.EnableHeadersVisualStyles = false;
+
+            //FormPenghuni
+            this.Text = "Management Kos - Data Penghuni";
+            this.Size = new Size(860, 580);
+            this.Font = new Font("Segoe UI", 9F);
+            this.BackColor = Color.White;
+            this.Controls.Add(dataGridView1);
+            this.Controls.Add(pnlInput);
             Load += FormPenghuni_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
-        private DataGridView dataGridView1;
+        private Panel pnlInput;
+        private Label lblTitle;
         private Label label1;
         private Label label2;
         private Label label3;
@@ -199,10 +152,11 @@
         private TextBox txtNIK;
         private TextBox txtNama;
         private TextBox txtTelpon;
-        private Button btnReset;
-        private Button btnHapus;
-        private Button btnUpdate;
-        private Button btnTambah;
         private ComboBox dropDownKamar;
+        private Button btnTambah;
+        private Button btnUpdate;
+        private Button btnHapus;
+        private Button btnReset;
+        private DataGridView dataGridView1;
     }
 }
