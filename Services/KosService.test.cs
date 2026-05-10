@@ -1,235 +1,139 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using management_kos.Data;
+using Xunit;
+using Moq;
 using management_kos.Models;
 using management_kos.Repositories;
 
-namespace management_kos.Services;
-
-internal static class KosServiceTestRunner
+namespace management_kos.Services
 {
-    [DllImport("kernel32.dll")]
-    private static extern bool AttachConsole(int dwProcessId);
-
-    [DllImport("kernel32.dll")]
-    private static extern bool AllocConsole();
-
-    private const int AttachParentProcess = -1;
-
-    public static int Main(string[] args)
+    public class KosServiceTest
     {
-        TryEnableConsole();
+        private readonly Mock<IKosRepository> _mockRepository;
+        private readonly KosService _service;
 
-        Console.WriteLine("== TEST KosService (Terminal) ==");
-        Console.WriteLine("--------------------------------");
-
-        var dbContext = new MySqlDbContext();
-        dbContext.InitializeDatabase();
-
-        IKosRepository kosRepository = new KosRepository(dbContext);
-        var kosService = new KosService(kosRepository);
-
-        //TambahKos 
-        Console.WriteLine("\n[1] Create (TambahKos)");
-
-        Try("Tambah Kos A (data lengkap)", () =>
+        public KosServiceTest()
         {
-            kosService.TambahKos(new Kos
+            _mockRepository = new Mock<IKosRepository>();
+            _service = new KosService(_mockRepository.Object);
+        }
+
+        [Fact]
+        public void GetAllKos_ShouldReturnAllKos()
+        {
+            var list = new List<Kos>
+            {
+                new Kos { Id = 1, NamaKos = "Kos Melati", Alamat = "Jl. Mawar No. 1", HargaDasar = 800_000, JumlahKamar = 10, NamaPemilik = "Budi", NomorTelepon = "081234567890" },
+                new Kos { Id = 2, NamaKos = "Kos Kenanga", Alamat = "Jl. Kenanga No. 5", HargaDasar = 1_200_000, JumlahKamar = 6, NamaPemilik = "Siti", NomorTelepon = "081298765432" }
+            };
+            _mockRepository.Setup(r => r.GetAll()).Returns(list);
+
+            var result = _service.GetAllKos();
+
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+        }
+
+        [Fact]
+        public void TambahKos_ShouldCallInsert_WhenDataValid()
+        {
+            var kos = new Kos
             {
                 NamaKos = "Kos Melati",
-                Alamat = "Jl. Mawar No. 1, Sidoarjo",
+                Alamat = "Jl. Mawar No. 1",
                 HargaDasar = 800_000,
                 JumlahKamar = 10,
                 NamaPemilik = "Budi Santoso",
-                NomorTelepon = "081234567890",
-                Catatan = "Dekat kampus"
-            });
-        });
+                NomorTelepon = "081234567890"
+            };
 
-        Try("Tambah Kos B (tanpa catatan)", () =>
-        {
-            kosService.TambahKos(new Kos
-            {
-                NamaKos = "Kos Kenanga",
-                Alamat = "Jl. Kenanga No. 5, Surabaya",
-                HargaDasar = 1_200_000,
-                JumlahKamar = 6,
-                NamaPemilik = "Siti Rahayu",
-                NomorTelepon = "+6281298765432"
-            });
-        });
+            _service.TambahKos(kos);
 
-        // GetAll 
-        Console.WriteLine("\n[2] GetAll (GetAllKos)");
-        PrintKosList(kosService.GetAllKos());
-
-        var semuaKos = kosService.GetAllKos();
-        var idKosA = semuaKos.Count >= 2 ? semuaKos[^1].Id : semuaKos[0].Id;
-        var idKosB = semuaKos[0].Id;
-
-        // UbahKos 
-        Console.WriteLine($"\n[3] Update (UbahKos) Id={idKosA}");
-        Try($"Ubah nama dan harga Kos Id={idKosA}", () =>
-        {
-            kosService.UbahKos(new Kos
-            {
-                Id = idKosA,
-                NamaKos = "Kos Melati (Renovasi)",
-                Alamat = "Jl. Mawar No. 1, Sidoarjo",
-                HargaDasar = 900_000,
-                JumlahKamar = 12,
-                NamaPemilik = "Budi Santoso",
-                NomorTelepon = "081234567890",
-                Catatan = "Setelah renovasi"
-            });
-        });
-
-        Console.WriteLine("\nHasil setelah update:");
-        PrintKosList(kosService.GetAllKos());
-
-        // HapusKos
-        Console.WriteLine($"\n[4] Delete (HapusKos) Id={idKosB}");
-        Try($"Hapus Kos Id={idKosB}", () =>
-        {
-            kosService.HapusKos(idKosB);
-        });
-
-        Console.WriteLine("\nHasil setelah delete:");
-        PrintKosList(kosService.GetAllKos());
-
-        // Validasi error
-        Console.WriteLine("\n[5] Validasi error - NamaKos kosong (harus error)");
-        TryExpectError("NamaKos kosong", () =>
-        {
-            kosService.TambahKos(new Kos
-            {
-                NamaKos = "   ",
-                Alamat = "Jl. Test",
-                HargaDasar = 500_000,
-                JumlahKamar = 5,
-                NamaPemilik = "Test",
-                NomorTelepon = "08123456789"
-            });
-        });
-
-        Console.WriteLine("\n[6] Validasi error - HargaDasar = 0 (harus error)");
-        TryExpectError("HargaDasar nol", () =>
-        {
-            kosService.TambahKos(new Kos
-            {
-                NamaKos = "Kos Test",
-                Alamat = "Jl. Test",
-                HargaDasar = 0,
-                JumlahKamar = 5,
-                NamaPemilik = "Test",
-                NomorTelepon = "08123456789"
-            });
-        });
-
-        Console.WriteLine("\n[7] Validasi error - JumlahKamar = 0 (harus error)");
-        TryExpectError("JumlahKamar nol", () =>
-        {
-            kosService.TambahKos(new Kos
-            {
-                NamaKos = "Kos Test",
-                Alamat = "Jl. Test",
-                HargaDasar = 500_000,
-                JumlahKamar = 0,
-                NamaPemilik = "Test",
-                NomorTelepon = "08123456789"
-            });
-        });
-
-        Console.WriteLine("\n[8] Validasi error - NomorTelepon format salah (harus error)");
-        TryExpectError("NomorTelepon format salah", () =>
-        {
-            kosService.TambahKos(new Kos
-            {
-                NamaKos = "Kos Test",
-                Alamat = "Jl. Test",
-                HargaDasar = 500_000,
-                JumlahKamar = 5,
-                NamaPemilik = "Test",
-                NomorTelepon = "abc-xyz"
-            });
-        });
-
-        Console.WriteLine("\n[9] Validasi error - UbahKos dengan Id = 0 (harus error)");
-        TryExpectError("UbahKos Id invalid", () =>
-        {
-            kosService.UbahKos(new Kos
-            {
-                Id = 0,
-                NamaKos = "Kos Test",
-                Alamat = "Jl. Test",
-                HargaDasar = 500_000,
-                JumlahKamar = 5,
-                NamaPemilik = "Test",
-                NomorTelepon = "08123456789"
-            });
-        });
-
-        Console.WriteLine("\n[10] Validasi error - HapusKos dengan Id negatif (harus error)");
-        TryExpectError("HapusKos Id negatif", () =>
-        {
-            kosService.HapusKos(-1);
-        });
-
-        Console.WriteLine("\n== SELESAI ==");
-        return 0;
-    }
-
-    // Helpers 
-
-    private static void TryEnableConsole()
-    {
-        if (!AttachConsole(AttachParentProcess))
-        {
-            AllocConsole();
-        }
-    }
-
-    private static void PrintKosList(List<Kos> list)
-    {
-        if (list == null || list.Count == 0)
-        {
-            Console.WriteLine("  (kosong)");
-            return;
+            _mockRepository.Verify(r => r.Insert(kos), Times.Once);
         }
 
-        foreach (var k in list)
+        [Fact]
+        public void TambahKos_ShouldThrow_WhenNamaKosKosong()
         {
-            Console.WriteLine(
-                $"  Id={k.Id}, NamaKos={k.NamaKos}, Alamat={k.Alamat}, " +
-                $"HargaDasar={k.HargaDasar:N0}, JumlahKamar={k.JumlahKamar}, " +
-                $"Pemilik={k.NamaPemilik}, Telp={k.NomorTelepon}");
-        }
-    }
+            var kos = new Kos { NamaKos = "   ", Alamat = "Jl. Test", HargaDasar = 500_000, JumlahKamar = 5, NamaPemilik = "Test", NomorTelepon = "081234567890" };
 
-    private static void Try(string title, Action action)
-    {
-        try
-        {
-            action();
-            Console.WriteLine($"  OK   - {title}");
+            Assert.Throws<ArgumentException>(() => _service.TambahKos(kos));
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"  FAIL - {title} | {ex.Message}");
-        }
-    }
 
-    private static void TryExpectError(string title, Action action)
-    {
-        try
+        [Fact]
+        public void TambahKos_ShouldThrow_WhenHargaDasarNol()
         {
-            action();
-            Console.WriteLine($"  FAIL - {title} | Seharusnya error, tapi tidak.");
+            var kos = new Kos { NamaKos = "Kos Test", Alamat = "Jl. Test", HargaDasar = 0, JumlahKamar = 5, NamaPemilik = "Test", NomorTelepon = "081234567890" };
+
+            Assert.Throws<ArgumentException>(() => _service.TambahKos(kos));
         }
-        catch (Exception ex)
+
+        [Fact]
+        public void TambahKos_ShouldThrow_WhenJumlahKamarNol()
         {
-            Console.WriteLine($"  OK   - {title} | Error: {ex.Message}");
+            var kos = new Kos { NamaKos = "Kos Test", Alamat = "Jl. Test", HargaDasar = 500_000, JumlahKamar = 0, NamaPemilik = "Test", NomorTelepon = "081234567890" };
+
+            Assert.Throws<ArgumentException>(() => _service.TambahKos(kos));
+        }
+
+        [Fact]
+        public void TambahKos_ShouldThrow_WhenNomorTeleponFormatSalah()
+        {
+            var kos = new Kos { NamaKos = "Kos Test", Alamat = "Jl. Test", HargaDasar = 500_000, JumlahKamar = 5, NamaPemilik = "Test", NomorTelepon = "abc-xyz" };
+
+            Assert.Throws<ArgumentException>(() => _service.TambahKos(kos));
+        }
+
+        [Fact]
+        public void UbahKos_ShouldThrow_WhenIdNolAtauNegatif()
+        {
+            var kos = new Kos { Id = 0, NamaKos = "Kos Test", Alamat = "Jl. Test", HargaDasar = 500_000, JumlahKamar = 5, NamaPemilik = "Test", NomorTelepon = "081234567890" };
+
+            Assert.Throws<ArgumentException>(() => _service.UbahKos(kos));
+        }
+
+        [Fact]
+        public void UbahKos_ShouldThrow_WhenKosTidakDitemukan()
+        {
+            _mockRepository.Setup(r => r.GetById(99)).Returns((Kos?)null);
+            var kos = new Kos { Id = 99, NamaKos = "Kos Test", Alamat = "Jl. Test", HargaDasar = 500_000, JumlahKamar = 5, NamaPemilik = "Test", NomorTelepon = "081234567890" };
+
+            Assert.Throws<ArgumentException>(() => _service.UbahKos(kos));
+        }
+
+        [Fact]
+        public void UbahKos_ShouldCallUpdate_WhenDataValid()
+        {
+            var kos = new Kos { Id = 1, NamaKos = "Kos Melati Update", Alamat = "Jl. Mawar No. 1", HargaDasar = 900_000, JumlahKamar = 12, NamaPemilik = "Budi Santoso", NomorTelepon = "081234567890" };
+            _mockRepository.Setup(r => r.GetById(1)).Returns(kos);
+
+            _service.UbahKos(kos);
+
+            _mockRepository.Verify(r => r.Update(kos), Times.Once);
+        }
+
+        [Fact]
+        public void HapusKos_ShouldThrow_WhenIdNegatif()
+        {
+            Assert.Throws<ArgumentException>(() => _service.HapusKos(-1));
+        }
+
+        [Fact]
+        public void HapusKos_ShouldThrow_WhenKosTidakDitemukan()
+        {
+            _mockRepository.Setup(r => r.GetById(99)).Returns((Kos?)null);
+
+            Assert.Throws<ArgumentException>(() => _service.HapusKos(99));
+        }
+
+        [Fact]
+        public void HapusKos_ShouldCallDelete_WhenIdValid()
+        {
+            _mockRepository.Setup(r => r.GetById(1)).Returns(new Kos { Id = 1 });
+
+            _service.HapusKos(1);
+
+            _mockRepository.Verify(r => r.Delete(1), Times.Once);
         }
     }
 }
