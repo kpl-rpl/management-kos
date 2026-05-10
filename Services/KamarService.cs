@@ -103,19 +103,23 @@ public class KamarService
             throw new ArgumentException($"Harga kamar tidak boleh lebih dari {_maxHargaKamar}.");
         }
 
-        // Automata: Validasi status kamar menggunakan switch-case
-        kamar.Status = kamar.Status?.Trim() ?? "Kosong";
-        switch (kamar.Status.ToLower())
+        // Automata: Validasi status kamar menggunakan enum
+        if (!Enum.TryParse(kamar.Status, true, out KamarStatus status))
         {
-            case "kosong":
-            case "terisi":
-            case "dipesan":
-            case "perbaikan":
-                break;
-            default:
-                throw new ArgumentException(
-                    "Status kamar tidak valid. Gunakan salah satu: Kosong, Terisi, Dipesan, Perbaikan."
-                );
+            throw new ArgumentException(
+                "Status kamar tidak valid. Gunakan salah satu: Kosong, Terisi, Dipesan, Perbaikan."
+            );
         }
+
+        kamar.Status = status.ToString();
     }
+}
+
+// Enum untuk status kamar
+public enum KamarStatus
+{
+    Kosong,
+    Terisi,
+    Dipesan,
+    Perbaikan
 }
