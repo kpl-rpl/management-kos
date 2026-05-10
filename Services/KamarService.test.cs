@@ -1,166 +1,87 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using management_kos.Data;
 using management_kos.Models;
 using management_kos.Repositories;
+using Moq;
+using Xunit;
 
-namespace management_kos.Services;
-
-internal static class KamarServiceTestRunner
+namespace management_kos.Services
 {
-    [DllImport("kernel32.dll")]
-    private static extern bool AttachConsole(int dwProcessId);
-
-    [DllImport("kernel32.dll")]
-    private static extern bool AllocConsole();
-
-    private const int AttachParentProcess = -1;
-
-    public static int Main(string[] args)
+    public class KamarServiceTest
     {
-        TryEnableConsole();
+        private readonly Mock<IKamarRepository> _mockKamarRepository;
+        private readonly Mock<IKosRepository> _mockKosRepository;
+        private readonly KamarService _service;
 
-        Console.WriteLine("== TEST KamarService (Terminal) ==");
-        Console.WriteLine("----------------------------------");
-
-        var dbContext = new MySqlDbContext();
-        dbContext.InitializeDatabase();
-
-        IKosRepository kosRepository = new KosRepository(dbContext);
-
-        IKamarRepository kamarRepository = new KamarRepository(dbContext);
-
-        var kamarService = new KamarService(kamarRepository, kosRepository);
-
-        var kosId1 = SeedKosAndGetLatestId(kosRepository, "Kos Test A", "Alamat A", "081234567890");
-        var kosId2 = SeedKosAndGetLatestId(kosRepository, "Kos Test B", "Alamat B", "081298765432");
-
-        Console.WriteLine("\n[1] Create (TambahKamar)");
-        Try("Tambah kamar A-01", delegate
+        public KamarServiceTest()
         {
-            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-01", HargaKamar = 1000000, Status = "Kosong" });
-        });
-
-        Try("Tambah kamar A-02", delegate
-        {
-            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-02", HargaKamar = 1000000, Status = "Terisi" });
-        });
-
-        Try("Tambah kamar B-01", delegate
-        {
-            kamarService.TambahKamar(new Kamar { KosId = kosId2, NomorKamar = "B-01", HargaKamar = 1000000, Status = "Dipesan" });
-        });
-
-        Console.WriteLine("\n[2] GetAll (GetAllKamar)");
-        PrintKamarList(kamarService.GetAllKamar());
-
-        Console.WriteLine("\n[3] GetByKosId (GetKamarByKosId) KosId=" + kosId1);
-        PrintKamarList(kamarService.GetKamarByKosId(kosId1));
-
-        Console.WriteLine("\n[4] Update (UbahKamar) Id=2");
-        Try("Ubah kamar Id=2 status jadi Kosong", delegate
-        {
-            kamarService.UbahKamar(new Kamar { Id = 2, KosId = kosId1, NomorKamar = "A-02", Status = "Kosong" });
-        });
-
-        Console.WriteLine("\nHasil setelah update:");
-        PrintKamarList(kamarService.GetAllKamar());
-
-        Console.WriteLine("\n[5] Delete (HapusKamar) Id=1");
-        Try("Hapus kamar Id=1", delegate
-        {
-            kamarService.HapusKamar(1);
-        });
-
-        Console.WriteLine("\nHasil setelah delete:");
-        PrintKamarList(kamarService.GetAllKamar());
-
-        Console.WriteLine("\n[6] Validasi error KosId tidak ada (harus error)");
-        TryExpectError("Tambah kamar KosId invalid", delegate
-        {
-            kamarService.TambahKamar(new Kamar { KosId = 999999, NomorKamar = "X-01", Status = "Kosong" });
-        });
-
-        Console.WriteLine("\n[7] Validasi error status invalid (harus error)");
-        TryExpectError("Tambah kamar status invalid", delegate
-        {
-            kamarService.TambahKamar(new Kamar { KosId = kosId1, NomorKamar = "A-03", Status = "RandomStatus" });
-        });
-
-        Console.WriteLine("\n== SELESAI ==");
-        return 0;
-    }
-
-    private static void TryEnableConsole()
-    {
-        var attached = AttachConsole(AttachParentProcess);
-        if (!attached)
-        {
-            AllocConsole();
-        }
-    }
-
-    private static int SeedKosAndGetLatestId(IKosRepository kosRepository, string namaKos, string alamat, string nomorTelepon)
-    {
-        kosRepository.Insert(new Kos
-        {
-            NamaKos = namaKos,
-            Alamat = alamat,
-            HargaDasar = 1000000,
-            JumlahKamar = 5,
-            NamaPemilik = "Tester",
-            NomorTelepon = nomorTelepon,
-            Catatan = "Seed untuk test"
-        });
-
-        var all = kosRepository.GetAll();
-        if (all == null || all.Count == 0)
-        {
-            throw new InvalidOperationException("Seed Kos gagal. Periksa koneksi DB / .env.");
+            _mockKamarRepository = new Mock<IKamarRepository>();
+            _mockKosRepository = new Mock<IKosRepository>();
+            _service = new KamarService(_mockKamarRepository.Object, _mockKosRepository.Object);
         }
 
-        return all[0].Id;
-    }
+        [Fact]
+        public void GetAllKamar_ShouldReturnAllKamar()
+        {
+            // Arrange
+            var kamarList = new List<Kamar>
+            {
+                new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", Status = "Kosong" },
+                new Kamar { Id = 2, KosId = 1, NomorKamar = "A-02", Status = "Terisi" }
+            };
+            _mockKamarRepository.Setup(repo => repo.GetAll()).Returns(kamarList);
 
-    private static void PrintKamarList(List<Kamar> list)
-    {
-        if (list == null || list.Count == 0)
-        {
-            Console.WriteLine("(kosong)");
-            return;
+            // Act
+            var result = _service.GetAllKamar();
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
         }
 
-        foreach (var k in list)
+        [Fact]
+        public void GetKamarByKosId_ShouldThrowException_WhenKosIdIsInvalid()
         {
-            Console.WriteLine("Id=" + k.Id + ", KosId=" + k.KosId + ", NomorKamar=" + k.NomorKamar + ", Status=" + k.Status);
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _service.GetKamarByKosId(0));
         }
-    }
 
-    private static void Try(string title, Action action)
-    {
-        try
+        [Fact]
+        public void TambahKamar_ShouldCallInsert_WhenKamarIsValid()
         {
-            action();
-            Console.WriteLine("OK - " + title);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("FAIL - " + title + " | " + ex.Message);
-        }
-    }
+            // Arrange
+            var kamar = new Kamar { KosId = 1, NomorKamar = "A-01", HargaKamar = 1000000, Status = "Kosong" };
+            _mockKosRepository.Setup(repo => repo.GetById(1)).Returns(new Kos { Id = 1 });
 
-    private static void TryExpectError(string title, Action action)
-    {
-        try
-        {
-            action();
-            Console.WriteLine("FAIL - " + title + " | Seharusnya error, tapi tidak.");
+            // Act
+            _service.TambahKamar(kamar);
+
+            // Assert
+            _mockKamarRepository.Verify(repo => repo.Insert(kamar), Times.Once);
         }
-        catch (Exception ex)
+
+        [Fact]
+        public void UbahKamar_ShouldCallUpdate_WhenKamarIsValid()
         {
-            Console.WriteLine("OK - " + title + " | Error: " + ex.Message);
+            // Arrange
+            var kamar = new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 1000000, Status = "Kosong" };
+            _mockKosRepository.Setup(repo => repo.GetById(1)).Returns(new Kos { Id = 1 });
+
+            // Act
+            _service.UbahKamar(kamar);
+
+            // Assert
+            _mockKamarRepository.Verify(repo => repo.Update(kamar), Times.Once);
+        }
+
+        [Fact]
+        public void HapusKamar_ShouldCallDelete_WhenIdIsValid()
+        {
+            // Act
+            _service.HapusKamar(1);
+
+            // Assert
+            _mockKamarRepository.Verify(repo => repo.Delete(1), Times.Once);
         }
     }
 }

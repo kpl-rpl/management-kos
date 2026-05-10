@@ -1,4 +1,7 @@
-﻿using management_kos.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using management_kos.Models;
 using management_kos.Repositories;
 
 namespace management_kos.Services;
@@ -7,12 +10,23 @@ public class KamarService
 {
     private readonly IKamarRepository _kamarRepository;
     private readonly IKosRepository _kosRepository;
+    private readonly int _maxHargaKamar; // Runtime configuration
 
-    
     public KamarService(IKamarRepository kamarRepository, IKosRepository kosRepository)
     {
         _kamarRepository = kamarRepository;
         _kosRepository = kosRepository;
+
+        // Runtime configuration: membaca batas harga kamar dari .env
+        var envVars = File.ReadAllLines(".env");
+        foreach (var line in envVars)
+        {
+            if (line.StartsWith("MAX_HARGA_KAMAR="))
+            {
+                _maxHargaKamar = int.Parse(line.Split('=')[1]);
+                break;
+            }
+        }
     }
 
     public List<Kamar> GetAllKamar()
@@ -29,6 +43,7 @@ public class KamarService
 
         return _kamarRepository.GetByKosId(kosId);
     }
+
     public void TambahKamar(Kamar kamar)
     {
         Validate(kamar);
@@ -36,6 +51,7 @@ public class KamarService
 
         _kamarRepository.Insert(kamar);
     }
+
     public void UbahKamar(Kamar kamar)
     {
         if (kamar.Id <= 0)
@@ -48,6 +64,7 @@ public class KamarService
 
         _kamarRepository.Update(kamar);
     }
+
     public void HapusKamar(int id)
     {
         if (id <= 0)
@@ -57,6 +74,7 @@ public class KamarService
 
         _kamarRepository.Delete(id);
     }
+
     private void EnsureKosExists(int kosId)
     {
         var kos = _kosRepository.GetById(kosId);
@@ -66,7 +84,7 @@ public class KamarService
         }
     }
 
-    private static void Validate(Kamar kamar)
+    private void Validate(Kamar kamar)
     {
         if (kamar.KosId <= 0)
         {
@@ -80,28 +98,24 @@ public class KamarService
 
         kamar.NomorKamar = kamar.NomorKamar.Trim();
 
-        if (string.IsNullOrWhiteSpace(kamar.Status))
+        if (kamar.HargaKamar > _maxHargaKamar)
         {
-            kamar.Status = "Kosong";
-        }
-        else
-        {
-            kamar.Status = kamar.Status.Trim();
+            throw new ArgumentException($"Harga kamar tidak boleh lebih dari {_maxHargaKamar}.");
         }
 
-        var allowedStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        // Automata: Validasi status kamar menggunakan switch-case
+        kamar.Status = kamar.Status?.Trim() ?? "Kosong";
+        switch (kamar.Status.ToLower())
         {
-            "Kosong",
-            "Terisi",
-            "Dipesan",
-            "Perbaikan"
-        };
-
-        if (!allowedStatuses.Contains(kamar.Status))
-        {
-            throw new ArgumentException(
-                "Status kamar tidak valid. Gunakan salah satu: Kosong, Terisi, Dipesan, Perbaikan."
-            );
+            case "kosong":
+            case "terisi":
+            case "dipesan":
+            case "perbaikan":
+                break;
+            default:
+                throw new ArgumentException(
+                    "Status kamar tidak valid. Gunakan salah satu: Kosong, Terisi, Dipesan, Perbaikan."
+                );
         }
     }
 }
