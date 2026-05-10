@@ -9,6 +9,12 @@ public class PenghuniService
     private readonly IPenghuniRepository _penghuniRepository;
     private readonly IKamarRepository _kamarRepository;
 
+    private static readonly Regex PhoneRegex =
+    new(@"^[0-9+\-\s]{8,20}$", RegexOptions.Compiled);
+
+    private static readonly Regex EmailRegex =
+    new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
+
     public PenghuniService(IPenghuniRepository penghuniRepository, IKamarRepository kamarRepository)
     {
         _penghuniRepository = penghuniRepository;
@@ -173,52 +179,45 @@ public class PenghuniService
         _kamarRepository.Update(kamar);
     }
 
-    private static void Validate(Penghuni penghuni)
+    private static void Validate(Penghuni p)
     {
-        if (penghuni.KamarId <= 0)
+        // Normalisasi dulu sebelum validasi
+        p.Nama = p.Nama?.Trim() ?? "";
+        p.NomorTelepon = p.NomorTelepon?.Trim() ?? "";
+        p.Email = string.IsNullOrWhiteSpace(p.Email)
+            ? null
+            : p.Email.Trim();
+
+        // Tabel aturan validasi
+        var rules = new List<(Func<Penghuni, bool> IsInvalid, string Message)>
+    {
+        (x => x.KamarId <= 0,
+            "KamarId wajib diisi dan harus lebih dari 0."),
+
+        (x => string.IsNullOrWhiteSpace(x.Nama),
+            "Nama penghuni wajib diisi."),
+
+        (x => string.IsNullOrWhiteSpace(x.NomorTelepon),
+            "Nomor Telepon wajib diisi."),
+
+        (x => !PhoneRegex.IsMatch(x.NomorTelepon),
+            "Format Nomor Telepon tidak valid."),
+
+        (x => x.Email is not null && !EmailRegex.IsMatch(x.Email),
+            "Format Email tidak valid."),
+
+        (x => x.TanggalMasuk == default,
+            "Tanggal Masuk wajib diisi."),
+
+        (x => x.TanggalKeluar.HasValue &&
+              x.TanggalKeluar.Value < x.TanggalMasuk,
+            "Tanggal Keluar tidak boleh sebelum Tanggal Masuk."),
+    };
+
+        foreach (var rule in rules)
         {
-            throw new ArgumentException("KamarId wajib diisi dan harus lebih dari 0.");
-        }
-
-        if (string.IsNullOrWhiteSpace(penghuni.Nama))
-        {
-            throw new ArgumentException("Nama penghuni wajib diisi.");
-        }
-
-        penghuni.Nama = penghuni.Nama.Trim();
-
-        if (string.IsNullOrWhiteSpace(penghuni.NomorTelepon))
-        {
-            throw new ArgumentException("Nomor Telepon wajib diisi.");
-        }
-
-        penghuni.NomorTelepon = penghuni.NomorTelepon.Trim();
-
-        if (!Regex.IsMatch(penghuni.NomorTelepon, @"^[0-9+\-\s]{8,20}$"))
-        {
-            throw new ArgumentException("Format Nomor Telepon tidak valid.");
-        }
-
-        if (penghuni.Email is not null)
-        {
-            penghuni.Email = penghuni.Email.Trim();
-
-            if (!string.IsNullOrWhiteSpace(penghuni.Email) &&
-                !Regex.IsMatch(penghuni.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-            {
-                throw new ArgumentException("Format Email tidak valid.");
-            }
-        }
-
-        if (penghuni.TanggalMasuk == default)
-        {
-            throw new ArgumentException("Tanggal Masuk wajib diisi.");
-        }
-
-        if (penghuni.TanggalKeluar.HasValue &&
-            penghuni.TanggalKeluar.Value < penghuni.TanggalMasuk)
-        {
-            throw new ArgumentException("Tanggal Keluar tidak boleh sebelum Tanggal Masuk.");
+            if (rule.IsInvalid(p))
+                throw new ArgumentException(rule.Message);
         }
     }
 }
