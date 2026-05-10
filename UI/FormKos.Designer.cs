@@ -6,11 +6,7 @@ partial class FormKos
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && (components != null))
-        {
-            components.Dispose();
-        }
-
+        if (disposing && (components != null)) components.Dispose();
         base.Dispose(disposing);
     }
 
@@ -18,6 +14,8 @@ partial class FormKos
 
     private void InitializeComponent()
     {
+        pnlInput = new Panel();
+        lblTitle = new Label();
         lblNamaKos = new Label();
         txtNamaKos = new TextBox();
         lblAlamat = new Label();
@@ -39,223 +37,137 @@ partial class FormKos
         dgvKos = new DataGridView();
         ((System.ComponentModel.ISupportInitialize)dgvKos).BeginInit();
         SuspendLayout();
-        // 
-        // lblNamaKos
-        // 
-        lblNamaKos.AutoSize = true;
-        lblNamaKos.Location = new Point(23, 27);
-        lblNamaKos.Name = "lblNamaKos";
-        lblNamaKos.Size = new Size(77, 20);
-        lblNamaKos.TabIndex = 0;
-        lblNamaKos.Text = "Nama Kos";
-        // 
-        // txtNamaKos
-        // 
-        txtNamaKos.Location = new Point(160, 23);
-        txtNamaKos.Margin = new Padding(3, 4, 3, 4);
-        txtNamaKos.Name = "txtNamaKos";
-        txtNamaKos.Size = new Size(297, 27);
-        txtNamaKos.TabIndex = 1;
-        // 
-        // lblAlamat
-        // 
-        lblAlamat.AutoSize = true;
-        lblAlamat.Location = new Point(23, 69);
-        lblAlamat.Name = "lblAlamat";
-        lblAlamat.Size = new Size(57, 20);
-        lblAlamat.TabIndex = 2;
-        lblAlamat.Text = "Alamat";
-        // 
-        // txtAlamat
-        // 
-        txtAlamat.Location = new Point(160, 65);
-        txtAlamat.Margin = new Padding(3, 4, 3, 4);
-        txtAlamat.Name = "txtAlamat";
-        txtAlamat.Size = new Size(297, 27);
-        txtAlamat.TabIndex = 3;
-        // 
-        // lblHargaDasar
-        // 
-        lblHargaDasar.AutoSize = true;
-        lblHargaDasar.Location = new Point(23, 112);
-        lblHargaDasar.Name = "lblHargaDasar";
-        lblHargaDasar.Size = new Size(92, 20);
-        lblHargaDasar.TabIndex = 4;
-        lblHargaDasar.Text = "Harga Dasar";
-        // 
-        // txtHargaDasar
-        // 
-        txtHargaDasar.Location = new Point(160, 108);
-        txtHargaDasar.Margin = new Padding(3, 4, 3, 4);
-        txtHargaDasar.Name = "txtHargaDasar";
-        txtHargaDasar.Size = new Size(297, 27);
-        txtHargaDasar.TabIndex = 5;
-        // 
-        // lblJumlahKamar
-        // 
-        lblJumlahKamar.AutoSize = true;
-        lblJumlahKamar.Location = new Point(23, 155);
-        lblJumlahKamar.Name = "lblJumlahKamar";
-        lblJumlahKamar.Size = new Size(102, 20);
-        lblJumlahKamar.TabIndex = 6;
-        lblJumlahKamar.Text = "Jumlah Kamar";
-        // 
-        // txtJumlahKamar
-        // 
-        txtJumlahKamar.Location = new Point(160, 151);
-        txtJumlahKamar.Margin = new Padding(3, 4, 3, 4);
-        txtJumlahKamar.Name = "txtJumlahKamar";
-        txtJumlahKamar.Size = new Size(297, 27);
-        txtJumlahKamar.TabIndex = 7;
-        // 
-        // lblNamaPemilik
-        // 
-        lblNamaPemilik.AutoSize = true;
-        lblNamaPemilik.Location = new Point(23, 197);
-        lblNamaPemilik.Name = "lblNamaPemilik";
-        lblNamaPemilik.Size = new Size(100, 20);
-        lblNamaPemilik.TabIndex = 8;
-        lblNamaPemilik.Text = "Nama Pemilik";
-        // 
-        // txtNamaPemilik
-        // 
-        txtNamaPemilik.Location = new Point(160, 193);
-        txtNamaPemilik.Margin = new Padding(3, 4, 3, 4);
-        txtNamaPemilik.Name = "txtNamaPemilik";
-        txtNamaPemilik.Size = new Size(297, 27);
-        txtNamaPemilik.TabIndex = 9;
-        // 
-        // lblNomorTelepon
-        // 
-        lblNomorTelepon.AutoSize = true;
-        lblNomorTelepon.Location = new Point(23, 240);
-        lblNomorTelepon.Name = "lblNomorTelepon";
-        lblNomorTelepon.Size = new Size(113, 20);
-        lblNomorTelepon.TabIndex = 10;
-        lblNomorTelepon.Text = "Nomor Telepon";
-        // 
-        // txtNomorTelepon
-        // 
-        txtNomorTelepon.Location = new Point(160, 236);
-        txtNomorTelepon.Margin = new Padding(3, 4, 3, 4);
-        txtNomorTelepon.Name = "txtNomorTelepon";
-        txtNomorTelepon.Size = new Size(297, 27);
-        txtNomorTelepon.TabIndex = 11;
-        // 
-        // lblCatatan
-        // 
-        lblCatatan.AutoSize = true;
-        lblCatatan.Location = new Point(23, 283);
-        lblCatatan.Name = "lblCatatan";
-        lblCatatan.Size = new Size(60, 20);
-        lblCatatan.TabIndex = 12;
-        lblCatatan.Text = "Catatan";
-        // 
-        // txtCatatan
-        // 
-        txtCatatan.Location = new Point(160, 279);
-        txtCatatan.Margin = new Padding(3, 4, 3, 4);
-        txtCatatan.Name = "txtCatatan";
-        txtCatatan.Size = new Size(297, 27);
-        txtCatatan.TabIndex = 13;
-        // 
-        // btnTambah
-        // 
-        btnTambah.Location = new Point(491, 23);
-        btnTambah.Margin = new Padding(3, 4, 3, 4);
-        btnTambah.Name = "btnTambah";
-        btnTambah.Size = new Size(114, 40);
-        btnTambah.TabIndex = 14;
+
+        // pnlInput
+        pnlInput.BackColor = Color.FromArgb(245, 247, 250);
+        pnlInput.Dock = DockStyle.Top;
+        pnlInput.Height = 340;
+        pnlInput.Padding = new Padding(16);
+
+        //Title
+        lblTitle.Text = "Data Kos";
+        lblTitle.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
+        lblTitle.ForeColor = Color.FromArgb(32, 43, 59);
+        lblTitle.Location = new Point(16, 12);
+        lblTitle.AutoSize = true;
+
+        //Input fields (kiri)
+        int lx = 16, tx = 160, rowH = 37, startY = 48;
+
+        lblNamaKos.Text = "Nama Kos:"; lblNamaKos.AutoSize = true;
+        lblNamaKos.Location = new Point(lx, startY + 4);
+        txtNamaKos.Location = new Point(tx, startY); txtNamaKos.Size = new Size(220, 24);
+
+        lblAlamat.Text = "Alamat:"; lblAlamat.AutoSize = true;
+        lblAlamat.Location = new Point(lx, startY + rowH + 4);
+        txtAlamat.Location = new Point(tx, startY + rowH); txtAlamat.Size = new Size(220, 24);
+
+        lblHargaDasar.Text = "Harga Dasar (Rp):"; lblHargaDasar.AutoSize = true;
+        lblHargaDasar.Location = new Point(lx, startY + rowH * 2 + 4);
+        txtHargaDasar.Location = new Point(tx, startY + rowH * 2); txtHargaDasar.Size = new Size(220, 24);
+
+        lblJumlahKamar.Text = "Jumlah Kamar:"; lblJumlahKamar.AutoSize = true;
+        lblJumlahKamar.Location = new Point(lx, startY + rowH * 3 + 4);
+        txtJumlahKamar.Location = new Point(tx, startY + rowH * 3); txtJumlahKamar.Size = new Size(220, 24);
+
+        lblNamaPemilik.Text = "Nama Pemilik:"; lblNamaPemilik.AutoSize = true;
+        lblNamaPemilik.Location = new Point(lx, startY + rowH * 4 + 4);
+        txtNamaPemilik.Location = new Point(tx, startY + rowH * 4); txtNamaPemilik.Size = new Size(220, 24);
+
+        lblNomorTelepon.Text = "Nomor Telepon:"; lblNomorTelepon.AutoSize = true;
+        lblNomorTelepon.Location = new Point(lx, startY + rowH * 5 + 4);
+        txtNomorTelepon.Location = new Point(tx, startY + rowH * 5); txtNomorTelepon.Size = new Size(220, 24);
+
+        lblCatatan.Text = "Catatan:"; lblCatatan.AutoSize = true;
+        lblCatatan.Location = new Point(lx, startY + rowH * 6 + 4);
+        txtCatatan.Location = new Point(tx, startY + rowH * 6); txtCatatan.Size = new Size(300, 24);
+
+        //Tombol kanan atas berwarna
+        int bx = 430, by = startY, bw = 110, bh = 30, bg = 8;
+
         btnTambah.Text = "Tambah";
-        btnTambah.UseVisualStyleBackColor = true;
+        btnTambah.Location = new Point(bx, by);
+        btnTambah.Size = new Size(bw, bh);
+        btnTambah.BackColor = Color.FromArgb(37, 99, 235);
+        btnTambah.ForeColor = Color.White;
+        btnTambah.FlatStyle = FlatStyle.Flat;
         btnTambah.Click += btnTambah_Click;
-        // 
-        // btnUpdate
-        // 
-        btnUpdate.Location = new Point(617, 23);
-        btnUpdate.Margin = new Padding(3, 4, 3, 4);
-        btnUpdate.Name = "btnUpdate";
-        btnUpdate.Size = new Size(114, 40);
-        btnUpdate.TabIndex = 15;
+
         btnUpdate.Text = "Update";
-        btnUpdate.UseVisualStyleBackColor = true;
+        btnUpdate.Location = new Point(bx + bw + bg, by);
+        btnUpdate.Size = new Size(bw, bh);
+        btnUpdate.BackColor = Color.FromArgb(245, 158, 11);
+        btnUpdate.ForeColor = Color.White;
+        btnUpdate.FlatStyle = FlatStyle.Flat;
         btnUpdate.Click += btnUpdate_Click;
-        // 
-        // btnHapus
-        // 
-        btnHapus.Location = new Point(743, 23);
-        btnHapus.Margin = new Padding(3, 4, 3, 4);
-        btnHapus.Name = "btnHapus";
-        btnHapus.Size = new Size(114, 40);
-        btnHapus.TabIndex = 16;
+
         btnHapus.Text = "Hapus";
-        btnHapus.UseVisualStyleBackColor = true;
+        btnHapus.Location = new Point(bx + (bw + bg) * 2, by);
+        btnHapus.Size = new Size(bw, bh);
+        btnHapus.BackColor = Color.FromArgb(220, 38, 38);
+        btnHapus.ForeColor = Color.White;
+        btnHapus.FlatStyle = FlatStyle.Flat;
         btnHapus.Click += btnHapus_Click;
-        // 
-        // btnReset
-        // 
-        btnReset.Location = new Point(491, 71);
-        btnReset.Margin = new Padding(3, 4, 3, 4);
-        btnReset.Name = "btnReset";
-        btnReset.Size = new Size(114, 40);
-        btnReset.TabIndex = 17;
+
         btnReset.Text = "Reset Form";
-        btnReset.UseVisualStyleBackColor = true;
+        btnReset.Location = new Point(bx, by + bh + bg);
+        btnReset.Size = new Size(bw, bh);
+        btnReset.FlatStyle = FlatStyle.Flat;
         btnReset.Click += btnReset_Click;
-        // 
-        // dgvKos
-        // 
+
+        //Tambah ke pnlInput
+        pnlInput.Controls.AddRange(new Control[]
+        {
+            lblTitle,
+            lblNamaKos,      txtNamaKos,
+            lblAlamat,       txtAlamat,
+            lblHargaDasar,   txtHargaDasar,
+            lblJumlahKamar,  txtJumlahKamar,
+            lblNamaPemilik,  txtNamaPemilik,
+            lblNomorTelepon, txtNomorTelepon,
+            lblCatatan,      txtCatatan,
+            btnTambah, btnUpdate, btnHapus, btnReset
+        });
+
+        //DataGridView
+        dgvKos.Dock = DockStyle.Fill;
+        dgvKos.ReadOnly = true;
+        dgvKos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvKos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvKos.AllowUserToAddRows = false;
         dgvKos.AllowUserToDeleteRows = false;
-        dgvKos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvKos.Location = new Point(23, 333);
-        dgvKos.Margin = new Padding(3, 4, 3, 4);
+        dgvKos.BackgroundColor = Color.White;
+        dgvKos.BorderStyle = BorderStyle.None;
+        dgvKos.RowHeadersVisible = false;
+        dgvKos.Font = new Font("Segoe UI", 9F);
+        dgvKos.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+        {
+            BackColor = Color.FromArgb(32, 43, 59),
+            ForeColor = Color.White,
+            Font = new Font("Segoe UI", 9.5F, FontStyle.Bold)
+        };
+        dgvKos.EnableHeadersVisualStyles = false;
         dgvKos.MultiSelect = false;
-        dgvKos.Name = "dgvKos";
-        dgvKos.ReadOnly = true;
-        dgvKos.RowHeadersWidth = 51;
-        dgvKos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvKos.Size = new Size(834, 293);
-        dgvKos.TabIndex = 18;
         dgvKos.CellClick += dgvKos_CellClick;
         dgvKos.CellContentClick += dgvKos_CellContentClick;
-        // 
-        // FormKos
-        // 
-        AutoScaleDimensions = new SizeF(8F, 20F);
-        AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(891, 653);
-        Controls.Add(dgvKos);
-        Controls.Add(btnReset);
-        Controls.Add(btnHapus);
-        Controls.Add(btnUpdate);
-        Controls.Add(btnTambah);
-        Controls.Add(txtCatatan);
-        Controls.Add(lblCatatan);
-        Controls.Add(txtNomorTelepon);
-        Controls.Add(lblNomorTelepon);
-        Controls.Add(txtNamaPemilik);
-        Controls.Add(lblNamaPemilik);
-        Controls.Add(txtJumlahKamar);
-        Controls.Add(lblJumlahKamar);
-        Controls.Add(txtHargaDasar);
-        Controls.Add(lblHargaDasar);
-        Controls.Add(txtAlamat);
-        Controls.Add(lblAlamat);
-        Controls.Add(txtNamaKos);
-        Controls.Add(lblNamaKos);
-        Margin = new Padding(3, 4, 3, 4);
-        Name = "FormKos";
-        StartPosition = FormStartPosition.CenterScreen;
-        Text = "Management Kos - Data Kos";
+
+        //FormKos
+        this.Text = "Management Kos - Data Kos";
+        this.Size = new Size(900, 680);
+        this.Font = new Font("Segoe UI", 9F);
+        this.BackColor = Color.White;
+        this.StartPosition = FormStartPosition.CenterScreen;
+        this.Controls.Add(dgvKos);
+        this.Controls.Add(pnlInput);
         Load += FormKos_Load;
         ((System.ComponentModel.ISupportInitialize)dgvKos).EndInit();
         ResumeLayout(false);
-        PerformLayout();
     }
 
     #endregion
 
+    private Panel pnlInput;
+    private Label lblTitle;
     private Label lblNamaKos;
     private TextBox txtNamaKos;
     private Label lblAlamat;
