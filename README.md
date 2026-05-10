@@ -9,13 +9,36 @@ Berikut daftar modul utama dalam aplikasi ini beserta status implementasinya saa
 - ✅ **Data Kos** (`Kos`) — **Sudah terimplementasi**
 - ✅ **Data Kamar** (`Kamar`) — **Sudah terimplementasi**
 - ✅ **Data Penghuni** (`Penghuni`) — **Sudah terimplementasi**
-- ⏳ **Kontrak Sewa** (`KontrakSewa`) — **Belum terimplementasi**
-- ⏳ **Check In / Check Out** (`CheckInCheckOut`) — **Belum terimplementasi**
-- ⏳ **Pembayaran** (`Pembayaran`) — **Belum terimplementasi**
-- ⏳ **Tagihan Non Sewa** (`TagihanNonSewa`) — **Belum terimplementasi**
-- ⏳ **Maintenance Kamar** (`MaintenanceKamar`) — **Belum terimplementasi**
-- ⏳ **Notifikasi / Reminder** (`NotifikasiReminder`) — **Belum terimplementasi**
-- ⏳ **Laporan / Dashboard** (`LaporanDashboard`) — **Belum terimplementasi**
+- ✅ **Pembayaran** (`Pembayaran`) — **Sudah terimplementasi**
+- ✅ **Kontrak Sewa** (`KontrakSewa`) — **Sudah terimplementasi**
+
+### 1.1 Pembagian Role per Modul
+
+- **Modul Kos**
+  - Service = Dipras
+  - UI = Dipras
+  - Database = Dipras
+  - Testing = Dipras
+- **Modul Kamar**
+  - Service = Aqsa
+  - UI = Alif
+  - Database = Renjiro
+  - Testing = Aurel
+- **Modul Penghuni**
+  - Service = Aurel
+  - UI = Renjiro
+  - Database = Aqsa
+  - Testing = Alif
+- **Modul Pembayaran**
+  - Service = Renjiro
+  - UI = Aurel
+  - Database = Alif
+  - Testing = Aqsa
+- **Modul Kontrak**
+  - Service = Alif
+  - UI = Aqsa
+  - Database = Aurel
+  - Testing = Renjiro
 
 ## 2. Struktur Project
 
