@@ -23,6 +23,8 @@ namespace management_kos.UI
             comboBox1 = new ComboBox();
             label1 = new Label();   // Nomor Kamar
             textBox1 = new TextBox();
+            lblHargaKamar = new Label();
+            txtHargaKamar = new TextBox();
             label2 = new Label();   // Status
             radioButton1 = new RadioButton();
             radioButton2 = new RadioButton();
@@ -31,6 +33,7 @@ namespace management_kos.UI
             btnTambah = new Button();
             btnUpdate = new Button();
             btnHapus = new Button();
+            btnReset = new Button();
             dgvKos = new DataGridView();
             ((System.ComponentModel.ISupportInitialize)dgvKos).BeginInit();
             SuspendLayout();
@@ -38,7 +41,7 @@ namespace management_kos.UI
             //pnlInput
             pnlInput.BackColor = Color.FromArgb(245, 247, 250);
             pnlInput.Dock = DockStyle.Top;
-            pnlInput.Height = 200;
+            pnlInput.Height = 240;
             pnlInput.Padding = new Padding(16);
 
             //Title
@@ -68,27 +71,34 @@ namespace management_kos.UI
             textBox1.Size = new Size(200, 24);
             textBox1.TextChanged += textBox1_TextChanged;
 
-            //Status (baris 3)
+            //Harga Kamar (baris 3)
+            lblHargaKamar.Text = "Harga Kamar (Rp):"; lblHargaKamar.AutoSize = true;
+            lblHargaKamar.Location = new Point(lx, startY + rowH * 2 + 4);
+
+            txtHargaKamar.Location = new Point(tx, startY + rowH * 2);
+            txtHargaKamar.Size = new Size(200, 24);
+
+            //Status (baris 4)
             label2.Text = "Status:"; label2.AutoSize = true;
-            label2.Location = new Point(lx, startY + rowH * 2 + 4);
+            label2.Location = new Point(lx, startY + rowH * 3 + 4);
 
             radioButton1.Text = "Kosong"; radioButton1.AutoSize = true;
-            radioButton1.Location = new Point(tx, startY + rowH * 2 + 2);
+            radioButton1.Location = new Point(tx, startY + rowH * 3 + 2);
             radioButton1.TabStop = true; radioButton1.UseVisualStyleBackColor = true;
             radioButton1.CheckedChanged += radioButton1_CheckedChanged;
 
             radioButton2.Text = "Terisi"; radioButton2.AutoSize = true;
-            radioButton2.Location = new Point(tx + 80, startY + rowH * 2 + 2);
+            radioButton2.Location = new Point(tx + 80, startY + rowH * 3 + 2);
             radioButton2.TabStop = true; radioButton2.UseVisualStyleBackColor = true;
             radioButton2.CheckedChanged += radioButton2_CheckedChanged;
 
             radioButton3.Text = "Dipesan"; radioButton3.AutoSize = true;
-            radioButton3.Location = new Point(tx + 150, startY + rowH * 2 + 2);
+            radioButton3.Location = new Point(tx + 150, startY + rowH * 3 + 2);
             radioButton3.TabStop = true; radioButton3.UseVisualStyleBackColor = true;
             radioButton3.CheckedChanged += radioButton3_CheckedChanged;
 
             radioButton4.Text = "Perbaiki"; radioButton4.AutoSize = true;
-            radioButton4.Location = new Point(tx + 230, startY + rowH * 2 + 2);
+            radioButton4.Location = new Point(tx + 230, startY + rowH * 3 + 2);
             radioButton4.TabStop = true; radioButton4.UseVisualStyleBackColor = true;
             radioButton4.CheckedChanged += radioButton4_CheckedChanged;
 
@@ -119,14 +129,21 @@ namespace management_kos.UI
             btnHapus.FlatStyle = FlatStyle.Flat;
             btnHapus.Click += btnHapus_Click;
 
+            btnReset.Text = "Reset";
+            btnReset.Location = new Point(bx, by + bh + bg);
+            btnReset.Size = new Size(bw, bh);
+            btnReset.FlatStyle = FlatStyle.Flat;
+            btnReset.Click += btnReset_Click;
+
             //Tambah ke pnlInput
             pnlInput.Controls.AddRange(new Control[]
             {
                 lblTitle,
                 label3, comboBox1,
                 label1, textBox1,
+                lblHargaKamar, txtHargaKamar,
                 label2, radioButton1, radioButton2, radioButton3, radioButton4,
-                btnTambah, btnUpdate, btnHapus
+                btnTambah, btnUpdate, btnHapus, btnReset
             });
 
             //DataGridView
@@ -176,6 +193,8 @@ namespace management_kos.UI
         private ComboBox comboBox1;
         private Label label1;
         private TextBox textBox1;
+        private Label lblHargaKamar;
+        private TextBox txtHargaKamar;
         private Label label2;
         private RadioButton radioButton1;
         private RadioButton radioButton2;
@@ -184,6 +203,7 @@ namespace management_kos.UI
         private Button btnTambah;
         private Button btnUpdate;
         private Button btnHapus;
+        private Button btnReset;
         private DataGridView dgvKos;
     }
 }

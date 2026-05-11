@@ -20,9 +20,11 @@
             label2 = new Label();
             label3 = new Label();
             label4 = new Label();
-            txtNIK = new TextBox();
+            label5 = new Label();
+            dtpTanggalMasuk = new DateTimePicker();
             txtNama = new TextBox();
             txtTelpon = new TextBox();
+            txtEmail = new TextBox();
             dropDownKamar = new ComboBox();
             btnTambah = new Button();
             btnUpdate = new Button();
@@ -35,7 +37,7 @@
             //pnlInput
             pnlInput.BackColor = Color.FromArgb(245, 247, 250);
             pnlInput.Dock = DockStyle.Top;
-            pnlInput.Height = 230;
+            pnlInput.Height = 265;
             pnlInput.Padding = new Padding(16);
 
             //Title
@@ -48,23 +50,31 @@
             //Input fields
             int lx = 16, tx = 160, startY = 48, rowH = 37;
 
-            label1.Text = "NIK:"; label1.AutoSize = true;
+            label1.Text = "Nama:"; label1.AutoSize = true;
             label1.Location = new Point(lx, startY + 4);
-            txtNIK.Location = new Point(tx, startY); txtNIK.Size = new Size(220, 24);
+            txtNama.Location = new Point(tx, startY); txtNama.Size = new Size(220, 24);
 
-            label2.Text = "Nama:"; label2.AutoSize = true;
+            label2.Text = "No. Telepon:"; label2.AutoSize = true;
             label2.Location = new Point(lx, startY + rowH + 4);
-            txtNama.Location = new Point(tx, startY + rowH); txtNama.Size = new Size(220, 24);
+            txtTelpon.Location = new Point(tx, startY + rowH); txtTelpon.Size = new Size(220, 24);
 
-            label3.Text = "No. Telepon:"; label3.AutoSize = true;
+            label3.Text = "Email (opsional):"; label3.AutoSize = true;
             label3.Location = new Point(lx, startY + rowH * 2 + 4);
-            txtTelpon.Location = new Point(tx, startY + rowH * 2); txtTelpon.Size = new Size(220, 24);
+            txtEmail.Location = new Point(tx, startY + rowH * 2); txtEmail.Size = new Size(220, 24);
 
             label4.Text = "Kamar:"; label4.AutoSize = true;
             label4.Location = new Point(lx, startY + rowH * 3 + 4);
             dropDownKamar.Location = new Point(tx, startY + rowH * 3);
             dropDownKamar.Size = new Size(220, 24);
             dropDownKamar.FormattingEnabled = true;
+            dropDownKamar.DisplayMember = "NomorKamar";
+            dropDownKamar.ValueMember = "Id";
+
+            label5.Text = "Tanggal Masuk:"; label5.AutoSize = true;
+            label5.Location = new Point(lx, startY + rowH * 4 + 4);
+            dtpTanggalMasuk.Location = new Point(tx, startY + rowH * 4);
+            dtpTanggalMasuk.Size = new Size(160, 24);
+            dtpTanggalMasuk.Format = DateTimePickerFormat.Short;
 
             //Tombol kanan atas berwarna
             int bx = 430, by = startY, bw = 100, bh = 30, bg = 8;
@@ -103,14 +113,16 @@
             pnlInput.Controls.AddRange(new Control[]
             {
                 lblTitle,
-                label1, txtNIK,
-                label2, txtNama,
-                label3, txtTelpon,
+                label1, txtNama,
+                label2, txtTelpon,
+                label3, txtEmail,
                 label4, dropDownKamar,
+                label5, dtpTanggalMasuk,
                 btnTambah, btnUpdate, btnHapus, btnReset
             });
 
             //DataGridView
+            dataGridView1.CellClick += dataGridView1_CellClick;
             dataGridView1.Dock = DockStyle.Fill;
             dataGridView1.ReadOnly = true;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -149,10 +161,12 @@
         private Label label2;
         private Label label3;
         private Label label4;
-        private TextBox txtNIK;
+        private Label label5;
         private TextBox txtNama;
         private TextBox txtTelpon;
+        private TextBox txtEmail;
         private ComboBox dropDownKamar;
+        private DateTimePicker dtpTanggalMasuk;
         private Button btnTambah;
         private Button btnUpdate;
         private Button btnHapus;
