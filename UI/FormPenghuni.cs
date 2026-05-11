@@ -148,6 +148,12 @@ namespace management_kos.UI
             txtNama.Focus();
         }
 
+        public void RefreshData()
+        {
+            LoadKamarDropdown();
+            RefreshGrid();
+        }
+
         private void RefreshGrid()
         {
             var items = _penghuniService.GetAllPenghuni();

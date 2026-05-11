@@ -175,6 +175,8 @@ namespace management_kos.UI
             };
         }
 
+        public void RefreshData() => RefreshGrid();
+
         private void RefreshGrid()
         {
             var data = _pembayaranService.GetAll();
