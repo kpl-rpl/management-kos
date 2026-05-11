@@ -53,24 +53,29 @@ namespace management_kos.UI
             //Input fields (kiri)
             int lx = 16, tx = 200, startY = 48, rowH = 37;
 
+            // Baris 0: Kontrak Sewa (full width kiri)
             lblKontrakSewaId.Text = "Kontrak Sewa:"; lblKontrakSewaId.AutoSize = true;
             lblKontrakSewaId.Location = new Point(lx, startY + 4);
             cmbKontrakSewa.Location = new Point(tx, startY);
-            cmbKontrakSewa.Size = new Size(360, 24);
+            cmbKontrakSewa.Size = new Size(380, 24);
             cmbKontrakSewa.DropDownStyle = ComboBoxStyle.DropDownList;
 
+            // Baris 1: Periode
             lblPeriode.Text = "Periode (cth: Mei 2025):"; lblPeriode.AutoSize = true;
             lblPeriode.Location = new Point(lx, startY + rowH + 4);
             txtPeriode.Location = new Point(tx, startY + rowH); txtPeriode.Size = new Size(160, 24);
 
+            // Baris 2: Jumlah Tagihan
             lblJumlahTagihan.Text = "Jumlah Tagihan (Rp):"; lblJumlahTagihan.AutoSize = true;
             lblJumlahTagihan.Location = new Point(lx, startY + rowH * 2 + 4);
             txtJumlahTagihan.Location = new Point(tx, startY + rowH * 2); txtJumlahTagihan.Size = new Size(160, 24);
 
+            // Baris 3: Jumlah Dibayar
             lblJumlahDibayar.Text = "Jumlah Dibayar (Rp):"; lblJumlahDibayar.AutoSize = true;
             lblJumlahDibayar.Location = new Point(lx, startY + rowH * 3 + 4);
             txtJumlahDibayar.Location = new Point(tx, startY + rowH * 3); txtJumlahDibayar.Size = new Size(160, 24);
 
+            // Baris 4: Metode
             lblMetode.Text = "Metode Pembayaran:"; lblMetode.AutoSize = true;
             lblMetode.Location = new Point(lx, startY + rowH * 4 + 4);
             cmbMetodePembayaran.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -78,12 +83,13 @@ namespace management_kos.UI
             cmbMetodePembayaran.Location = new Point(tx, startY + rowH * 4);
             cmbMetodePembayaran.Size = new Size(160, 24);
 
+            // Baris 5: Catatan
             lblCatatan.Text = "Catatan:"; lblCatatan.AutoSize = true;
             lblCatatan.Location = new Point(lx, startY + rowH * 5 + 4);
             txtCatatan.Location = new Point(tx, startY + rowH * 5); txtCatatan.Size = new Size(280, 24);
 
             //Tombol kanan atas berwarna
-            int bx = 430, by = startY, bw = 110, bh = 30, bg = 8;
+            int bx = 610, by = startY, bw = 120, bh = 32, bg = 8;
 
             btnTambah.Text = "Tambah Tagihan";
             btnTambah.Location = new Point(bx, by);
@@ -157,7 +163,7 @@ namespace management_kos.UI
 
             //FormPembayaran
             this.Text = "Management Kos - Data Pembayaran";
-            this.Size = new Size(860, 600);
+            this.Size = new Size(1000, 650);
             this.Font = new Font("Segoe UI", 9F);
             this.BackColor = Color.White;
             this.Controls.Add(dgvPembayaran);
