@@ -19,11 +19,15 @@ namespace management_kos.UI
         };
 
         private readonly KontrakSewaService _service;
+        private readonly PenghuniService _penghuniService;
+        private readonly KamarService _kamarService;
         private int _selectedId = 0;
 
-        public FormKontrakSewa(KontrakSewaService service)
+        public FormKontrakSewa(KontrakSewaService service, PenghuniService penghuniService, KamarService kamarService)
         {
             _service = service;
+            _penghuniService = penghuniService;
+            _kamarService = kamarService;
             InitializeComponent();
             this.Load += FormKontrakSewa_Load;
         }
@@ -33,8 +37,26 @@ namespace management_kos.UI
             cmbStatus.Items.AddRange(new[] { "Aktif", "Selesai", "Dibatalkan" });
             cmbStatus.SelectedIndex = 0;
 
+            LoadPenghuniDropdown();
+            LoadKamarDropdown();
             ApplyState(FormState.Idle);
             RefreshGrid();
+        }
+
+        private void LoadPenghuniDropdown()
+        {
+            var list = _penghuniService.GetAllPenghuni();
+            cmbPenghuni.DataSource = list;
+            cmbPenghuni.DisplayMember = "Nama";
+            cmbPenghuni.ValueMember = "Id";
+        }
+
+        private void LoadKamarDropdown()
+        {
+            var list = _kamarService.GetAllKamar();
+            cmbKamar.DataSource = list;
+            cmbKamar.DisplayMember = "NomorKamar";
+            cmbKamar.ValueMember = "Id";
         }
 
         // Automata: terapkan state baru — enable/disable tombol sesuai tabel transisi
@@ -156,16 +178,21 @@ namespace management_kos.UI
 
             var row = dgvKontrak.Rows[e.RowIndex];
 
-            _selectedId           = Convert.ToInt32(row.Cells["Id"].Value);
-            txtPenghuniId.Text    = Convert.ToString(row.Cells["PenghuniId"].Value);
-            txtKamarId.Text       = Convert.ToString(row.Cells["KamarId"].Value);
-            dtpTanggalMulai.Value = Convert.ToDateTime(row.Cells["TanggalMulai"].Value);
+            _selectedId = Convert.ToInt32(row.Cells["Id"].Value);
+
+            var penghuniId = Convert.ToInt32(row.Cells["PenghuniId"].Value);
+            cmbPenghuni.SelectedValue = penghuniId;
+
+            var kamarId = Convert.ToInt32(row.Cells["KamarId"].Value);
+            cmbKamar.SelectedValue = kamarId;
+
+            dtpTanggalMulai.Value   = Convert.ToDateTime(row.Cells["TanggalMulai"].Value);
             dtpTanggalSelesai.Value = Convert.ToDateTime(row.Cells["TanggalSelesai"].Value);
-            txtHarga.Text         = Convert.ToString(row.Cells["HargaSewaBulanan"].Value);
-            txtDeposit.Text       = row.Cells["Deposit"].Value == DBNull.Value || row.Cells["Deposit"].Value == null
-                                    ? string.Empty
-                                    : Convert.ToString(row.Cells["Deposit"].Value);
-            txtCatatan.Text       = Convert.ToString(row.Cells["Catatan"].Value);
+            txtHarga.Text           = Convert.ToString(row.Cells["HargaSewaBulanan"].Value);
+            txtDeposit.Text         = row.Cells["Deposit"].Value == DBNull.Value || row.Cells["Deposit"].Value == null
+                                      ? string.Empty
+                                      : Convert.ToString(row.Cells["Deposit"].Value);
+            txtCatatan.Text         = Convert.ToString(row.Cells["Catatan"].Value);
 
             var status = Convert.ToString(row.Cells["Status"].Value) ?? "Aktif";
             int idx = cmbStatus.Items.IndexOf(status);
@@ -177,10 +204,10 @@ namespace management_kos.UI
 
         private KontrakSewa BuildFromInput()
         {
-            if (!int.TryParse(txtPenghuniId.Text.Trim(), out int penghuniId))
-                throw new ArgumentException("ID Penghuni harus berupa angka.");
-            if (!int.TryParse(txtKamarId.Text.Trim(), out int kamarId))
-                throw new ArgumentException("ID Kamar harus berupa angka.");
+            if (cmbPenghuni.SelectedValue is not int penghuniId || penghuniId <= 0)
+                throw new ArgumentException("Penghuni harus dipilih.");
+            if (cmbKamar.SelectedValue is not int kamarId || kamarId <= 0)
+                throw new ArgumentException("Kamar harus dipilih.");
             if (!decimal.TryParse(txtHarga.Text.Trim(), out decimal harga))
                 throw new ArgumentException("Harga Sewa Bulanan harus berupa angka.");
 
@@ -199,7 +226,12 @@ namespace management_kos.UI
             };
         }
 
-        public void RefreshData() => RefreshGrid();
+        public void RefreshData()
+        {
+            LoadPenghuniDropdown();
+            LoadKamarDropdown();
+            RefreshGrid();
+        }
 
         private void RefreshGrid()
         {
@@ -211,15 +243,14 @@ namespace management_kos.UI
 
         private void ClearInput()
         {
-            txtPenghuniId.Text      = string.Empty;
-            txtKamarId.Text         = string.Empty;
+            if (cmbPenghuni.Items.Count > 0) cmbPenghuni.SelectedIndex = 0;
+            if (cmbKamar.Items.Count > 0) cmbKamar.SelectedIndex = 0;
             dtpTanggalMulai.Value   = DateTime.Today;
             dtpTanggalSelesai.Value = DateTime.Today.AddMonths(12);
             txtHarga.Text           = string.Empty;
             txtDeposit.Text         = string.Empty;
             txtCatatan.Text         = string.Empty;
             cmbStatus.SelectedIndex = 0;
-            // Automata: kembali ke state Idle setelah reset
             ApplyState(FormState.Idle);
         }
     }

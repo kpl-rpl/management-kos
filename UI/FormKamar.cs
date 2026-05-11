@@ -103,11 +103,36 @@ namespace management_kos.UI
         public void RefreshData()
         {
             LoadKosToComboBox();
-            RefreshGrid();
+            var kosAda = _kosService.GetAllKos().Count > 0;
+            SetInputEnabled(kosAda);
+            if (kosAda) RefreshGrid();
+        }
+
+        private void SetInputEnabled(bool enabled)
+        {
+            textBox1.Enabled = enabled;
+            txtHargaKamar.Enabled = enabled;
+            radioButton1.Enabled = enabled;
+            radioButton2.Enabled = enabled;
+            radioButton3.Enabled = enabled;
+            radioButton4.Enabled = enabled;
+            btnTambah.Enabled = enabled;
+            btnUpdate.Enabled = enabled;
+            btnHapus.Enabled = enabled;
+            if (!enabled)
+            {
+                dgvKos.DataSource = null;
+                MessageBox.Show(
+                    "Belum ada data Kos. Tambahkan Kos terlebih dahulu sebelum mengelola Kamar.",
+                    "Data Kos Kosong",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
         }
 
         private void RefreshGrid()
         {
+            if (_selectedKosId <= 0) return;
             var data = _kamarService.GetKamarByKosId(_selectedKosId);
 
             dgvKos.DataSource = null;

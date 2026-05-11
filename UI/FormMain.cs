@@ -91,7 +91,7 @@ public partial class FormMain : Form
     private void ShowDataPembayaranView()
     {
         if (_formPembayaran is null || _formPembayaran.IsDisposed)
-            _formPembayaran = new FormPembayaran(_pembayaranService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
+            _formPembayaran = new FormPembayaran(_pembayaranService, _kontrakSewaService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
 
         pnlContent.Controls.Clear();
         pnlContent.Controls.Add(_formPembayaran);
@@ -104,7 +104,7 @@ public partial class FormMain : Form
     private void ShowDataKontrakSewaView()
     {
         if (_formKontrakSewa is null || _formKontrakSewa.IsDisposed)
-            _formKontrakSewa = new FormKontrakSewa(_kontrakSewaService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
+            _formKontrakSewa = new FormKontrakSewa(_kontrakSewaService, _penghuniService, _kamarService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
 
         pnlContent.Controls.Clear();
         pnlContent.Controls.Add(_formKontrakSewa);

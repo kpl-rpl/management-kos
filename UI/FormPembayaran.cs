@@ -9,11 +9,13 @@ namespace management_kos.UI
     public partial class FormPembayaran : Form
     {
         private readonly PembayaranService _pembayaranService;
+        private readonly KontrakSewaService _kontrakSewaService;
         private int _selectedPembayaranId = 0;
 
-        public FormPembayaran(PembayaranService pembayaranService)
+        public FormPembayaran(PembayaranService pembayaranService, KontrakSewaService kontrakSewaService)
         {
             _pembayaranService = pembayaranService;
+            _kontrakSewaService = kontrakSewaService;
             InitializeComponent();
             this.Load += FormPembayaran_Load;
         }
@@ -23,7 +25,16 @@ namespace management_kos.UI
             cmbMetodePembayaran.Items.AddRange(new[] { "Transfer", "Tunai", "QRIS" });
             cmbMetodePembayaran.SelectedIndex = 0;
 
+            LoadKontrakDropdown();
             RefreshGrid();
+        }
+
+        private void LoadKontrakDropdown()
+        {
+            var list = _kontrakSewaService.GetAll();
+            cmbKontrakSewa.DataSource = list;
+            cmbKontrakSewa.DisplayMember = "DisplayText";
+            cmbKontrakSewa.ValueMember = "Id";
         }
 
         private void btnTambah_Click(object sender, EventArgs e)
@@ -143,7 +154,10 @@ namespace management_kos.UI
             var row = dgvPembayaran.Rows[e.RowIndex];
 
             _selectedPembayaranId = Convert.ToInt32(row.Cells["Id"].Value);
-            txtKontrakSewaId.Text = Convert.ToString(row.Cells["KontrakSewaId"].Value);
+
+            var kontrakId = Convert.ToInt32(row.Cells["KontrakSewaId"].Value);
+            cmbKontrakSewa.SelectedValue = kontrakId;
+
             txtPeriode.Text = Convert.ToString(row.Cells["Periode"].Value);
             txtJumlahTagihan.Text = Convert.ToString(row.Cells["JumlahTagihan"].Value);
             txtJumlahDibayar.Text = Convert.ToString(row.Cells["JumlahDibayar"].Value);
@@ -156,8 +170,8 @@ namespace management_kos.UI
 
         private Pembayaran BuildPembayaranFromInput()
         {
-            if (!int.TryParse(txtKontrakSewaId.Text.Trim(), out int kontrakId))
-                throw new ArgumentException("ID Kontrak Sewa harus berupa angka.");
+            if (cmbKontrakSewa.SelectedValue is not int kontrakId || kontrakId <= 0)
+                throw new ArgumentException("Kontrak Sewa harus dipilih.");
 
             if (!decimal.TryParse(txtJumlahTagihan.Text.Trim(), out decimal tagihan))
                 throw new ArgumentException("Jumlah tagihan harus berupa angka.");
@@ -175,7 +189,11 @@ namespace management_kos.UI
             };
         }
 
-        public void RefreshData() => RefreshGrid();
+        public void RefreshData()
+        {
+            LoadKontrakDropdown();
+            RefreshGrid();
+        }
 
         private void RefreshGrid()
         {
@@ -190,7 +208,7 @@ namespace management_kos.UI
         private void ClearInput()
         {
             _selectedPembayaranId = 0;
-            txtKontrakSewaId.Text = string.Empty;
+            if (cmbKontrakSewa.Items.Count > 0) cmbKontrakSewa.SelectedIndex = 0;
             txtPeriode.Text = string.Empty;
             txtJumlahTagihan.Text = string.Empty;
             txtJumlahDibayar.Text = string.Empty;

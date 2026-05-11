@@ -18,9 +18,9 @@ namespace management_kos.UI
             pnlInput          = new Panel();
             lblTitle          = new Label();
             lblPenghuniId     = new Label();
-            txtPenghuniId     = new TextBox();
+            cmbPenghuni       = new ComboBox();
             lblKamarId        = new Label();
-            txtKamarId        = new TextBox();
+            cmbKamar          = new ComboBox();
             lblTanggalMulai   = new Label();
             dtpTanggalMulai   = new DateTimePicker();
             lblTanggalSelesai = new Label();
@@ -54,19 +54,21 @@ namespace management_kos.UI
             lblTitle.Location  = new Point(16, 12);
             lblTitle.AutoSize  = true;
 
-            // ID Penghuni
-            lblPenghuniId.Text     = "ID Penghuni:";
+            // Penghuni
+            lblPenghuniId.Text     = "Penghuni:";
             lblPenghuniId.Location = new Point(16, 50);
             lblPenghuniId.AutoSize = true;
-            txtPenghuniId.Location = new Point(180, 47);
-            txtPenghuniId.Size     = new Size(100, 24);
+            cmbPenghuni.Location      = new Point(180, 47);
+            cmbPenghuni.Size          = new Size(220, 24);
+            cmbPenghuni.DropDownStyle = ComboBoxStyle.DropDownList;
 
-            // ID Kamar
-            lblKamarId.Text     = "ID Kamar:";
+            // Kamar
+            lblKamarId.Text     = "Kamar:";
             lblKamarId.Location = new Point(16, 82);
             lblKamarId.AutoSize = true;
-            txtKamarId.Location = new Point(180, 79);
-            txtKamarId.Size     = new Size(100, 24);
+            cmbKamar.Location      = new Point(180, 79);
+            cmbKamar.Size          = new Size(220, 24);
+            cmbKamar.DropDownStyle = ComboBoxStyle.DropDownList;
 
             // Tanggal Mulai
             lblTanggalMulai.Text     = "Tanggal Mulai:";
@@ -172,8 +174,8 @@ namespace management_kos.UI
             pnlInput.Controls.AddRange(new Control[]
             {
                 lblTitle,
-                lblPenghuniId,    txtPenghuniId,
-                lblKamarId,       txtKamarId,
+                lblPenghuniId,    cmbPenghuni,
+                lblKamarId,       cmbKamar,
                 lblTanggalMulai,  dtpTanggalMulai,
                 lblTanggalSelesai, dtpTanggalSelesai,
                 lblHarga,         txtHarga,
@@ -215,9 +217,9 @@ namespace management_kos.UI
         private Panel           pnlInput;
         private Label           lblTitle;
         private Label           lblPenghuniId;
-        private TextBox         txtPenghuniId;
+        private ComboBox        cmbPenghuni;
         private Label           lblKamarId;
-        private TextBox         txtKamarId;
+        private ComboBox        cmbKamar;
         private Label           lblTanggalMulai;
         private DateTimePicker  dtpTanggalMulai;
         private Label           lblTanggalSelesai;

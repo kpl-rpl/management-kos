@@ -17,7 +17,7 @@ namespace management_kos.UI
             pnlInput = new Panel();
             lblTitle = new Label();
             lblKontrakSewaId = new Label();
-            txtKontrakSewaId = new TextBox();
+            cmbKontrakSewa = new ComboBox();
             lblPeriode = new Label();
             txtPeriode = new TextBox();
             lblJumlahTagihan = new Label();
@@ -53,9 +53,11 @@ namespace management_kos.UI
             //Input fields (kiri)
             int lx = 16, tx = 200, startY = 48, rowH = 37;
 
-            lblKontrakSewaId.Text = "ID Kontrak Sewa:"; lblKontrakSewaId.AutoSize = true;
+            lblKontrakSewaId.Text = "Kontrak Sewa:"; lblKontrakSewaId.AutoSize = true;
             lblKontrakSewaId.Location = new Point(lx, startY + 4);
-            txtKontrakSewaId.Location = new Point(tx, startY); txtKontrakSewaId.Size = new Size(120, 24);
+            cmbKontrakSewa.Location = new Point(tx, startY);
+            cmbKontrakSewa.Size = new Size(360, 24);
+            cmbKontrakSewa.DropDownStyle = ComboBoxStyle.DropDownList;
 
             lblPeriode.Text = "Periode (cth: Mei 2025):"; lblPeriode.AutoSize = true;
             lblPeriode.Location = new Point(lx, startY + rowH + 4);
@@ -125,7 +127,7 @@ namespace management_kos.UI
             pnlInput.Controls.AddRange(new Control[]
             {
                 lblTitle,
-                lblKontrakSewaId, txtKontrakSewaId,
+                lblKontrakSewaId, cmbKontrakSewa,
                 lblPeriode,       txtPeriode,
                 lblJumlahTagihan, txtJumlahTagihan,
                 lblJumlahDibayar, txtJumlahDibayar,
@@ -170,7 +172,7 @@ namespace management_kos.UI
         private Panel pnlInput;
         private Label lblTitle;
         private Label lblKontrakSewaId;
-        private TextBox txtKontrakSewaId;
+        private ComboBox cmbKontrakSewa;
         private Label lblPeriode;
         private TextBox txtPeriode;
         private Label lblJumlahTagihan;

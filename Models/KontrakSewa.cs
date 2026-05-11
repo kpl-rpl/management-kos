@@ -11,4 +11,7 @@ public class KontrakSewa
     public decimal? Deposit { get; set; }
     public string Status { get; set; } = "Aktif";
     public string? Catatan { get; set; }
+
+    public string DisplayText =>
+        $"#{Id} — Kamar {KamarId} | {TanggalMulai:dd MMM yyyy} s/d {TanggalSelesai:dd MMM yyyy} ({Status})";
 }
