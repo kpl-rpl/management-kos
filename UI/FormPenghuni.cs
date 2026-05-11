@@ -172,7 +172,7 @@ namespace management_kos.UI
         {
             var kamarList = _kamarService.GetAllKamar();
             dropDownKamar.DataSource = kamarList;
-            dropDownKamar.DisplayMember = "NomorKamar";
+            dropDownKamar.DisplayMember = "DisplayText";
             dropDownKamar.ValueMember = "Id";
         }
     }

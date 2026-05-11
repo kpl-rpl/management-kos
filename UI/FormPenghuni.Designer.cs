@@ -67,7 +67,7 @@
             dropDownKamar.Location = new Point(tx, startY + rowH * 3);
             dropDownKamar.Size = new Size(220, 24);
             dropDownKamar.FormattingEnabled = true;
-            dropDownKamar.DisplayMember = "NomorKamar";
+            dropDownKamar.DisplayMember = "DisplayText";
             dropDownKamar.ValueMember = "Id";
 
             label5.Text = "Tanggal Masuk:"; label5.AutoSize = true;

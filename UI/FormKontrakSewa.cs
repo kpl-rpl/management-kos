@@ -55,7 +55,7 @@ namespace management_kos.UI
         {
             var list = _kamarService.GetAllKamar();
             cmbKamar.DataSource = list;
-            cmbKamar.DisplayMember = "NomorKamar";
+            cmbKamar.DisplayMember = "DisplayText";
             cmbKamar.ValueMember = "Id";
         }
 

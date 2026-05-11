@@ -7,4 +7,11 @@ public class Kamar
     public string NomorKamar { get; set; } = string.Empty;
     public int HargaKamar { get; set; }
     public string Status { get; set; } = "Kosong";
+
+    public string? NamaKos { get; set; }
+
+    public string DisplayText =>
+        string.IsNullOrWhiteSpace(NamaKos)
+            ? NomorKamar
+            : $"{NamaKos} - {NomorKamar}";
 }

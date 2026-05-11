@@ -19,17 +19,22 @@ public class KamarRepository : IKamarRepository
         var result = new List<Kamar>();
         using var connection = _dbContext.CreateConnection();
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT Id, KosId, NomorKamar, HargaKamar, Status FROM Kamar ORDER BY Id DESC;";
+        command.CommandText = @"
+            SELECT k.Id, k.KosId, k.NomorKamar, k.HargaKamar, k.Status, kos.NamaKos
+            FROM Kamar k
+            LEFT JOIN Kos kos ON kos.Id = k.KosId
+            ORDER BY kos.NamaKos, k.NomorKamar;";
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
             result.Add(new Kamar
             {
-                Id = reader.GetInt32(0),
-                KosId = reader.GetInt32(1),
+                Id         = reader.GetInt32(0),
+                KosId      = reader.GetInt32(1),
                 NomorKamar = reader.GetString(2),
                 HargaKamar = reader.GetInt32(3),
-                Status = reader.GetString(4)
+                Status     = reader.GetString(4),
+                NamaKos    = reader.IsDBNull(5) ? null : reader.GetString(5)
             });
         }
         return result;
