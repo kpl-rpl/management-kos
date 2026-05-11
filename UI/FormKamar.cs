@@ -72,19 +72,14 @@ namespace management_kos.UI
 
             var idCell = row.Cells[nameof(Kamar.Id)];
             if (idCell?.Value == null || idCell.Value == DBNull.Value)
-            {
                 _selectedKamarId = 0;
-            }
             else if (!int.TryParse(Convert.ToString(idCell.Value), out _selectedKamarId))
-            {
                 _selectedKamarId = 0;
-            }
 
-            var nomorKamarCell = row.Cells[nameof(Kamar.NomorKamar)];
-            textBox1.Text = Convert.ToString(nomorKamarCell?.Value);
+            textBox1.Text      = Convert.ToString(row.Cells[nameof(Kamar.NomorKamar)]?.Value);
+            txtHargaKamar.Text = Convert.ToString(row.Cells[nameof(Kamar.HargaKamar)]?.Value);
 
-            var statusCell = row.Cells[nameof(Kamar.Status)];
-            var status = Convert.ToString(statusCell?.Value);
+            var status = Convert.ToString(row.Cells[nameof(Kamar.Status)]?.Value);
             SetStatusRadio(status);
         }
 
@@ -129,6 +124,7 @@ namespace management_kos.UI
         {
             _selectedKamarId = 0;
             textBox1.Clear();
+            txtHargaKamar.Clear();
             radioButton1.Checked = false;
             radioButton2.Checked = false;
             radioButton3.Checked = false;
@@ -160,11 +156,15 @@ namespace management_kos.UI
 
         private Kamar BuildKamarFromInput()
         {
+            if (!int.TryParse(txtHargaKamar.Text.Trim(), out int harga))
+                throw new ArgumentException("Harga Kamar harus berupa angka bulat.");
+
             return new Kamar
             {
-                KosId = _selectedKosId,
+                KosId      = _selectedKosId,
                 NomorKamar = textBox1.Text.Trim(),
-                Status = GetSelectedStatus()
+                HargaKamar = harga,
+                Status     = GetSelectedStatus()
             };
         }
 

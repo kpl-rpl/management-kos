@@ -88,15 +88,39 @@ namespace management_kos.UI
             ClearInput();
         }
 
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= dataGridView1.Rows.Count) return;
+
+            var row = dataGridView1.Rows[e.RowIndex];
+            _selectedPenghuniId = Convert.ToInt32(row.Cells[nameof(Penghuni.Id)].Value);
+
+            txtNama.Text    = Convert.ToString(row.Cells[nameof(Penghuni.Nama)].Value);
+            txtTelpon.Text  = Convert.ToString(row.Cells[nameof(Penghuni.NomorTelepon)].Value);
+            txtEmail.Text   = Convert.ToString(row.Cells[nameof(Penghuni.Email)].Value);
+
+            var tanggalMasukVal = row.Cells[nameof(Penghuni.TanggalMasuk)].Value;
+            if (tanggalMasukVal != null && tanggalMasukVal != DBNull.Value)
+                dtpTanggalMasuk.Value = Convert.ToDateTime(tanggalMasukVal);
+
+            var kamarId = Convert.ToInt32(row.Cells[nameof(Penghuni.KamarId)].Value);
+            foreach (var item in dropDownKamar.Items)
+            {
+                if (item is management_kos.Models.Kamar k && k.Id == kamarId)
+                {
+                    dropDownKamar.SelectedItem = item;
+                    break;
+                }
+            }
+        }
+
         // Helper methods
         private Penghuni BuildPenghuniFromInput()
         {
             if (string.IsNullOrWhiteSpace(txtNama.Text))
                 throw new ArgumentException("Nama wajib diisi.");
-            if (string.IsNullOrWhiteSpace(txtNIK.Text))
-                throw new ArgumentException("NIK wajib diisi.");
             if (string.IsNullOrWhiteSpace(txtTelpon.Text))
-                throw new ArgumentException("No. Telpon wajib diisi.");
+                throw new ArgumentException("No. Telepon wajib diisi.");
             if (dropDownKamar.SelectedValue == null)
                 throw new ArgumentException("Kamar harus dipilih.");
 
@@ -104,9 +128,11 @@ namespace management_kos.UI
 
             return new Penghuni
             {
-                Nama = txtNama.Text.Trim(),
+                Nama         = txtNama.Text.Trim(),
                 NomorTelepon = txtTelpon.Text.Trim(),
-                KamarId = kamarId
+                Email        = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text.Trim(),
+                KamarId      = kamarId,
+                TanggalMasuk = dtpTanggalMasuk.Value.Date
             };
         }
 
@@ -114,8 +140,11 @@ namespace management_kos.UI
         {
             _selectedPenghuniId = 0;
             txtNama.Clear();
-            txtNIK.Clear();
             txtTelpon.Clear();
+            txtEmail.Clear();
+            dtpTanggalMasuk.Value = DateTime.Today;
+            if (dropDownKamar.Items.Count > 0)
+                dropDownKamar.SelectedIndex = 0;
             txtNama.Focus();
         }
 
@@ -137,8 +166,8 @@ namespace management_kos.UI
         {
             var kamarList = _kamarService.GetAllKamar();
             dropDownKamar.DataSource = kamarList;
-            dropDownKamar.DisplayMember = "Nama"; // Asumsikan Kamar punya properti Nama
-            dropDownKamar.ValueMember = "Id"; // Asumsikan Kamar punya properti Id
+            dropDownKamar.DisplayMember = "NomorKamar";
+            dropDownKamar.ValueMember = "Id";
         }
     }
 }
