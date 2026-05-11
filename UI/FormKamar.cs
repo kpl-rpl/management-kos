@@ -100,6 +100,12 @@ namespace management_kos.UI
             return "Kosong";
         }
 
+        public void RefreshData()
+        {
+            LoadKosToComboBox();
+            RefreshGrid();
+        }
+
         private void RefreshGrid()
         {
             var data = _kamarService.GetKamarByKosId(_selectedKosId);

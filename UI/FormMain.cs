@@ -52,116 +52,70 @@ public partial class FormMain : Form
     private void ShowDataKosView()
     {
         if (_formKos is null || _formKos.IsDisposed)
-        {
-            _formKos = new FormKos(_kosService)
-            {
-                TopLevel = false,
-                FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill
-            };
-        }
+            _formKos = new FormKos(_kosService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
 
         pnlContent.Controls.Clear();
         pnlContent.Controls.Add(_formKos);
         _formKos.Show();
         _formKos.BringToFront();
+        _formKos.RefreshData();
         lblCurrentView.Text = "Data Kos";
-    }
-
-    private void ShowDataPenghuniView()
-    {
-        if (_formPenghuni is null || _formPenghuni.IsDisposed)
-        {
-            _formPenghuni = new FormPenghuni(_penghuniService, _kamarService)
-            {
-                TopLevel = false,
-                FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill
-            };
-        }
-
-        pnlContent.Controls.Clear();
-        pnlContent.Controls.Add(_formPenghuni);
-        _formPenghuni.Show();
-        _formPenghuni.BringToFront();
-        lblCurrentView.Text = "Data Penghuni";
-    }
-
-    private void btnDataPenghuni_Click(object sender, EventArgs e)
-    {
-        ShowDataPenghuniView();
-    }
-
-
-    private void btnDataKamar_Click(object sender, EventArgs e)
-    {
-        ShowDataKamarView();
-    }
-
-    private void btnDataPembayaran_Click(object sender, EventArgs e)
-    {
-        ShowDataPembayaranView();
     }
 
     private void ShowDataKamarView()
     {
         if (_formKamar is null || _formKamar.IsDisposed)
-        {
-            _formKamar = new FormKamar(_kamarService, _kosService)
-            {
-                TopLevel = false,
-                FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill
-            };
-        }
+            _formKamar = new FormKamar(_kamarService, _kosService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
 
         pnlContent.Controls.Clear();
         pnlContent.Controls.Add(_formKamar);
         _formKamar.Show();
         _formKamar.BringToFront();
+        _formKamar.RefreshData();
         lblCurrentView.Text = "Data Kamar";
+    }
+
+    private void ShowDataPenghuniView()
+    {
+        if (_formPenghuni is null || _formPenghuni.IsDisposed)
+            _formPenghuni = new FormPenghuni(_penghuniService, _kamarService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
+
+        pnlContent.Controls.Clear();
+        pnlContent.Controls.Add(_formPenghuni);
+        _formPenghuni.Show();
+        _formPenghuni.BringToFront();
+        _formPenghuni.RefreshData();
+        lblCurrentView.Text = "Data Penghuni";
     }
 
     private void ShowDataPembayaranView()
     {
         if (_formPembayaran is null || _formPembayaran.IsDisposed)
-        {
-            _formPembayaran = new FormPembayaran(_pembayaranService)
-            {
-                TopLevel = false,
-                FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill
-            };
-        }
+            _formPembayaran = new FormPembayaran(_pembayaranService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
 
         pnlContent.Controls.Clear();
         pnlContent.Controls.Add(_formPembayaran);
         _formPembayaran.Show();
         _formPembayaran.BringToFront();
+        _formPembayaran.RefreshData();
         lblCurrentView.Text = "Data Pembayaran";
-    }
-
-    private void btnDataKontrakSewa_Click(object sender, EventArgs e)
-    {
-        ShowDataKontrakSewaView();
     }
 
     private void ShowDataKontrakSewaView()
     {
         if (_formKontrakSewa is null || _formKontrakSewa.IsDisposed)
-        {
-            _formKontrakSewa = new FormKontrakSewa(_kontrakSewaService)
-            {
-                TopLevel = false,
-                FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill
-            };
-        }
+            _formKontrakSewa = new FormKontrakSewa(_kontrakSewaService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
 
         pnlContent.Controls.Clear();
         pnlContent.Controls.Add(_formKontrakSewa);
         _formKontrakSewa.Show();
         _formKontrakSewa.BringToFront();
+        _formKontrakSewa.RefreshData();
         lblCurrentView.Text = "Data Kontrak Sewa";
     }
+
+    private void btnDataKamar_Click(object sender, EventArgs e) => ShowDataKamarView();
+    private void btnDataPenghuni_Click(object sender, EventArgs e) => ShowDataPenghuniView();
+    private void btnDataPembayaran_Click(object sender, EventArgs e) => ShowDataPembayaranView();
+    private void btnDataKontrakSewa_Click(object sender, EventArgs e) => ShowDataKontrakSewaView();
 }

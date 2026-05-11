@@ -106,6 +106,8 @@ public partial class FormKos : Form
         txtCatatan.Text = Convert.ToString(row.Cells[nameof(Kos.Catatan)].Value);
     }
 
+    public void RefreshData() => RefreshGrid();
+
     private void RefreshGrid()
     {
         var items = _kosService.GetAllKos();
