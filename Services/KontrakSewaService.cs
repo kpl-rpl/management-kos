@@ -1,5 +1,6 @@
 using management_kos.Models;
 using management_kos.Repositories;
+using System.Linq;
 
 namespace management_kos.Services;
 
@@ -65,17 +66,25 @@ public class KontrakSewaService
         Validate(k);
         EnsurePenghuniExists(k.PenghuniId);
         EnsureKamarExists(k.KamarId);
-        k.Status = "Aktif";
+        EnsureKamarAvailable(k, null);
         _repo.Insert(k);
+        UpdateKamarStatusForKontrak(k);
     }
 
     public void UbahKontrak(KontrakSewa k)
     {
         Guard.Positive(k.Id, "ID Kontrak");
+        var existing = _repo.GetById(k.Id) ?? throw new Exception("Kontrak tidak ditemukan.");
         Validate(k);
         EnsurePenghuniExists(k.PenghuniId);
         EnsureKamarExists(k.KamarId);
+        EnsureKamarAvailable(k, k.Id);
         _repo.Update(k);
+        if (existing.KamarId != k.KamarId)
+        {
+            ResetKamarIfNoActiveOrBooked(existing.KamarId, existing.Id);
+        }
+        UpdateKamarStatusForKontrak(k);
     }
 
     public void SelesaikanKontrak(int id)
@@ -84,6 +93,7 @@ public class KontrakSewaService
         var kontrak = _repo.GetById(id) ?? throw new Exception("Kontrak tidak ditemukan.");
         kontrak.Status = "Selesai";
         _repo.Update(kontrak);
+        UpdateKamarStatusForKontrak(kontrak);
     }
 
     public void BatalkanKontrak(int id)
@@ -92,12 +102,15 @@ public class KontrakSewaService
         var kontrak = _repo.GetById(id) ?? throw new Exception("Kontrak tidak ditemukan.");
         kontrak.Status = "Dibatalkan";
         _repo.Update(kontrak);
+        UpdateKamarStatusForKontrak(kontrak);
     }
 
     public void HapusKontrak(int id)
     {
         Guard.Positive(id, "ID Kontrak");
+        var kontrak = _repo.GetById(id) ?? throw new Exception("Kontrak tidak ditemukan.");
         _repo.Delete(id);
+        ResetKamarIfNoActiveOrBooked(kontrak.KamarId, kontrak.Id);
     }
 
     private void Validate(KontrakSewa k)
@@ -113,7 +126,7 @@ public class KontrakSewaService
             throw new ArgumentException("Deposit tidak boleh negatif.");
 
         if (!Enum.TryParse<KontrakStatus>(k.Status, true, out var parsedStatus))
-            throw new ArgumentException("Status tidak valid. Gunakan: Aktif, Selesai, atau Dibatalkan.");
+            throw new ArgumentException("Status tidak valid. Gunakan: Dipesan, Aktif, Selesai, atau Dibatalkan.");
 
         k.Status = parsedStatus.ToString();
     }
@@ -129,10 +142,70 @@ public class KontrakSewaService
         if (_kamarRepo.GetById(id) is null)
             throw new ArgumentException("Kamar tidak ditemukan. Pastikan data kamar sudah ada.");
     }
+
+    private void EnsureKamarAvailable(KontrakSewa k, int? excludeKontrakId)
+    {
+        var kamar = _kamarRepo.GetById(k.KamarId) ?? throw new ArgumentException("Kamar tidak ditemukan.");
+        if (string.Equals(kamar.Status, "Perbaikan", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Kamar sedang perbaikan dan tidak bisa dibooking.");
+
+        var kontrakAktif = _repo
+            .GetByKamarId(k.KamarId)
+            .Any(x => x.Id != (excludeKontrakId ?? 0)
+                && (x.Status == "Aktif" || x.Status == "Dipesan"));
+
+        if (kontrakAktif)
+            throw new ArgumentException("Kamar sudah dibooking atau sedang terisi.");
+
+        if (k.Status == "Dipesan" && !string.Equals(kamar.Status, "Kosong", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Kamar hanya bisa dibooking jika statusnya Kosong.");
+    }
+
+    private void UpdateKamarStatusForKontrak(KontrakSewa kontrak)
+    {
+        var kamar = _kamarRepo.GetById(kontrak.KamarId);
+        if (kamar is null) return;
+
+        var targetStatus = kontrak.Status switch
+        {
+            "Aktif" => "Terisi",
+            "Dipesan" => "Dipesan",
+            _ => null
+        };
+
+        if (targetStatus is null)
+        {
+            ResetKamarIfNoActiveOrBooked(kontrak.KamarId, kontrak.Id);
+            return;
+        }
+
+        if (!string.Equals(kamar.Status, targetStatus, StringComparison.Ordinal))
+        {
+            kamar.Status = targetStatus;
+            _kamarRepo.Update(kamar);
+        }
+    }
+
+    private void ResetKamarIfNoActiveOrBooked(int kamarId, int kontrakId)
+    {
+        var kamar = _kamarRepo.GetById(kamarId);
+        if (kamar is null) return;
+
+        var masihAktif = _repo
+            .GetByKamarId(kamarId)
+            .Any(x => x.Id != kontrakId && (x.Status == "Aktif" || x.Status == "Dipesan"));
+
+        if (!masihAktif && !string.Equals(kamar.Status, "Kosong", StringComparison.Ordinal))
+        {
+            kamar.Status = "Kosong";
+            _kamarRepo.Update(kamar);
+        }
+    }
 }
 
 public enum KontrakStatus
 {
+    Dipesan,
     Aktif,
     Selesai,
     Dibatalkan

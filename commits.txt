@@ -1,0 +1,608 @@
+commit 9a416969cbb7add63ca539c06a004ca4c2b708bd
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon May 11 22:02:30 2026 +0700
+
+    feat: tampilkan nama kos - nomor kamar di dropdown kamar
+    
+    Tambah NamaKos dan DisplayText ke model Kamar, update query GetAll
+    dengan LEFT JOIN ke tabel Kos, dan ubah DisplayMember dropdown kamar
+    di FormPenghuni dan FormKontrakSewa dari NomorKamar ke DisplayText.
+
+commit 8980237b00ab3bd0e853a76f5a2e10255aa926c1
+Author: Dipras <dipras75@gmail.com>
+Date:   Mon May 11 21:50:40 2026 +0700
+
+    fix layout FormPembayaran: label overlap dan posisi tombol
+
+commit fd4507c2fa7b935ca15e562f60ccc285e4ff06fa
+Author: Dipras <dipras75@gmail.com>
+Date:   Mon May 11 21:43:19 2026 +0700
+
+    guard empty dependency + ganti text input FK jadi dropdown
+    
+    FormKamar:
+    - guard saat data Kos masih kosong: tampilkan warning, disable input
+    
+    FormKontrakSewa:
+    - txtPenghuniId dan txtKamarId diganti ComboBox (cmbPenghuni, cmbKamar)
+    - inject PenghuniService dan KamarService ke konstruktor
+    - dropdown di-load ulang setiap RefreshData() dipanggil
+    
+    FormPembayaran:
+    - txtKontrakSewaId diganti ComboBox cmbKontrakSewa
+    - inject KontrakSewaService ke konstruktor
+    - dropdown di-load ulang setiap RefreshData() dipanggil
+    
+    Models/KontrakSewa:
+    - tambah computed property DisplayText untuk label dropdown
+    
+    FormMain:
+    - pass service tambahan ke FormPembayaran dan FormKontrakSewa
+
+commit 68ff0b647bdf2cff6a89242127e1d7256e8adaf3
+Merge: 5111fa8 7c621e9
+Author: Dipras <dipras75@gmail.com>
+Date:   Mon May 11 21:19:50 2026 +0700
+
+    Merge pull request #24 from kpl-rpl/dipras/feat-autorefresh-data
+    
+    refresh data grid dan dropdown saat menu sidebar diklik
+
+commit 5111fa839f23ed26563e26e9ff1b6556400ef466
+Merge: 329f777 1334918
+Author: Dipras <dipras75@gmail.com>
+Date:   Mon May 11 20:54:49 2026 +0700
+
+    Merge pull request #23 from kpl-rpl/dipras/fix-missing-module
+    
+    fix missing features di FormKamar dan FormPenghuni
+
+commit 7c621e9d83d132e7d57e21c24b70d13692d1071d
+Author: Dipras <dipras75@gmail.com>
+Date:   Mon May 11 14:17:39 2026 +0700
+
+    refresh data grid dan dropdown saat menu sidebar diklik
+    
+    Setiap form sekarang punya public RefreshData() yang dipanggil
+    FormMain setiap kali tombol sidebar diklik, sehingga grid dan
+    dropdown selalu menampilkan data terbaru tanpa perlu restart.
+    
+    - FormKos: RefreshData() -> RefreshGrid()
+    - FormKamar: RefreshData() -> LoadKosToComboBox() + RefreshGrid()
+    - FormPenghuni: RefreshData() -> LoadKamarDropdown() + RefreshGrid()
+    - FormPembayaran: RefreshData() -> RefreshGrid()
+    - FormKontrakSewa: RefreshData() -> RefreshGrid()
+
+commit 133491890b61b66d3fc9af7f78120c9a94df4a41
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon May 11 13:53:36 2026 +0700
+
+    fix missing features di FormKamar dan FormPenghuni
+    
+    FormKamar:
+    - tambah input HargaKamar (TextBox) yang sebelumnya tidak ada
+    - update BuildKamarFromInput() untuk include HargaKamar
+    - update CellClick() untuk populate txtHargaKamar saat baris dipilih
+    - update ClearInput() untuk clear txtHargaKamar
+    - tambah btnReset ke Designer (handler sudah ada tapi button belum dibuat)
+    
+    FormPenghuni:
+    - fix DisplayMember dropDownKamar dari "Nama" ke "NomorKamar" (Kamar tidak punya field Nama)
+    - ganti txtNIK (tidak ada di model) dengan dtpTanggalMasuk DateTimePicker
+    - tambah txtEmail untuk field Email (opsional)
+    - tambah dataGridView1_CellClick() handler agar klik baris mengisi form dan set _selectedPenghuniId
+    - update BuildPenghuniFromInput() untuk include TanggalMasuk dan Email
+    - update ClearInput() untuk reset semua field termasuk DateTimePicker dan dropdown
+
+commit 329f777a8cd483fa056596af223777a65800e616
+Merge: b783dff 42af142
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 22:39:25 2026 +0700
+
+    Merge pull request #22 from kpl-rpl/dipras/fix-failing-tests
+    
+    fix 3 test gagal dan tambah KosRepository test
+
+commit 42af142e3f1e7184a231d3ce03aab8c3bf44cd17
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Sun May 10 22:38:28 2026 +0700
+
+    fix 3 test gagal dan tambah KosRepository test
+    
+    - Services/KamarService.cs: fix runtime config — default _maxHargaKamar=10_000_000 jika MAX_HARGA_KAMAR tidak ada di .env, gunakan TryParse agar tidak crash
+    - Services/PenghuniService.test.cs: fix test data TambahPenghuni — tambah NomorTelepon dan TanggalMasuk yang diwajibkan service
+    - Repositories/KosRepository.test.cs: unit test baru mock-based untuk GetAll, GetById (found+null), Insert, Update, Delete
+    Hasil: 65/65 passed
+
+commit b783dff38303758f24b1f5216e2faf15a3844226
+Merge: 1edecf9 95bc577
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 22:22:10 2026 +0700
+
+    Merge pull request #21 from kpl-rpl/dipras/fix-kos-test
+    
+    fix KosService test dari manual runner ke xUnit
+
+commit 1edecf9e898bb7ee17c932652bd25055abfd4091
+Merge: 76c784c 0602863
+Author: Aurel Adestira <aurelsalsaa75@gmail.com>
+Date:   Sun May 10 22:20:09 2026 +0700
+
+    Merge branch 'master' of https://github.com/kpl-rpl/management-kos
+
+commit 95bc5773e18ee834ff6476880727301f7f83200a
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Sun May 10 22:20:09 2026 +0700
+
+    fix KosService test dari manual runner ke xUnit + tambah KamarRepository test
+    
+    - Services/KosService.test.cs: rewrite dari KosServiceTestRunner (Console-based) ke xUnit + Moq, mencakup GetAllKos, TambahKos (valid + 4 skenario invalid), UbahKos (valid + id invalid + not found), HapusKos (valid + id negatif + not found)
+    - Repositories/KamarRepository.test.cs: unit test repository mock untuk GetAll, GetById, GetById not found, GetByKosId, Insert, Update, Delete
+
+commit 76c784cce6e41ae82be2ba7267aba0efa7995267
+Author: Aurel Adestira <aurelsalsaa75@gmail.com>
+Date:   Sun May 10 22:18:53 2026 +0700
+
+    Penerapan teknik table driven
+
+commit 0602863c3aff4a9edbd5cc53bfc3bb0857e7a21d
+Merge: c233f0c 3fff880
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 22:13:02 2026 +0700
+
+    Merge pull request #19 from kpl-rpl/aurel/update-ui
+    
+    update UI form kamar, kos, pembayaran, penghuni
+
+commit 3fff880a4e9b06a4ee0a7cb42088a8bb716728ed
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 22:12:33 2026 +0700
+
+    Fix: Delete unnecessary type env file
+
+commit ecac9a9e3c4ccab4aef6ce269d1c895eb38af523
+Author: Aurel Adestira <aurelsalsaa75@gmail.com>
+Date:   Sun May 10 22:07:20 2026 +0700
+
+    update UI form kamar, kos, pembayaran, penghuni
+
+commit c233f0c316eb5cd0fe882125e713942a44ee1517
+Merge: e02a20f e5d41b8
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 21:50:24 2026 +0700
+
+    Merge pull request #18 from kpl-rpl/Alif/Penghuni-Testing
+    
+    Melakukan Testing di Modul Penghuni
+
+commit e5d41b8ca9760b60e0cf3d2dd318408c3094f1b6
+Author: unknown <akunset20@gmail.com>
+Date:   Sun May 10 21:42:35 2026 +0700
+
+    Melakukan Testing di Modul Penghuni
+
+commit e02a20fb4b5e15e21a0d7e54a77e01fd1f7f359d
+Merge: e288fe6 8997c59
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 21:40:54 2026 +0700
+
+    Merge pull request #17 from kpl-rpl/aqsa/ui-kontrak-sewa
+    
+    menambahkan FormKontrakSewa dan integrasi ke navigasi utama
+
+commit e288fe62b7695e3afb8a84db5095256435626d4b
+Merge: e138650 1b4323e
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 21:34:17 2026 +0700
+
+    Merge pull request #16 from kpl-rpl/alif/service-kontrak-sewa
+    
+    menambahkan KontrakSewaService dengan teknik parameterization/generics
+
+commit e13865063d80ced476de884a302d6e5f78f3dc6c
+Merge: 8f3c392 fdeab01
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 21:32:08 2026 +0700
+
+    Merge pull request #14 from kpl-rpl/renjiro/testing-kontrak-sewa
+    
+    menambahkan unit test KontrakSewaService dan KontrakSewaRepository
+
+commit 8f3c39276d402763f6e4e27d9958afc163a27fec
+Merge: 0f9b814 fd26d49
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 21:31:57 2026 +0700
+
+    Merge pull request #15 from kpl-rpl/aurel/database-kontrak-sewa
+    
+    menambahkan model dan repository KontrakSewa dengan table-driven cons…
+
+commit 0f9b81489c6ee89a3f49e53420a338743978df07
+Merge: 5e6df89 394365c
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 21:26:04 2026 +0700
+
+    Merge pull request #13 from kpl-rpl/Renjiro/PembayaranService
+    
+    fix: PembayaranService.cs, Penerapan Automata dan Table Driven
+
+commit 394365caab7522bed1f4116f8dbc9aae5062a002
+Author: Adyadma Renjiro <arenjiro466@gmail.com>
+Date:   Sun May 10 21:18:34 2026 +0700
+
+    Penerapan Automata dan Table Driven
+
+commit fdeab01af13022143e0c2bcaf65d3993dee69665
+Author: Adyadma Renjiro <arenjiro466@gmail.com>
+Date:   Sun May 10 21:17:04 2026 +0700
+
+    menambahkan unit test KontrakSewaService dan KontrakSewaRepository
+    
+    - Services/KontrakSewaService.test.cs: unit test service dengan xUnit dan Moq menggunakan teknik table-driven (InvalidKontrakCases sebagai data table, dijalankan via [Theory] + [MemberData])
+    - Repositories/KontrakSewaRepository.test.cs: unit test repository mock untuk GetAll, GetById, GetByPenghuniId, GetByStatus, Insert, Update, Delete
+    - README.md: tandai modul Kontrak Sewa sebagai sudah terimplementasi, update Testing = Renjiro
+
+commit 5e6df89a0a797f47ebcb36cf5ee0f5344b6ded4d
+Merge: 1ea2644 f1320de
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 21:11:37 2026 +0700
+
+    Merge pull request #12 from kpl-rpl/aqsa/perbaikan-penghuni-repository
+    
+    memperbaiki PenghuniRepository.cs, implementasi defensive programming…
+
+commit 8997c59650f2e70a9332f641ec9b2a19df3f52cb
+Author: Moh. Aqsa <gectorashera@gmail.com>
+Date:   Sun May 10 21:11:01 2026 +0700
+
+    menambahkan FormKontrakSewa dan integrasi ke navigasi utama
+    
+    - UI/FormKontrakSewa.cs: form manajemen kontrak sewa dengan teknik automata (FormState enum + EnabledButtons dictionary sebagai tabel transisi state — tombol aktif dikontrol oleh state Idle/Selected)
+    - UI/FormKontrakSewa.Designer.cs: layout WinForms (DateTimePicker, ComboBox status, 6 tombol aksi)
+    - UI/FormMain.cs: tambah field KontrakSewaService, form field, handler ShowDataKontrakSewaView
+    - UI/FormMain.Designer.cs: tambah tombol sidebar "Kontrak Sewa"
+    - Program.cs: wire up KontrakSewaRepository dan KontrakSewaService ke FormMain
+
+commit 1b4323e7061adfd06bc0df992e2d69bb24d4d149
+Author: Alif Akbar <akunset20@gmail.com>
+Date:   Sun May 10 21:10:28 2026 +0700
+
+    menambahkan KontrakSewaService dengan teknik parameterization/generics
+    
+    - Services/KontrakSewaService.cs: business logic + validasi kontrak sewa
+    - Kelas Guard<T> dengan generic constraints (where T : struct, IComparable<T>) sebagai implementasi parameterization/generics
+    - Method: TambahKontrak, UbahKontrak, SelesaikanKontrak, BatalkanKontrak, HapusKontrak
+    - Validasi defensive: guard ID > 0, harga > 0, tanggal selesai > mulai, deposit >= 0, status enum
+    - Enum KontrakStatus: Aktif, Selesai, Dibatalkan
+
+commit fd26d49a6c01a0ab0d3b9b6b72e4d1cd351170af
+Author: Aurel Adestira <aurelsalsaa75@gmail.com>
+Date:   Sun May 10 21:09:54 2026 +0700
+
+    menambahkan model dan repository KontrakSewa dengan table-driven construction
+    
+    - Models/KontrakSewa.cs: model data kontrak sewa (Id, PenghuniId, KamarId, tanggal, harga, deposit, status, catatan)
+    - Repositories/IKontrakSewaRepository.cs: interface extends IRepository<KontrakSewa> dengan GetByPenghuniId, GetByKamarId, GetByStatus
+    - Repositories/KontrakSewaRepository.cs: implementasi dengan teknik table-driven (Col dictionary sebagai tabel pemetaan kolom → indeks)
+
+commit f1320de926fcb5ea3bd6a6a5d53873f1385bd616
+Author: gector727 <gectorashera@gmail.com>
+Date:   Sun May 10 21:02:41 2026 +0700
+
+    memperbaiki PenghuniRepository.cs, implementasi defensive programming, validate
+
+commit 1ea26446d7d7bb3858a424ce11a56badbca9ce20
+Merge: 5a52b7a fe3b85b
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 20:57:53 2026 +0700
+
+    Merge pull request #11 from kpl-rpl/Alif/Memperbaiki-Database-Modul-Pembayaran
+    
+    Memperbaiki Database Modul Pembayaran
+
+commit fe3b85b40fa61981d1fed348d7e51f0dcf5a5cb2
+Author: unknown <akunset20@gmail.com>
+Date:   Sun May 10 20:54:40 2026 +0700
+
+    Memperbaiki Database Modul Pembayaran
+
+commit 1a75b72d54d3dce5e3bc7ad1c2f741c3aa7dea0a
+Author: unknown <akunset20@gmail.com>
+Date:   Sun May 10 20:42:04 2026 +0700
+
+    Memperbaiki Database Modul Pembayaran
+
+commit 5a52b7a1d0788a7f80398d86c4748e3d78253916
+Merge: 8ba4339 15f9abe
+Author: Dipras <dipras75@gmail.com>
+Date:   Sun May 10 20:21:24 2026 +0700
+
+    Merge pull request #10 from kpl-rpl/aqsa/automata-runtime
+    
+    Menambahkan Automata dan Runtime Configuration di KamarService.cs dan update testfile KamarService.test.cs ke yang baru
+
+commit 15f9abe256f374a68bd53702200fe87ff020494d
+Author: gector727 <gectorashera@gmail.com>
+Date:   Sun May 10 20:15:32 2026 +0700
+
+    memperbaiki style automata dari switch-case ke enum
+
+commit a5b49632a20a9a19a2061d762e3a8d437009dd5a
+Author: gector727 <gectorashera@gmail.com>
+Date:   Sun May 10 09:41:22 2026 +0700
+
+    menambahkan metode automata dan runtime configuration di KamarService.cs dan mengubah style testing KamarService.test.cs menjadi yang baru
+
+commit de197d376aaf7e39712c11703f98d38f2a3ab458
+Author: gector727 <gectorashera@gmail.com>
+Date:   Sun May 10 09:40:22 2026 +0700
+
+    menambahkan metode automata dan runtime configuration di KamarService.cs dan mengubah style testing KamarService.test.cs menjadi yang baru
+
+commit ed73a5c6c55eac9cebabe932e128ffde3cc5f6d4
+Author: gector727 <gectorashera@gmail.com>
+Date:   Sun May 10 09:39:55 2026 +0700
+
+    menambahkan metode automata dan runtime configuration di KamarService.cs dan mengubah style testing KamarService.test.cs menjadi yang baru
+
+commit 8ba433952afce5b008e5eab4e526c2a8254e5454
+Merge: 4107c36 21a0213
+Author: Aurel Adestira Salsabila <101535193+AurelAdest@users.noreply.github.com>
+Date:   Wed Apr 29 11:21:40 2026 +0700
+
+    Merge pull request #9 from kpl-rpl/pembayaran-ui
+    
+    menambahkan fitur pembayaran UI
+
+commit 21a02136c5486bf781281f05066aec1dde79bec7
+Author: Aurel Adestira <aurelsalsaa75@gmail.com>
+Date:   Wed Apr 29 10:18:06 2026 +0700
+
+    menambahkan fitur pembayaran UI
+
+commit 4107c36d21ed4448737ad6ba4e4d96c37519d78d
+Merge: b34eef8 e1caeb6
+Author: Dipras <dipras75@gmail.com>
+Date:   Mon Apr 27 16:31:03 2026 +0700
+
+    Merge pull request #8 from kpl-rpl/aqsa/pembayaran-test
+    
+    menambahkan File Test Pembayaran Service dan Repostiory
+
+commit e1caeb6fff2e26bf752bb4f7ad4735a829ff2a0c
+Author: gector727 <gectorashera@gmail.com>
+Date:   Mon Apr 27 16:26:57 2026 +0700
+
+    menambahkan File Test Pembayaran Service dan Repostiory
+
+commit b34eef8705be6f29b0c6fe485c4ff6625f6d761e
+Merge: d0cbdf9 b394ce3
+Author: Dipras <dipras75@gmail.com>
+Date:   Wed Apr 22 16:19:40 2026 +0700
+
+    Merge pull request #7 from kpl-rpl/Renjiro-ServicePembayaran
+    
+    Renjiro service pembayaran
+
+commit d0cbdf93a24e0759ddeef9dbbc7bab34f1e5f6e6
+Merge: dcf766a 80bcd5f
+Author: Dipras <dipras75@gmail.com>
+Date:   Wed Apr 22 16:19:03 2026 +0700
+
+    Merge pull request #6 from kpl-rpl/alif/pembayaran-repository
+    
+    menambah repository pembayaran
+
+commit dcf766a9ec1f2b5521d28c80d25d82364c230f8d
+Merge: 57feb72 99e6f1f
+Author: Dipras <dipras75@gmail.com>
+Date:   Wed Apr 22 15:56:36 2026 +0700
+
+    Merge pull request #3 from kpl-rpl/PenghuniUI
+    
+    UI formPenghuni
+
+commit b394ce3bdec4fc603889a7fd4c355af2ba0978ff
+Author: Adyadma Renjiro <arenjiro466@gmail.com>
+Date:   Wed Apr 22 14:40:50 2026 +0700
+
+    Menambahkan PembayaranService
+
+commit 99e6f1f0fdafe3ded37d36beb994242cb80efb8b
+Author: Adyadma Renjiro <arenjiro466@gmail.com>
+Date:   Fri Apr 17 18:23:40 2026 +0700
+
+    Fix: UI Penghuni
+
+commit 80bcd5fa0d14030d238c70e52cc81d640d724d8d
+Author: unknown <akunset20@gmail.com>
+Date:   Thu Apr 16 13:32:45 2026 +0700
+
+    implementasi teknik generic dan reuse di pembayaran repository
+
+commit 30556b9fc181f9c426e86808a16446dc89bc32f9
+Author: unknown <akunset20@gmail.com>
+Date:   Thu Apr 16 13:25:49 2026 +0700
+
+    menambah repository pembayaran
+
+commit 57feb72e38d903d83a6748f7ff6e132d4cb8c2c9
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Apr 13 13:35:53 2026 +0700
+
+    Feat: Add rule and divide task to member
+
+commit 01415a4c97f5fc2c131ecc69f28368a093a553c4
+Merge: f09ee66 f695eb9
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Apr 13 12:45:23 2026 +0700
+
+    Merge branch 'master' into PenghuniUI
+
+commit f695eb9068c115fd7b422b4b4ea76d85db3fdf81
+Author: Aurel Adestira <aurelsalsaa75@gmail.com>
+Date:   Fri Apr 10 06:57:18 2026 +0700
+
+    menambahkan service
+
+commit 1dc5cf9eb10e41912a8f448be6f2f30cf916fa65
+Merge: 5896b8b e5bcdb6
+Author: Dipras <dipras75@gmail.com>
+Date:   Tue Apr 7 14:47:31 2026 +0700
+
+    Merge pull request #5 from kpl-rpl/Database-penghuni
+    
+    penghuni model, penghuni repository, and migration sql
+
+commit e5bcdb6389e0dd3452cce2c95a7a7456e8741d32
+Author: Gector <gectorashera@gmail.com>
+Date:   Tue Apr 7 14:39:16 2026 +0700
+
+    Delete management-kos.sln
+
+commit 3eeec548efcf99ad4f4aabec6c66dd7271f15adb
+Author: gector727 <gectorashera@gmail.com>
+Date:   Tue Apr 7 14:37:24 2026 +0700
+
+    Add penghuni model, penghuni repository, and migration sql
+
+commit 5896b8bf6276301e50596b77e5e2dbbde35715c8
+Merge: f2dc5d5 20a102d
+Author: Dipras <dipras75@gmail.com>
+Date:   Tue Apr 7 12:00:09 2026 +0700
+
+    Merge pull request #4 from kpl-rpl/kamar-ui
+    
+    pembuatan UI form kamar
+
+commit 20a102df2eaa051db866361ad9fcef785196d11a
+Merge: 830ef6f f2dc5d5
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Tue Apr 7 11:59:10 2026 +0700
+
+    Merge branch 'master' into kamar-ui
+
+commit 830ef6fa7bdeebe83bd88530f42df59b9aaf7e86
+Author: unknown <akunset20@gmail.com>
+Date:   Tue Apr 7 11:41:43 2026 +0700
+
+    pembuatan UI form kamar
+
+commit f2dc5d5870ca078c604b3818c643a8acace6a49a
+Merge: 46cbd48 1b5ef70
+Author: Dipras <dipras75@gmail.com>
+Date:   Tue Apr 7 10:06:58 2026 +0700
+
+    Merge pull request #2 from kpl-rpl/repository-Kamar
+    
+    Modul Kamar
+
+commit f09ee661dbd98addcf9d826446e87da78f49dfbc
+Merge: 1fbc2a0 1dc5cf9
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Tue Apr 7 07:57:04 2026 +0700
+
+    Merge branch 'master' into PenghuniUI
+
+commit 1fbc2a0e7e6d835c87e137162ac1b95b60b62e98
+Merge: f616a85 5896b8b
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Tue Apr 7 07:25:01 2026 +0700
+
+    fix: Solve conflict merge PenghuniUI to master
+
+commit f616a85492ebe58e8d361cb337f8ebec7f4baa39
+Author: Adyadma Renjiro <arenjiro466@gmail.com>
+Date:   Sun Apr 5 21:02:14 2026 +0700
+
+    UI formPenghuni
+
+commit 46cbd484cd5334c2979b7400543b69f8f14903f3
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Wed Apr 1 23:41:12 2026 +0700
+
+    Feat: Add Migration support Feature
+
+commit 1b5ef703422a0f6622bf0c107a55b4aff216ab53
+Author: Adyadma Renjiro <arenjiro466@gmail.com>
+Date:   Tue Mar 31 11:59:58 2026 +0700
+
+    Modul Kamar
+    
+    Koneksi KamarRepository.cs dengan database, menambahkan kolom baru (HargaKamar) di tabel kamar, sinkornisasi model Kamar dan Database
+
+commit cc46affa0112e1c42821ba3de4f1df13da422192
+Merge: 207a0ab 5d0c576
+Author: Dipras <dipras75@gmail.com>
+Date:   Tue Mar 31 09:56:40 2026 +0700
+
+    Merge pull request #1 from kpl-rpl/Services-Kamar
+    
+    Implementasi Kamar Service
+
+commit 5d0c576ffc962a1330309f7abf4e705923160638
+Merge: 8c7972a 9ab3da5
+Author: gector727 <gectorashera@gmail.com>
+Date:   Tue Mar 31 09:54:25 2026 +0700
+
+    Implementasi Kamar Service
+
+commit 8c7972a7e5974e0b40863171e49a06daa5373156
+Author: gector727 <gectorashera@gmail.com>
+Date:   Tue Mar 31 09:48:54 2026 +0700
+
+    hapus Run di Program.cs dan Kamar Interface tidak perlu Dummy
+
+commit 9ab3da514e309851947e04b8cf149e6e6e2e55a1
+Author: Gector <gectorashera@gmail.com>
+Date:   Mon Mar 30 21:59:29 2026 +0700
+
+    Delete management-kos.sln
+
+commit 19379b3f069e8e2584ffbb16eaf318db605be705
+Author: gector727 <gectorashera@gmail.com>
+Date:   Mon Mar 30 21:42:35 2026 +0700
+
+    Implementasi Kamar Service
+
+commit 207a0ab420bce1c1f1cc4a90ee57c5fca05cc0cc
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Mar 30 16:09:03 2026 +0700
+
+    docs: Add video tutorial at readme
+
+commit 4a89e142225f30c1d0af1dbd2e1d0d87d364c8dc
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Mar 30 16:07:48 2026 +0700
+
+    docs(media): add tutorial-start.mp4 and track with git-lfs
+
+commit 63e8e08aaeb6749c13859f86b8188d4959b34d49
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Mar 30 16:04:15 2026 +0700
+
+    Feat: Home page with navigation
+
+commit d785c8e00cb9030695dbdcfc3c4fffbac4911978
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Mar 30 15:43:31 2026 +0700
+
+    chore(docs): tambah panduan .env, README, dan aturan repo
+
+commit 5ce3d84e3893f224439157983e7455ca6132b4eb
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Mar 30 15:43:24 2026 +0700
+
+    feat(ui): tambah FormKos CRUD dan ganti startup dari Form1
+
+commit 95ffa01d766d318896041ac14a3983344be74091
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Mar 30 15:43:07 2026 +0700
+
+    feat(core): scaffold model, service, dan repository Data Kos
+
+commit f571ce89480709189653db93b156e0305e667fa4
+Author: Aldy Prastyo <dipras75@gmail.com>
+Date:   Mon Mar 30 15:06:30 2026 +0700
+
+    Initialize Project

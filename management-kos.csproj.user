@@ -4,6 +4,9 @@
     <Compile Update="UI\FormKamar.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="UI\FormKontrakSewa.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="UI\FormKos.cs">
       <SubType>Form</SubType>
     </Compile>

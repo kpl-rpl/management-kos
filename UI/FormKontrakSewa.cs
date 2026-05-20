@@ -34,7 +34,7 @@ namespace management_kos.UI
 
         private void FormKontrakSewa_Load(object sender, EventArgs e)
         {
-            cmbStatus.Items.AddRange(new[] { "Aktif", "Selesai", "Dibatalkan" });
+            cmbStatus.Items.AddRange(new[] { "Dipesan", "Aktif", "Selesai", "Dibatalkan" });
             cmbStatus.SelectedIndex = 0;
 
             LoadPenghuniDropdown();
@@ -54,6 +54,7 @@ namespace management_kos.UI
         private void LoadKamarDropdown()
         {
             var list = _kamarService.GetAllKamar();
+            list = list.FindAll(k => !string.Equals(k.Status, "Perbaikan", StringComparison.OrdinalIgnoreCase));
             cmbKamar.DataSource = list;
             cmbKamar.DisplayMember = "DisplayText";
             cmbKamar.ValueMember = "Id";
