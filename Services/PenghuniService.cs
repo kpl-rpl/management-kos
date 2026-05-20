@@ -197,11 +197,8 @@ public class PenghuniService
         (x => string.IsNullOrWhiteSpace(x.Nama),
             "Nama penghuni wajib diisi."),
 
-        (x => string.IsNullOrWhiteSpace(x.NomorTelepon),
-            "Nomor Telepon wajib diisi."),
-
-        (x => !PhoneRegex.IsMatch(x.NomorTelepon),
-            "Format Nomor Telepon tidak valid."),
+        (x => string.IsNullOrWhiteSpace(x.NomorTelepon) || !PhoneRegex.IsMatch(x.NomorTelepon),
+            "Nomor Telepon wajib diisi dengan format yang valid."),
 
         (x => x.Email is not null && !EmailRegex.IsMatch(x.Email),
             "Format Email tidak valid."),
