@@ -34,8 +34,8 @@ namespace management_kos.UI
 
         private void FormKontrakSewa_Load(object sender, EventArgs e)
         {
-            cmbStatus.Items.AddRange(new[] { "Dipesan", "Aktif", "Selesai", "Dibatalkan" });
-            cmbStatus.SelectedIndex = 0;
+            cmbStatus.Items.AddRange(Enum.GetNames(typeof(KontrakStatus)));
+            cmbStatus.SelectedItem = KontrakStatus.Aktif.ToString();
 
             LoadPenghuniDropdown();
             LoadKamarDropdown();
@@ -54,7 +54,7 @@ namespace management_kos.UI
         private void LoadKamarDropdown()
         {
             var list = _kamarService.GetAllKamar();
-            list = list.FindAll(k => !string.Equals(k.Status, "Perbaikan", StringComparison.OrdinalIgnoreCase));
+            list = list.FindAll(k => k.Status != KamarStatus.Perbaikan);
             cmbKamar.DataSource = list;
             cmbKamar.DisplayMember = "DisplayText";
             cmbKamar.ValueMember = "Id";
@@ -195,8 +195,8 @@ namespace management_kos.UI
                                       : Convert.ToString(row.Cells["Deposit"].Value);
             txtCatatan.Text         = Convert.ToString(row.Cells["Catatan"].Value);
 
-            var status = Convert.ToString(row.Cells["Status"].Value) ?? "Aktif";
-            int idx = cmbStatus.Items.IndexOf(status);
+            var statusValue = Convert.ToString(row.Cells["Status"].Value) ?? KontrakStatus.Aktif.ToString();
+            int idx = cmbStatus.Items.IndexOf(statusValue);
             cmbStatus.SelectedIndex = idx >= 0 ? idx : 0;
 
             // Automata: transisi ke state Selected saat baris dipilih
@@ -222,7 +222,9 @@ namespace management_kos.UI
                 TanggalSelesai   = dtpTanggalSelesai.Value.Date,
                 HargaSewaBulanan = harga,
                 Deposit          = string.IsNullOrWhiteSpace(txtDeposit.Text) ? null : deposit,
-                Status           = cmbStatus.SelectedItem?.ToString() ?? "Aktif",
+                Status           = Enum.TryParse(cmbStatus.SelectedItem?.ToString(), out KontrakStatus parsed)
+                                   ? parsed
+                                   : KontrakStatus.Aktif,
                 Catatan          = string.IsNullOrWhiteSpace(txtCatatan.Text) ? null : txtCatatan.Text.Trim()
             };
         }

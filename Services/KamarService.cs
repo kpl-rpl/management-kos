@@ -108,22 +108,11 @@ public class KamarService
         }
 
         // Automata: Validasi status kamar menggunakan enum
-        if (!Enum.TryParse(kamar.Status, true, out KamarStatus status))
+        if (!Enum.IsDefined(typeof(KamarStatus), kamar.Status))
         {
             throw new ArgumentException(
                 "Status kamar tidak valid. Gunakan salah satu: Kosong, Terisi, Dipesan, Perbaikan."
             );
         }
-
-        kamar.Status = status.ToString();
     }
-}
-
-// Enum untuk status kamar
-public enum KamarStatus
-{
-    Kosong,
-    Terisi,
-    Dipesan,
-    Perbaikan
 }

@@ -26,8 +26,8 @@ namespace management_kos.Services
             // Arrange
             var kamarList = new List<Kamar>
             {
-                new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", Status = "Kosong" },
-                new Kamar { Id = 2, KosId = 1, NomorKamar = "A-02", Status = "Terisi" }
+                new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", Status = KamarStatus.Kosong },
+                new Kamar { Id = 2, KosId = 1, NomorKamar = "A-02", Status = KamarStatus.Terisi }
             };
             _mockKamarRepository.Setup(repo => repo.GetAll()).Returns(kamarList);
 
@@ -50,7 +50,7 @@ namespace management_kos.Services
         public void TambahKamar_ShouldCallInsert_WhenKamarIsValid()
         {
             // Arrange
-            var kamar = new Kamar { KosId = 1, NomorKamar = "A-01", HargaKamar = 1000000, Status = "Kosong" };
+            var kamar = new Kamar { KosId = 1, NomorKamar = "A-01", HargaKamar = 1000000, Status = KamarStatus.Kosong };
             _mockKosRepository.Setup(repo => repo.GetById(1)).Returns(new Kos { Id = 1 });
 
             // Act
@@ -64,7 +64,7 @@ namespace management_kos.Services
         public void UbahKamar_ShouldCallUpdate_WhenKamarIsValid()
         {
             // Arrange
-            var kamar = new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 1000000, Status = "Kosong" };
+            var kamar = new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 1000000, Status = KamarStatus.Kosong };
             _mockKosRepository.Setup(repo => repo.GetById(1)).Returns(new Kos { Id = 1 });
 
             // Act
