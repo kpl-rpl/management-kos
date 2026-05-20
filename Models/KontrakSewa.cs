@@ -9,9 +9,17 @@ public class KontrakSewa
     public DateTime TanggalSelesai { get; set; } = DateTime.Today.AddMonths(12);
     public decimal HargaSewaBulanan { get; set; }
     public decimal? Deposit { get; set; }
-    public string Status { get; set; } = "Aktif";
+    public KontrakStatus Status { get; set; } = KontrakStatus.Aktif;
     public string? Catatan { get; set; }
 
     public string DisplayText =>
         $"#{Id} — Kamar {KamarId} | {TanggalMulai:dd MMM yyyy} s/d {TanggalSelesai:dd MMM yyyy} ({Status})";
+}
+
+public enum KontrakStatus
+{
+    Dipesan,
+    Aktif,
+    Selesai,
+    Dibatalkan
 }

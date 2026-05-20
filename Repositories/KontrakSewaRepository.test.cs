@@ -19,8 +19,8 @@ namespace management_kos.Repositories
         {
             var list = new List<KontrakSewa>
             {
-                new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = "Aktif" },
-                new KontrakSewa { Id = 2, PenghuniId = 2, KamarId = 2, Status = "Selesai" }
+                new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = KontrakStatus.Aktif },
+                new KontrakSewa { Id = 2, PenghuniId = 2, KamarId = 2, Status = KontrakStatus.Selesai }
             };
             _mockRepository.Setup(repo => repo.GetAll()).Returns(list);
 
@@ -33,14 +33,14 @@ namespace management_kos.Repositories
         [Fact]
         public void GetById_ShouldReturnCorrectKontrak()
         {
-            var kontrak = new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = "Aktif" };
+            var kontrak = new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = KontrakStatus.Aktif };
             _mockRepository.Setup(repo => repo.GetById(1)).Returns(kontrak);
 
             var result = _mockRepository.Object.GetById(1);
 
             Assert.NotNull(result);
             Assert.Equal(1, result.Id);
-            Assert.Equal("Aktif", result.Status);
+            Assert.Equal(KontrakStatus.Aktif, result.Status);
         }
 
         [Fact]
@@ -48,8 +48,8 @@ namespace management_kos.Repositories
         {
             var list = new List<KontrakSewa>
             {
-                new KontrakSewa { Id = 1, PenghuniId = 5, KamarId = 1, Status = "Aktif" },
-                new KontrakSewa { Id = 2, PenghuniId = 5, KamarId = 3, Status = "Selesai" }
+                new KontrakSewa { Id = 1, PenghuniId = 5, KamarId = 1, Status = KontrakStatus.Aktif },
+                new KontrakSewa { Id = 2, PenghuniId = 5, KamarId = 3, Status = KontrakStatus.Selesai }
             };
             _mockRepository.Setup(repo => repo.GetByPenghuniId(5)).Returns(list);
 
@@ -64,21 +64,21 @@ namespace management_kos.Repositories
         {
             var list = new List<KontrakSewa>
             {
-                new KontrakSewa { Id = 1, Status = "Aktif" },
-                new KontrakSewa { Id = 2, Status = "Aktif" }
+                new KontrakSewa { Id = 1, Status = KontrakStatus.Aktif },
+                new KontrakSewa { Id = 2, Status = KontrakStatus.Aktif }
             };
             _mockRepository.Setup(repo => repo.GetByStatus("Aktif")).Returns(list);
 
             var result = _mockRepository.Object.GetByStatus("Aktif");
 
             Assert.Equal(2, result.Count);
-            Assert.All(result, k => Assert.Equal("Aktif", k.Status));
+            Assert.All(result, k => Assert.Equal(KontrakStatus.Aktif, k.Status));
         }
 
         [Fact]
         public void Insert_ShouldAddKontrak()
         {
-            var kontrak = new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = "Aktif" };
+            var kontrak = new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = KontrakStatus.Aktif };
             _mockRepository.Setup(repo => repo.Insert(kontrak)).Verifiable();
 
             _mockRepository.Object.Insert(kontrak);
@@ -89,7 +89,7 @@ namespace management_kos.Repositories
         [Fact]
         public void Update_ShouldUpdateKontrak()
         {
-            var kontrak = new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = "Selesai" };
+            var kontrak = new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = KontrakStatus.Selesai };
             _mockRepository.Setup(repo => repo.Update(kontrak)).Verifiable();
 
             _mockRepository.Object.Update(kontrak);

@@ -1,6 +1,7 @@
 using management_kos.Data;
 using management_kos.Models;
 using MySqlConnector;
+using System;
 
 namespace management_kos.Repositories;
 
@@ -92,7 +93,7 @@ public class KontrakSewaRepository : RepositoryBase, IKontrakSewaRepository
         cmd.Parameters.AddWithValue("@TanggalSelesai", k.TanggalSelesai.Date);
         cmd.Parameters.AddWithValue("@HargaSewaBulanan", k.HargaSewaBulanan);
         cmd.Parameters.AddWithValue("@Deposit", (object?)k.Deposit ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@Status", k.Status);
+        cmd.Parameters.AddWithValue("@Status", k.Status.ToString());
         cmd.Parameters.AddWithValue("@Catatan", (object?)k.Catatan ?? DBNull.Value);
     }
 
@@ -106,7 +107,9 @@ public class KontrakSewaRepository : RepositoryBase, IKontrakSewaRepository
         TanggalSelesai   = r.GetDateTime(Col["TanggalSelesai"]),
         HargaSewaBulanan = r.GetDecimal(Col["HargaSewaBulanan"]),
         Deposit          = r.IsDBNull(Col["Deposit"]) ? null : r.GetDecimal(Col["Deposit"]),
-        Status           = r.GetString(Col["Status"]),
+        Status           = Enum.TryParse(r.GetString(Col["Status"]), true, out KontrakStatus parsedStatus)
+                           ? parsedStatus
+                           : KontrakStatus.Aktif,
         Catatan          = r.IsDBNull(Col["Catatan"]) ? null : r.GetString(Col["Catatan"]),
     };
 }

@@ -59,7 +59,7 @@ public class PenghuniService
         _penghuniRepository.Insert(penghuni);
 
         // Tandai kamar menjadi Terisi setelah penghuni ditambahkan
-        UpdateStatusKamar(penghuni.KamarId, "Terisi");
+        UpdateStatusKamar(penghuni.KamarId, KamarStatus.Terisi);
     }
 
     public void UbahPenghuni(Penghuni penghuni)
@@ -86,7 +86,7 @@ public class PenghuniService
         // Jika pindah kamar, perbarui status kedua kamar
         if (existing.KamarId != penghuni.KamarId)
         {
-            UpdateStatusKamar(penghuni.KamarId, "Terisi");
+            UpdateStatusKamar(penghuni.KamarId, KamarStatus.Terisi);
             RecalculateStatusKamarLama(existing.KamarId);
         }
     }
@@ -145,13 +145,13 @@ public class PenghuniService
     {
         var kamar = _kamarRepository.GetById(kamarId)!;
 
-        if (kamar.Status.Equals("Perbaikan", StringComparison.OrdinalIgnoreCase))
+        if (kamar.Status == KamarStatus.Perbaikan)
         {
             throw new InvalidOperationException(
                 "Kamar sedang dalam perbaikan dan tidak dapat ditempati.");
         }
 
-        if (kamar.Status.Equals("Terisi", StringComparison.OrdinalIgnoreCase))
+        if (kamar.Status == KamarStatus.Terisi)
         {
             throw new InvalidOperationException(
                 "Kamar sudah terisi. Pilih kamar lain yang masih kosong.");
@@ -166,11 +166,11 @@ public class PenghuniService
             .GetByKamarId(kamarId)
             .Any(p => p.TanggalKeluar is null);
 
-        var statusBaru = penghuniAktif ? "Terisi" : "Kosong";
+        var statusBaru = penghuniAktif ? KamarStatus.Terisi : KamarStatus.Kosong;
         UpdateStatusKamar(kamarId, statusBaru);
     }
 
-    private void UpdateStatusKamar(int kamarId, string status)
+    private void UpdateStatusKamar(int kamarId, KamarStatus status)
     {
         var kamar = _kamarRepository.GetById(kamarId);
         if (kamar is null) return;
