@@ -14,6 +14,18 @@ namespace management_kos
             ApplicationConfiguration.Initialize();
 
             var dbContext = new MySqlDbContext();
+
+            if (!dbContext.TestConnection(out var dbError))
+            {
+                MessageBox.Show(
+                    $"Tidak dapat terhubung ke database MySQL.\nPastikan MySQL sudah aktif dan coba lagi.\n\nDetail: {dbError}",
+                    "Koneksi Database Gagal",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                return;
+            }
+
             dbContext.InitializeDatabase();
 
             IKosRepository kosRepository = new KosRepository(dbContext);

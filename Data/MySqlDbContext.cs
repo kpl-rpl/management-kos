@@ -34,6 +34,22 @@ public class MySqlDbContext
         return _commandTimeoutSeconds;
     }
 
+    public bool TestConnection(out string errorMessage)
+    {
+        try
+        {
+            using var serverConnection = new MySqlConnection(_serverConnectionString);
+            serverConnection.Open();
+            errorMessage = string.Empty;
+            return true;
+        }
+        catch (MySqlException ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
     public void InitializeDatabase()
     {
         EnsureDatabaseExists();
