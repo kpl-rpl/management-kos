@@ -30,8 +30,8 @@ namespace management_kos.Services
         {
             var list = new List<KontrakSewa>
             {
-                new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = "Aktif" },
-                new KontrakSewa { Id = 2, PenghuniId = 2, KamarId = 2, Status = "Selesai" }
+                new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, Status = KontrakStatus.Aktif },
+                new KontrakSewa { Id = 2, PenghuniId = 2, KamarId = 2, Status = KontrakStatus.Selesai }
             };
             _mockRepo.Setup(r => r.GetAll()).Returns(list);
 
@@ -46,31 +46,31 @@ namespace management_kos.Services
             yield return new object[]
             {
                 new KontrakSewa { PenghuniId = 0, KamarId = 1, HargaSewaBulanan = 1_000_000,
-                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today.AddMonths(1), Status = "Aktif" },
+                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today.AddMonths(1), Status = KontrakStatus.Aktif },
                 "PenghuniId nol harus ditolak"
             };
             yield return new object[]
             {
                 new KontrakSewa { PenghuniId = 1, KamarId = 0, HargaSewaBulanan = 1_000_000,
-                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today.AddMonths(1), Status = "Aktif" },
+                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today.AddMonths(1), Status = KontrakStatus.Aktif },
                 "KamarId nol harus ditolak"
             };
             yield return new object[]
             {
                 new KontrakSewa { PenghuniId = 1, KamarId = 1, HargaSewaBulanan = 0,
-                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today.AddMonths(1), Status = "Aktif" },
+                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today.AddMonths(1), Status = KontrakStatus.Aktif },
                 "Harga sewa nol harus ditolak"
             };
             yield return new object[]
             {
                 new KontrakSewa { PenghuniId = 1, KamarId = 1, HargaSewaBulanan = 1_000_000,
-                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today, Status = "Aktif" },
+                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today, Status = KontrakStatus.Aktif },
                 "TanggalSelesai sama dengan TanggalMulai harus ditolak"
             };
             yield return new object[]
             {
                 new KontrakSewa { PenghuniId = 1, KamarId = 1, HargaSewaBulanan = 1_000_000,
-                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today.AddMonths(1), Status = "StatusTidakValid" },
+                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today.AddMonths(1), Status = (KontrakStatus)999 },
                 "Status tidak valid harus ditolak"
             };
         }
@@ -91,10 +91,11 @@ namespace management_kos.Services
                 HargaSewaBulanan = 1_500_000,
                 TanggalMulai = DateTime.Today,
                 TanggalSelesai = DateTime.Today.AddMonths(6),
-                Status = "Aktif"
+                Status = KontrakStatus.Aktif
             };
             _mockPenghuniRepo.Setup(r => r.GetById(1)).Returns(new Penghuni { Id = 1 });
-            _mockKamarRepo.Setup(r => r.GetById(1)).Returns(new Kamar { Id = 1 });
+            _mockKamarRepo.Setup(r => r.GetById(1)).Returns(new Kamar { Id = 1, Status = KamarStatus.Kosong });
+            _mockRepo.Setup(r => r.GetByKamarId(1)).Returns(new List<KontrakSewa>());
 
             _service.TambahKontrak(k);
 
@@ -104,30 +105,34 @@ namespace management_kos.Services
         [Fact]
         public void SelesaikanKontrak_ShouldSetStatusSelesai()
         {
-            var k = new KontrakSewa { Id = 1, Status = "Aktif" };
+            var k = new KontrakSewa { Id = 1, Status = KontrakStatus.Aktif };
             _mockRepo.Setup(r => r.GetById(1)).Returns(k);
 
             _service.SelesaikanKontrak(1);
 
-            Assert.Equal("Selesai", k.Status);
+            Assert.Equal(KontrakStatus.Selesai, k.Status);
             _mockRepo.Verify(r => r.Update(k), Times.Once);
         }
 
         [Fact]
         public void BatalkanKontrak_ShouldSetStatusDibatalkan()
         {
-            var k = new KontrakSewa { Id = 1, Status = "Aktif" };
+            var k = new KontrakSewa { Id = 1, Status = KontrakStatus.Aktif };
             _mockRepo.Setup(r => r.GetById(1)).Returns(k);
 
             _service.BatalkanKontrak(1);
 
-            Assert.Equal("Dibatalkan", k.Status);
+            Assert.Equal(KontrakStatus.Dibatalkan, k.Status);
             _mockRepo.Verify(r => r.Update(k), Times.Once);
         }
 
         [Fact]
         public void HapusKontrak_ShouldCallDelete_WhenIdValid()
         {
+            _mockRepo.Setup(r => r.GetById(1)).Returns(new KontrakSewa { Id = 1, KamarId = 1, Status = KontrakStatus.Aktif });
+            _mockKamarRepo.Setup(r => r.GetById(1)).Returns(new Kamar { Id = 1, Status = KamarStatus.Terisi });
+            _mockRepo.Setup(r => r.GetByKamarId(1)).Returns(new List<KontrakSewa>());
+
             _service.HapusKontrak(1);
 
             _mockRepo.Verify(r => r.Delete(1), Times.Once);

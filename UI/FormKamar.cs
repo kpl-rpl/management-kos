@@ -36,6 +36,7 @@ namespace management_kos.UI
         private void FormKamar_Load(object sender, EventArgs e)
         {
             LoadKosToComboBox();
+            radioButton1.Checked = true;
             RefreshGrid();
         }
 
@@ -79,25 +80,32 @@ namespace management_kos.UI
             textBox1.Text      = Convert.ToString(row.Cells[nameof(Kamar.NomorKamar)]?.Value);
             txtHargaKamar.Text = Convert.ToString(row.Cells[nameof(Kamar.HargaKamar)]?.Value);
 
-            var status = Convert.ToString(row.Cells[nameof(Kamar.Status)]?.Value);
-            SetStatusRadio(status);
+            var statusValue = row.Cells[nameof(Kamar.Status)]?.Value;
+            var statusText = statusValue?.ToString();
+            SetStatusRadio(statusText);
         }
 
         private void SetStatusRadio(string? status)
         {
-            radioButton1.Checked = status == "Kosong";
-            radioButton2.Checked = status == "Terisi";
-            radioButton3.Checked = status == "Dipesan";
-            radioButton4.Checked = status == "Perbaikan";
+            if (!Enum.TryParse(status, true, out KamarStatus parsed))
+            {
+                radioButton1.Checked = true;
+                return;
+            }
+
+            radioButton1.Checked = parsed == KamarStatus.Kosong;
+            radioButton2.Checked = parsed == KamarStatus.Terisi;
+            radioButton3.Checked = parsed == KamarStatus.Dipesan;
+            radioButton4.Checked = parsed == KamarStatus.Perbaikan;
         }
 
-        private string GetSelectedStatus()
+        private KamarStatus GetSelectedStatus()
         {
-            if (radioButton1.Checked) return "Kosong";
-            if (radioButton2.Checked) return "Terisi";
-            if (radioButton3.Checked) return "Dipesan";
-            if (radioButton4.Checked) return "Perbaikan";
-            return "Kosong";
+            if (radioButton1.Checked) return KamarStatus.Kosong;
+            if (radioButton2.Checked) return KamarStatus.Terisi;
+            if (radioButton3.Checked) return KamarStatus.Dipesan;
+            if (radioButton4.Checked) return KamarStatus.Perbaikan;
+            return KamarStatus.Kosong;
         }
 
         public void RefreshData()

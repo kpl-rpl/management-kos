@@ -1,5 +1,6 @@
 using management_kos.Models;
 using management_kos.Repositories;
+using System;
 using System.Linq;
 
 namespace management_kos.Services;
@@ -91,7 +92,7 @@ public class KontrakSewaService
     {
         Guard.Positive(id, "ID Kontrak");
         var kontrak = _repo.GetById(id) ?? throw new Exception("Kontrak tidak ditemukan.");
-        kontrak.Status = "Selesai";
+        kontrak.Status = KontrakStatus.Selesai;
         _repo.Update(kontrak);
         UpdateKamarStatusForKontrak(kontrak);
     }
@@ -100,7 +101,7 @@ public class KontrakSewaService
     {
         Guard.Positive(id, "ID Kontrak");
         var kontrak = _repo.GetById(id) ?? throw new Exception("Kontrak tidak ditemukan.");
-        kontrak.Status = "Dibatalkan";
+        kontrak.Status = KontrakStatus.Dibatalkan;
         _repo.Update(kontrak);
         UpdateKamarStatusForKontrak(kontrak);
     }
@@ -125,10 +126,8 @@ public class KontrakSewaService
         if (k.Deposit.HasValue && k.Deposit < 0)
             throw new ArgumentException("Deposit tidak boleh negatif.");
 
-        if (!Enum.TryParse<KontrakStatus>(k.Status, true, out var parsedStatus))
+        if (!Enum.IsDefined(typeof(KontrakStatus), k.Status))
             throw new ArgumentException("Status tidak valid. Gunakan: Dipesan, Aktif, Selesai, atau Dibatalkan.");
-
-        k.Status = parsedStatus.ToString();
     }
 
     private void EnsurePenghuniExists(int id)
@@ -146,18 +145,18 @@ public class KontrakSewaService
     private void EnsureKamarAvailable(KontrakSewa k, int? excludeKontrakId)
     {
         var kamar = _kamarRepo.GetById(k.KamarId) ?? throw new ArgumentException("Kamar tidak ditemukan.");
-        if (string.Equals(kamar.Status, "Perbaikan", StringComparison.OrdinalIgnoreCase))
+        if (kamar.Status == KamarStatus.Perbaikan)
             throw new ArgumentException("Kamar sedang perbaikan dan tidak bisa dibooking.");
 
         var kontrakAktif = _repo
             .GetByKamarId(k.KamarId)
             .Any(x => x.Id != (excludeKontrakId ?? 0)
-                && (x.Status == "Aktif" || x.Status == "Dipesan"));
+                && (x.Status == KontrakStatus.Aktif || x.Status == KontrakStatus.Dipesan));
 
         if (kontrakAktif)
             throw new ArgumentException("Kamar sudah dibooking atau sedang terisi.");
 
-        if (k.Status == "Dipesan" && !string.Equals(kamar.Status, "Kosong", StringComparison.OrdinalIgnoreCase))
+        if (k.Status == KontrakStatus.Dipesan && kamar.Status != KamarStatus.Kosong)
             throw new ArgumentException("Kamar hanya bisa dibooking jika statusnya Kosong.");
     }
 
@@ -168,9 +167,9 @@ public class KontrakSewaService
 
         var targetStatus = kontrak.Status switch
         {
-            "Aktif" => "Terisi",
-            "Dipesan" => "Dipesan",
-            _ => null
+            KontrakStatus.Aktif => KamarStatus.Terisi,
+            KontrakStatus.Dipesan => KamarStatus.Dipesan,
+            _ => (KamarStatus?)null
         };
 
         if (targetStatus is null)
@@ -179,9 +178,9 @@ public class KontrakSewaService
             return;
         }
 
-        if (!string.Equals(kamar.Status, targetStatus, StringComparison.Ordinal))
+        if (kamar.Status != targetStatus)
         {
-            kamar.Status = targetStatus;
+            kamar.Status = targetStatus.Value;
             _kamarRepo.Update(kamar);
         }
     }
@@ -193,20 +192,12 @@ public class KontrakSewaService
 
         var masihAktif = _repo
             .GetByKamarId(kamarId)
-            .Any(x => x.Id != kontrakId && (x.Status == "Aktif" || x.Status == "Dipesan"));
+            .Any(x => x.Id != kontrakId && (x.Status == KontrakStatus.Aktif || x.Status == KontrakStatus.Dipesan));
 
-        if (!masihAktif && !string.Equals(kamar.Status, "Kosong", StringComparison.Ordinal))
+        if (!masihAktif && kamar.Status != KamarStatus.Kosong)
         {
-            kamar.Status = "Kosong";
+            kamar.Status = KamarStatus.Kosong;
             _kamarRepo.Update(kamar);
         }
     }
-}
-
-public enum KontrakStatus
-{
-    Dipesan,
-    Aktif,
-    Selesai,
-    Dibatalkan
 }
