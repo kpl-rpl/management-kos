@@ -6,7 +6,7 @@ public class Kamar
     public int KosId { get; set; }
     public string NomorKamar { get; set; } = string.Empty;
     public int HargaKamar { get; set; }
-    public string Status { get; set; } = "Kosong";
+    public KamarStatus Status { get; set; } = KamarStatus.Kosong;
 
     public string? NamaKos { get; set; }
 
@@ -14,4 +14,12 @@ public class Kamar
         string.IsNullOrWhiteSpace(NamaKos)
             ? NomorKamar
             : $"{NamaKos} - {NomorKamar}";
+}
+
+public enum KamarStatus
+{
+    Kosong,
+    Terisi,
+    Dipesan,
+    Perbaikan
 }

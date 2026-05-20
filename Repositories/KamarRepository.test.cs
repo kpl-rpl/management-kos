@@ -19,8 +19,8 @@ namespace management_kos.Repositories
         {
             var list = new List<Kamar>
             {
-                new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 800_000, Status = "Kosong" },
-                new Kamar { Id = 2, KosId = 1, NomorKamar = "A-02", HargaKamar = 900_000, Status = "Terisi" }
+                new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 800_000, Status = KamarStatus.Kosong },
+                new Kamar { Id = 2, KosId = 1, NomorKamar = "A-02", HargaKamar = 900_000, Status = KamarStatus.Terisi }
             };
             _mockRepository.Setup(repo => repo.GetAll()).Returns(list);
 
@@ -33,7 +33,7 @@ namespace management_kos.Repositories
         [Fact]
         public void GetById_ShouldReturnCorrectKamar()
         {
-            var kamar = new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 800_000, Status = "Kosong" };
+            var kamar = new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 800_000, Status = KamarStatus.Kosong };
             _mockRepository.Setup(repo => repo.GetById(1)).Returns(kamar);
 
             var result = _mockRepository.Object.GetById(1);
@@ -58,8 +58,8 @@ namespace management_kos.Repositories
         {
             var list = new List<Kamar>
             {
-                new Kamar { Id = 1, KosId = 3, NomorKamar = "B-01", Status = "Kosong" },
-                new Kamar { Id = 2, KosId = 3, NomorKamar = "B-02", Status = "Terisi" }
+                new Kamar { Id = 1, KosId = 3, NomorKamar = "B-01", Status = KamarStatus.Kosong },
+                new Kamar { Id = 2, KosId = 3, NomorKamar = "B-02", Status = KamarStatus.Terisi }
             };
             _mockRepository.Setup(repo => repo.GetByKosId(3)).Returns(list);
 
@@ -72,7 +72,7 @@ namespace management_kos.Repositories
         [Fact]
         public void Insert_ShouldAddKamar()
         {
-            var kamar = new Kamar { KosId = 1, NomorKamar = "A-01", HargaKamar = 800_000, Status = "Kosong" };
+            var kamar = new Kamar { KosId = 1, NomorKamar = "A-01", HargaKamar = 800_000, Status = KamarStatus.Kosong };
             _mockRepository.Setup(repo => repo.Insert(kamar)).Verifiable();
 
             _mockRepository.Object.Insert(kamar);
@@ -83,7 +83,7 @@ namespace management_kos.Repositories
         [Fact]
         public void Update_ShouldUpdateKamar()
         {
-            var kamar = new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 950_000, Status = "Terisi" };
+            var kamar = new Kamar { Id = 1, KosId = 1, NomorKamar = "A-01", HargaKamar = 950_000, Status = KamarStatus.Terisi };
             _mockRepository.Setup(repo => repo.Update(kamar)).Verifiable();
 
             _mockRepository.Object.Update(kamar);

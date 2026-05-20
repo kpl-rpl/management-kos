@@ -1,6 +1,7 @@
 ﻿using management_kos.Data;
 using management_kos.Models;
 using MySqlConnector;
+using System;
 using System.Collections.Generic;
 
 namespace management_kos.Repositories;
@@ -33,7 +34,9 @@ public class KamarRepository : IKamarRepository
                 KosId      = reader.GetInt32(1),
                 NomorKamar = reader.GetString(2),
                 HargaKamar = reader.GetInt32(3),
-                Status     = reader.GetString(4),
+                Status     = Enum.TryParse(reader.GetString(4), true, out KamarStatus parsedStatus)
+                             ? parsedStatus
+                             : KamarStatus.Kosong,
                 NamaKos    = reader.IsDBNull(5) ? null : reader.GetString(5)
             });
         }
@@ -54,7 +57,9 @@ public class KamarRepository : IKamarRepository
             KosId = reader.GetInt32(1),
             NomorKamar = reader.GetString(2),
             HargaKamar = reader.GetInt32(3),
-            Status = reader.GetString(4)
+            Status = Enum.TryParse(reader.GetString(4), true, out KamarStatus parsedStatus)
+                     ? parsedStatus
+                     : KamarStatus.Kosong
         };
     }
 
@@ -74,7 +79,9 @@ public class KamarRepository : IKamarRepository
                 KosId = reader.GetInt32(1),
                 NomorKamar = reader.GetString(2),
                 HargaKamar = reader.GetInt32(3),
-                Status = reader.GetString(4)
+                Status = Enum.TryParse(reader.GetString(4), true, out KamarStatus parsedStatus)
+                         ? parsedStatus
+                         : KamarStatus.Kosong
             });
         }
         return result;
@@ -90,7 +97,7 @@ public class KamarRepository : IKamarRepository
         command.Parameters.AddWithValue("@KosId", kamar.KosId);
         command.Parameters.AddWithValue("@NomorKamar", kamar.NomorKamar);
         command.Parameters.AddWithValue("@HargaKamar", kamar.HargaKamar);   
-        command.Parameters.AddWithValue("@Status", kamar.Status);
+        command.Parameters.AddWithValue("@Status", kamar.Status.ToString());
         command.ExecuteNonQuery();
     }
 
@@ -106,7 +113,7 @@ public class KamarRepository : IKamarRepository
         command.Parameters.AddWithValue("@KosId", kamar.KosId);
         command.Parameters.AddWithValue("@NomorKamar", kamar.NomorKamar);
         command.Parameters.AddWithValue("@HargaKamar", kamar.HargaKamar);
-        command.Parameters.AddWithValue("@Status", kamar.Status);
+        command.Parameters.AddWithValue("@Status", kamar.Status.ToString());
         command.ExecuteNonQuery();
     }
 
