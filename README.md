@@ -11,6 +11,8 @@ Berikut daftar modul utama dalam aplikasi ini beserta status implementasinya saa
 - ✅ **Data Penghuni** (`Penghuni`) — **Sudah terimplementasi**
 - ✅ **Pembayaran** (`Pembayaran`) — **Sudah terimplementasi**
 - ✅ **Kontrak Sewa** (`KontrakSewa`) — **Sudah terimplementasi**
+- ✅ **Data User/Autentikasi** (`AppUser`, `Role`) — **Fondasi database, repository, dan service sudah terimplementasi**
+- ✅ **Data Reference** (`Role`, `MetodePembayaranRef`) — **Fondasi database, repository, dan service sudah terimplementasi**
 
 ### 1.1 Pembagian Role per Modul
 
@@ -168,7 +170,7 @@ ALTER TABLE Kamar ADD COLUMN Lantai INT NOT NULL DEFAULT 1;
 - **Penambahan fitur baru**
   - Ikuti urutan: `Model -> Repository -> Service -> UI`.
   - Hindari akses database langsung dari UI.
-  - Jangan campur validasi bisnis ke layer UI.
+- Jangan campur validasi bisnis ke layer UI.
 
 ## 7. Batasan Implementasi
 
@@ -192,6 +194,7 @@ Bagian ini adalah rencana struktur database yang saya pakai sebagai acuan pengem
    - `NamaPemilik`
    - `NomorTelepon`
    - `Catatan` (nullable)
+   - `IsActive`
 
 2. **Kamar**
    - `Id` (PK)
@@ -199,6 +202,7 @@ Bagian ini adalah rencana struktur database yang saya pakai sebagai acuan pengem
    - `NomorKamar`
    - `HargaKamar`
    - `Status`
+   - `IsActive`
 
 3. **Penghuni**
    - `Id` (PK)
@@ -209,8 +213,36 @@ Bagian ini adalah rencana struktur database yang saya pakai sebagai acuan pengem
    - `TanggalMasuk`
    - `TanggalKeluar` (nullable)
    - `Catatan` (nullable)
+   - `IsActive`
 
-### 8.2 Tabel inti berikutnya
+### 8.2 Tabel user dan reference
+
+1. **Role** (reference)
+   - `Id` (PK)
+   - `NamaRole` (unique)
+   - `Deskripsi` (nullable)
+   - `IsActive`
+
+2. **AppUser** (user/autentikasi)
+   - `Id` (PK)
+   - `RoleId` (FK -> `Role.Id`)
+   - `Username` (unique)
+   - `PasswordHash`
+   - `NamaLengkap`
+   - `IsActive`
+   - `CreatedAt`
+   - `UpdatedAt` (nullable)
+
+   Seed awal:
+   - Username: `admin`
+   - Password awal: `admin123`
+
+3. **MetodePembayaranRef** (reference)
+   - `Id` (PK)
+   - `NamaMetode` (unique)
+   - `IsActive`
+
+### 8.3 Tabel inti berikutnya
 
 1. **KontrakSewa**
    - `Id` (PK)
@@ -258,8 +290,20 @@ Bagian ini adalah rencana struktur database yang saya pakai sebagai acuan pengem
 - `KontrakSewa` 1..N `Pembayaran`
 - `KontrakSewa` 1..N `TagihanTambahan`
 - `Kamar` 1..N `MaintenanceKamar`
+- `Role` 1..N `AppUser`
 
-### 8.4 Strategi migration
+### 8.4 Strategi soft delete dan trigger
+
+- Data user dan master tidak dihapus secara fisik.
+- Aksi hapus pada `Kos`, `Kamar`, `Penghuni`, `Role`, `AppUser`, dan `MetodePembayaranRef` mengubah `IsActive = 0`.
+- Tabel transaksi seperti `KontrakSewa` dan `Pembayaran` tetap menyimpan histori transaksi.
+- Database trigger dipakai sebagai backup konsistensi status kamar:
+  - `AFTER INSERT` pada `KontrakSewa`
+  - `AFTER UPDATE` pada `KontrakSewa`
+  - `AFTER DELETE` pada `KontrakSewa`
+- Service layer tetap menjadi tempat utama business logic agar alur aplikasi mudah diuji dan di-debug.
+
+### 8.5 Strategi migration
 - Satu perubahan schema = satu file migration SQL di `Data/Migrations`.
 - Gunakan naming: `yyyyMMddHHmmss_nama_migration.sql`.
 - Jangan edit migration lama yang sudah pernah dijalankan.
@@ -276,6 +320,19 @@ powershell -ExecutionPolicy Bypass -File .\scripts\new-migration.ps1 -Name "crea
 Bagian ini merangkum requirement tugas besar yang diterapkan pada project ini.
 
 ### 9.1 Requirement tingkat kelompok
+
+#### Mapping requirement Basis Data
+
+| Requirement | Implementasi project |
+|---|---|
+| Data user/autentikasi | `AppUser` + `Role` |
+| Data reference | `Role`, `MetodePembayaranRef` |
+| Data master | `Kos`, `Kamar`, `Penghuni` |
+| Data transaksi | `KontrakSewa`, `Pembayaran` |
+| PK/FK | Semua tabel inti memiliki primary key dan foreign key |
+| User/master tidak dihapus | `IsActive` + soft delete |
+| Kombinasi SQL + bahasa pemrograman | Migration SQL + C# WinForms/ADO.NET |
+| DBMS | MySQL |
 
 1. **Remote repository (10%)**
    - Project dikelola menggunakan Git dan remote repository (`origin`).

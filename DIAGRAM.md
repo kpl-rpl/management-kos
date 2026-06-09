@@ -13,6 +13,7 @@ erDiagram
         varchar NamaPemilik
         varchar NomorTelepon
         text Catatan
+        bool IsActive
     }
 
     Kamar {
@@ -21,6 +22,7 @@ erDiagram
         varchar NomorKamar
         int HargaKamar
         varchar Status
+        bool IsActive
     }
 
     Penghuni {
@@ -32,6 +34,7 @@ erDiagram
         date TanggalMasuk
         date TanggalKeluar
         text Catatan
+        bool IsActive
     }
 
     KontrakSewa {
@@ -58,16 +61,348 @@ erDiagram
         text Catatan
     }
 
+    Role {
+        int Id PK
+        varchar NamaRole
+        varchar Deskripsi
+        bool IsActive
+    }
+
+    AppUser {
+        int Id PK
+        int RoleId FK
+        varchar Username
+        varchar PasswordHash
+        varchar NamaLengkap
+        bool IsActive
+        datetime CreatedAt
+        datetime UpdatedAt
+    }
+
+    MetodePembayaranRef {
+        int Id PK
+        varchar NamaMetode
+        bool IsActive
+    }
+
     Kos ||--o{ Kamar : "memiliki"
     Kamar ||--o{ Penghuni : "ditempati oleh"
     Kamar ||--o{ KontrakSewa : "terikat dalam"
     Penghuni ||--o{ KontrakSewa : "membuat"
     KontrakSewa ||--o{ Pembayaran : "menghasilkan"
+    Role ||--o{ AppUser : "memberi hak akses"
+```
+
+### Catatan Normalisasi dan Requirement Basis Data
+
+- `Role` dan `MetodePembayaranRef` adalah tabel reference.
+- `AppUser` adalah tabel user/autentikasi.
+- `Kos`, `Kamar`, dan `Penghuni` adalah data master.
+- `KontrakSewa` dan `Pembayaran` adalah data transaksi.
+- Data user dan master memakai soft delete melalui `IsActive`, bukan hapus fisik.
+- Trigger database pada `KontrakSewa` menjaga sinkronisasi dasar ke `Kamar.Status` saat `INSERT`, `UPDATE`, dan `DELETE`.
+
+---
+
+## 2. Sequence Diagram
+
+### 2.1 Tambah Kos
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as FormKos
+    participant Svc as KosService
+    participant Repo as KosRepository
+    participant DB as MySQL
+
+    User->>Form: Isi form & klik Tambah
+    Form->>Svc: TambahKos(kos)
+    Svc->>Svc: Validasi field (nama, alamat, harga, dll)
+    alt Validasi gagal
+        Svc-->>Form: throw Exception
+        Form-->>User: MessageBox error
+    else Validasi OK
+        Svc->>Repo: Insert(kos)
+        Repo->>DB: INSERT INTO Kos (NamaKos, Alamat, HargaDasar, ...) VALUES (...)
+        DB-->>Repo: OK
+        Repo-->>Svc: void
+        Svc-->>Form: void
+        Form->>Repo: GetAll()
+        Repo->>DB: SELECT * FROM Kos ORDER BY Id DESC
+        DB-->>Repo: rows
+        Repo-->>Form: List<Kos>
+        Form-->>User: Refresh grid
+    end
+```
+
+### 2.2 Tambah Kamar
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as FormKamar
+    participant Svc as KamarService
+    participant KamRepo as KamarRepository
+    participant KosRepo as KosRepository
+    participant DB as MySQL
+
+    User->>Form: Pilih Kos, isi form & klik Tambah
+    Form->>Svc: TambahKamar(kamar)
+    Svc->>Svc: Validasi field (nomorKamar, harga, status)
+    Svc->>KosRepo: GetById(kosId)
+    KosRepo->>DB: SELECT * FROM Kos WHERE Id = @Id
+    DB-->>KosRepo: row / null
+    alt Kos tidak ditemukan
+        KosRepo-->>Svc: null
+        Svc-->>Form: throw Exception
+        Form-->>User: MessageBox error
+    else Kos ada
+        Svc->>KamRepo: Insert(kamar)
+        KamRepo->>DB: INSERT INTO Kamar (KosId, NomorKamar, HargaKamar, Status) VALUES (...)
+        DB-->>KamRepo: OK
+        KamRepo-->>Svc: void
+        Svc-->>Form: void
+        Form->>KamRepo: GetByKosId(kosId)
+        KamRepo->>DB: SELECT * FROM Kamar WHERE KosId = @KosId
+        DB-->>KamRepo: rows
+        KamRepo-->>Form: List<Kamar>
+        Form-->>User: Refresh grid
+    end
+```
+
+### 2.3 Tambah Penghuni
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as FormPenghuni
+    participant Svc as PenghuniService
+    participant PenRepo as PenghuniRepository
+    participant KamRepo as KamarRepository
+    participant DB as MySQL
+
+    User->>Form: Pilih Kamar, isi form & klik Tambah
+    Form->>Svc: TambahPenghuni(penghuni)
+    Svc->>Svc: Validasi field (nama, telepon, tanggal)
+    Svc->>KamRepo: GetById(kamarId)
+    KamRepo->>DB: SELECT * FROM Kamar WHERE Id = @Id
+    DB-->>KamRepo: row
+    alt Kamar Perbaikan / Terisi
+        Svc-->>Form: throw Exception
+        Form-->>User: MessageBox error
+    else Kamar tersedia
+        Svc->>PenRepo: Insert(penghuni)
+        PenRepo->>DB: INSERT INTO Penghuni (KamarId, Nama, NomorTelepon, ...) VALUES (...)
+        DB-->>PenRepo: OK
+        Svc->>KamRepo: GetById(kamarId)
+        KamRepo->>DB: SELECT * FROM Kamar WHERE Id = @Id
+        DB-->>KamRepo: row
+        Svc->>KamRepo: Update(kamar{Status=Terisi})
+        KamRepo->>DB: UPDATE Kamar SET Status='Terisi' WHERE Id = @Id
+        DB-->>KamRepo: OK
+        Svc-->>Form: void
+        Form->>PenRepo: GetAll()
+        PenRepo->>DB: SELECT * FROM Penghuni ORDER BY Id DESC
+        DB-->>PenRepo: rows
+        PenRepo-->>Form: List<Penghuni>
+        Form-->>User: Refresh grid
+    end
+```
+
+### 2.4 Hapus Penghuni
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as FormPenghuni
+    participant Svc as PenghuniService
+    participant PenRepo as PenghuniRepository
+    participant KamRepo as KamarRepository
+    participant DB as MySQL
+
+    User->>Form: Pilih penghuni & klik Hapus
+    Form->>Svc: HapusPenghuni(id)
+    Svc->>PenRepo: GetById(id)
+    PenRepo->>DB: SELECT * FROM Penghuni WHERE Id = @Id
+    DB-->>PenRepo: row
+    Svc->>PenRepo: Delete(id)
+    PenRepo->>DB: DELETE FROM Penghuni WHERE Id = @Id
+    DB-->>PenRepo: OK
+    Note over Svc: Recalculate status kamar lama
+    Svc->>PenRepo: GetByKamarId(kamarId)
+    PenRepo->>DB: SELECT * FROM Penghuni WHERE KamarId = @KamarId
+    DB-->>PenRepo: rows
+    alt Tidak ada penghuni aktif tersisa
+        Svc->>KamRepo: GetById(kamarId)
+        KamRepo->>DB: SELECT * FROM Kamar WHERE Id = @Id
+        DB-->>KamRepo: row
+        Svc->>KamRepo: Update(kamar{Status=Kosong})
+        KamRepo->>DB: UPDATE Kamar SET Status='Kosong' WHERE Id = @Id
+        DB-->>KamRepo: OK
+    end
+    Svc-->>Form: void
+    Form-->>User: Refresh grid
+```
+
+### 2.5 Tambah Kontrak Sewa
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as FormKontrakSewa
+    participant Svc as KontrakSewaService
+    participant KonRepo as KontrakSewaRepository
+    participant PenRepo as PenghuniRepository
+    participant KamRepo as KamarRepository
+    participant DB as MySQL
+
+    User->>Form: Pilih Penghuni & Kamar, isi form & klik Tambah
+    Form->>Svc: TambahKontrak(kontrak)
+    Svc->>Svc: Validasi field (harga, tanggal, deposit)
+    Svc->>PenRepo: GetById(penghuniId)
+    PenRepo->>DB: SELECT * FROM Penghuni WHERE Id = @Id
+    DB-->>PenRepo: row
+    Svc->>KamRepo: GetById(kamarId)
+    KamRepo->>DB: SELECT * FROM Kamar WHERE Id = @Id
+    DB-->>KamRepo: row
+    alt Kamar Perbaikan atau ada kontrak aktif konflik
+        Svc->>KonRepo: GetByKamarId(kamarId)
+        KonRepo->>DB: SELECT * FROM KontrakSewa WHERE KamarId = @KamarId
+        DB-->>KonRepo: rows
+        Svc-->>Form: throw Exception
+        Form-->>User: MessageBox error
+    else OK
+        Svc->>KonRepo: Insert(kontrak)
+        KonRepo->>DB: INSERT INTO KontrakSewa (PenghuniId, KamarId, TanggalMulai, ...) VALUES (...)
+        DB-->>KonRepo: OK
+        Note over Svc: UpdateKamarStatusForKontrak
+        Svc->>KamRepo: GetById(kamarId)
+        KamRepo->>DB: SELECT * FROM Kamar WHERE Id = @Id
+        DB-->>KamRepo: row
+        alt Status kontrak = Aktif
+            Svc->>KamRepo: Update(kamar{Status=Terisi})
+            KamRepo->>DB: UPDATE Kamar SET Status='Terisi' WHERE Id = @Id
+        else Status kontrak = Dipesan
+            Svc->>KamRepo: Update(kamar{Status=Dipesan})
+            KamRepo->>DB: UPDATE Kamar SET Status='Dipesan' WHERE Id = @Id
+        end
+        DB-->>KamRepo: OK
+        Svc-->>Form: void
+        Form->>KonRepo: GetAll()
+        KonRepo->>DB: SELECT * FROM KontrakSewa ORDER BY Id DESC
+        DB-->>KonRepo: rows
+        KonRepo-->>Form: List<KontrakSewa>
+        Form-->>User: Refresh grid
+    end
+```
+
+### 2.6 Selesaikan / Batalkan Kontrak Sewa
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as FormKontrakSewa
+    participant Svc as KontrakSewaService
+    participant KonRepo as KontrakSewaRepository
+    participant KamRepo as KamarRepository
+    participant DB as MySQL
+
+    User->>Form: Pilih kontrak & klik Selesai / Batal
+    alt Selesaikan
+        Form->>Svc: SelesaikanKontrak(id)
+    else Batalkan
+        Form->>Svc: BatalkanKontrak(id)
+    end
+    Svc->>KonRepo: GetById(id)
+    KonRepo->>DB: SELECT * FROM KontrakSewa WHERE Id = @Id
+    DB-->>KonRepo: row
+    Svc->>KonRepo: Update(kontrak{Status=Selesai/Dibatalkan})
+    KonRepo->>DB: UPDATE KontrakSewa SET Status=@Status WHERE Id = @Id
+    DB-->>KonRepo: OK
+    Note over Svc: ResetKamarIfNoActiveOrBooked
+    Svc->>KonRepo: GetByKamarId(kamarId)
+    KonRepo->>DB: SELECT * FROM KontrakSewa WHERE KamarId = @KamarId
+    DB-->>KonRepo: rows
+    alt Tidak ada kontrak Aktif/Dipesan tersisa
+        Svc->>KamRepo: GetById(kamarId)
+        KamRepo->>DB: SELECT * FROM Kamar WHERE Id = @Id
+        DB-->>KamRepo: row
+        Svc->>KamRepo: Update(kamar{Status=Kosong})
+        KamRepo->>DB: UPDATE Kamar SET Status='Kosong' WHERE Id = @Id
+        DB-->>KamRepo: OK
+    end
+    Svc-->>Form: void
+    Form-->>User: Refresh grid
+```
+
+### 2.7 Tambah Tagihan Pembayaran
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as FormPembayaran
+    participant Svc as PembayaranService
+    participant Repo as PembayaranRepository
+    participant DB as MySQL
+
+    User->>Form: Pilih Kontrak, isi Periode & Tagihan, klik Tambah
+    Form->>Svc: TambahTagihan(pembayaran)
+    Svc->>Svc: Validasi field (kontrakId, periode, jumlahTagihan)
+    Note over Svc: DetermineEvent(dibayar, tagihan)
+    Note over Svc: GetNextState(BelumBayar, event) → Status
+    Svc->>Repo: Insert(pembayaran)
+    Repo->>DB: INSERT INTO Pembayaran (KontrakSewaId, Periode, JumlahTagihan, JumlahDibayar, Status, ...) VALUES (...)
+    DB-->>Repo: OK
+    Repo-->>Svc: void
+    Svc-->>Form: void
+    Form->>Repo: GetByKontrakSewaId(kontrakId)
+    Repo->>DB: SELECT * FROM Pembayaran WHERE KontrakSewaId = @KontrakSewaId
+    DB-->>Repo: rows
+    Repo-->>Form: List<Pembayaran>
+    Form-->>User: Refresh grid
+```
+
+### 2.8 Bayar Tagihan
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as FormPembayaran
+    participant Svc as PembayaranService
+    participant Repo as PembayaranRepository
+    participant DB as MySQL
+
+    User->>Form: Pilih tagihan, isi nominal & metode, klik Bayar
+    Form->>Svc: BayarTagihan(id, nominal, metode)
+    Svc->>Repo: GetById(id)
+    Repo->>DB: SELECT * FROM Pembayaran WHERE Id = @Id
+    DB-->>Repo: row
+    Svc->>Svc: Update JumlahDibayar & TanggalBayar
+    Note over Svc: DetermineEvent(dibayar, tagihan)
+    Note over Svc: GetNextState(statusLama, event) → statusBaru
+    alt statusBaru = Lunas
+        Note over Svc: Status → Lunas
+    else statusBaru = Dicicil
+        Note over Svc: Status → Dicicil
+    else statusBaru = BelumBayar
+        Note over Svc: Status → BelumBayar
+    end
+    Svc->>Repo: Update(pembayaran)
+    Repo->>DB: UPDATE Pembayaran SET JumlahDibayar=@JumlahDibayar, Status=@Status, TanggalBayar=@TanggalBayar, MetodePembayaran=@MetodePembayaran WHERE Id = @Id
+    DB-->>Repo: OK
+    Repo-->>Svc: void
+    Svc-->>Form: void
+    Form->>Repo: GetByKontrakSewaId(kontrakId)
+    Repo->>DB: SELECT * FROM Pembayaran WHERE KontrakSewaId = @KontrakSewaId
+    DB-->>Repo: rows
+    Repo-->>Form: List<Pembayaran>
+    Form-->>User: Refresh grid
 ```
 
 ---
 
-## 2. Flowchart Alur Aplikasi
+## 3. Flowchart Alur Aplikasi
 
 ```mermaid
 flowchart TD
