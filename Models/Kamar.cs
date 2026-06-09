@@ -7,6 +7,7 @@ public class Kamar
     public string NomorKamar { get; set; } = string.Empty;
     public int HargaKamar { get; set; }
     public KamarStatus Status { get; set; } = KamarStatus.Kosong;
+    public bool IsActive { get; set; } = true;
 
     public string? NamaKos { get; set; }
 
