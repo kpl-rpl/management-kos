@@ -24,8 +24,9 @@ namespace management_kos.Repositories
             using var command = connection.CreateCommand();
 
             command.CommandText = @"
-            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan
+            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan, IsActive
             FROM Penghuni
+            WHERE IsActive = 1
             ORDER BY Id DESC;";
 
             using var reader = command.ExecuteReader();
@@ -43,7 +44,7 @@ namespace management_kos.Repositories
             using var command = connection.CreateCommand();
 
             command.CommandText = @"
-            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan
+            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan, IsActive
             FROM Penghuni
             WHERE Id = @Id;";
 
@@ -66,9 +67,10 @@ namespace management_kos.Repositories
             using var command = connection.CreateCommand();
 
             command.CommandText = @"
-            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan
+            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan, IsActive
             FROM Penghuni
             WHERE KamarId = @KamarId
+              AND IsActive = 1
             ORDER BY Id DESC;";
 
             command.Parameters.AddWithValue("@KamarId", kamarId);
@@ -90,8 +92,8 @@ namespace management_kos.Repositories
             using var command = connection.CreateCommand();
 
             command.CommandText = @"
-            INSERT INTO Penghuni (KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan)
-            VALUES (@KamarId, @Nama, @NomorTelepon, @Email, @TanggalMasuk, @TanggalKeluar, @Catatan);";
+            INSERT INTO Penghuni (KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan, IsActive)
+            VALUES (@KamarId, @Nama, @NomorTelepon, @Email, @TanggalMasuk, @TanggalKeluar, @Catatan, @IsActive);";
 
             command.Parameters.AddWithValue("@KamarId", penghuni.KamarId);
             command.Parameters.AddWithValue("@Nama", penghuni.Nama);
@@ -100,6 +102,7 @@ namespace management_kos.Repositories
             command.Parameters.AddWithValue("@TanggalMasuk", penghuni.TanggalMasuk);
             command.Parameters.AddWithValue("@TanggalKeluar", (object?)penghuni.TanggalKeluar ?? DBNull.Value);
             command.Parameters.AddWithValue("@Catatan", (object?)penghuni.Catatan ?? DBNull.Value);
+            command.Parameters.AddWithValue("@IsActive", penghuni.IsActive);
 
             command.ExecuteNonQuery();
         }
@@ -119,7 +122,8 @@ namespace management_kos.Repositories
                     Email = @Email,
                     TanggalMasuk = @TanggalMasuk,
                     TanggalKeluar = @TanggalKeluar,
-                    Catatan = @Catatan
+                    Catatan = @Catatan,
+                    IsActive = @IsActive
             WHERE Id = @Id;";
 
             command.Parameters.AddWithValue("@Id", penghuni.Id);
@@ -130,6 +134,7 @@ namespace management_kos.Repositories
             command.Parameters.AddWithValue("@TanggalMasuk", penghuni.TanggalMasuk);
             command.Parameters.AddWithValue("@TanggalKeluar", (object?)penghuni.TanggalKeluar ?? DBNull.Value);
             command.Parameters.AddWithValue("@Catatan", (object?)penghuni.Catatan ?? DBNull.Value);
+            command.Parameters.AddWithValue("@IsActive", penghuni.IsActive);
 
             command.ExecuteNonQuery();
         }
@@ -139,7 +144,7 @@ namespace management_kos.Repositories
             using var connection = _dbContext.CreateConnection();
             using var command = connection.CreateCommand();
 
-            command.CommandText = "DELETE FROM Penghuni WHERE Id = @Id;";
+            command.CommandText = "UPDATE Penghuni SET IsActive = 0 WHERE Id = @Id;";
             command.Parameters.AddWithValue("@Id", id);
 
             command.ExecuteNonQuery();
@@ -187,7 +192,8 @@ namespace management_kos.Repositories
                 Email = reader.IsDBNull(4) ? null : reader.GetString(4),
                 TanggalMasuk = reader.GetDateTime(5),
                 TanggalKeluar = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
-                Catatan = reader.IsDBNull(7) ? null : reader.GetString(7)
+                Catatan = reader.IsDBNull(7) ? null : reader.GetString(7),
+                IsActive = reader.GetBoolean(8)
             };
         }
     }

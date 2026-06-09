@@ -14,5 +14,6 @@ namespace management_kos.Models
         public DateTime TanggalMasuk { get; set; } = DateTime.Today;
         public DateTime? TanggalKeluar { get; set; }
         public string? Catatan { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }
