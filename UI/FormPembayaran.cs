@@ -42,10 +42,10 @@ namespace management_kos.UI
             try
             {
                 var pembayaran = BuildPembayaranFromInput();
-                _pembayaranService.TambahTagihan(pembayaran);
+                _pembayaranService.CatatPembayaran(pembayaran);
                 RefreshGrid();
                 ClearInput();
-                MessageBox.Show("Tagihan berhasil ditambahkan.", "Informasi",
+                MessageBox.Show("Pembayaran berhasil dicatat.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -59,7 +59,7 @@ namespace management_kos.UI
         {
             if (_selectedPembayaranId <= 0)
             {
-                MessageBox.Show("Pilih tagihan yang akan dibayar.", "Validasi",
+                MessageBox.Show("Pilih data pembayaran yang akan diubah.", "Validasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -75,7 +75,11 @@ namespace management_kos.UI
 
             try
             {
-                _pembayaranService.BayarTagihan(_selectedPembayaranId, nominal, metode);
+                var pembayaran = BuildPembayaranFromInput();
+                pembayaran.Id = _selectedPembayaranId;
+                pembayaran.JumlahDibayar = nominal;
+                pembayaran.MetodePembayaran = metode;
+                _pembayaranService.UbahPembayaran(pembayaran);
                 RefreshGrid();
                 ClearInput();
                 MessageBox.Show("Pembayaran berhasil dicatat.", "Informasi",
@@ -158,8 +162,6 @@ namespace management_kos.UI
             var kontrakId = Convert.ToInt32(row.Cells["KontrakSewaId"].Value);
             cmbKontrakSewa.SelectedValue = kontrakId;
 
-            txtPeriode.Text = Convert.ToString(row.Cells["Periode"].Value);
-            txtJumlahTagihan.Text = Convert.ToString(row.Cells["JumlahTagihan"].Value);
             txtJumlahDibayar.Text = Convert.ToString(row.Cells["JumlahDibayar"].Value);
             txtCatatan.Text = Convert.ToString(row.Cells["Catatan"].Value);
 
@@ -173,16 +175,13 @@ namespace management_kos.UI
             if (cmbKontrakSewa.SelectedValue is not int kontrakId || kontrakId <= 0)
                 throw new ArgumentException("Kontrak Sewa harus dipilih.");
 
-            if (!decimal.TryParse(txtJumlahTagihan.Text.Trim(), out decimal tagihan))
-                throw new ArgumentException("Jumlah tagihan harus berupa angka.");
-
-            decimal.TryParse(txtJumlahDibayar.Text.Trim(), out decimal dibayar);
+            if (!decimal.TryParse(txtJumlahDibayar.Text.Trim(), out decimal dibayar))
+                throw new ArgumentException("Jumlah pembayaran harus berupa angka.");
 
             return new Pembayaran
             {
                 KontrakSewaId = kontrakId,
-                Periode = txtPeriode.Text.Trim(),
-                JumlahTagihan = tagihan,
+                TanggalBayar = DateTime.Today,
                 JumlahDibayar = dibayar,
                 MetodePembayaran = cmbMetodePembayaran.SelectedItem?.ToString() ?? "Transfer",
                 Catatan = string.IsNullOrWhiteSpace(txtCatatan.Text) ? null : txtCatatan.Text.Trim()
@@ -209,8 +208,6 @@ namespace management_kos.UI
         {
             _selectedPembayaranId = 0;
             if (cmbKontrakSewa.Items.Count > 0) cmbKontrakSewa.SelectedIndex = 0;
-            txtPeriode.Text = string.Empty;
-            txtJumlahTagihan.Text = string.Empty;
             txtJumlahDibayar.Text = string.Empty;
             txtCatatan.Text = string.Empty;
             cmbMetodePembayaran.SelectedIndex = 0;

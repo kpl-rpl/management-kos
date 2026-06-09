@@ -24,8 +24,8 @@ namespace management_kos.Services
             // Arrange
             var pembayaranList = new List<Pembayaran>
             {
-                new Pembayaran { Id = 1, JumlahTagihan = 100000, JumlahDibayar = 50000 },
-                new Pembayaran { Id = 2, JumlahTagihan = 200000, JumlahDibayar = 200000 }
+                new Pembayaran { Id = 1, JumlahDibayar = 50000 },
+                new Pembayaran { Id = 2, JumlahDibayar = 200000 }
             };
             _mockRepository.Setup(repo => repo.GetAll()).Returns(pembayaranList);
 
@@ -45,28 +45,26 @@ namespace management_kos.Services
         }
 
         [Fact]
-        public void TambahTagihan_ShouldSetStatusToBelumBayar_WhenJumlahDibayarIsZero()
+        public void CatatPembayaran_ShouldInsert_WhenDataIsValid()
         {
             // Arrange
-            var pembayaran = new Pembayaran { Id = 1, KontrakSewaId = 1, Periode = "Januari 2024", JumlahTagihan = 100000, JumlahDibayar = 0 };
+            var pembayaran = new Pembayaran { Id = 1, KontrakSewaId = 1, JumlahDibayar = 100000, MetodePembayaran = "Tunai" };
 
             // Act
-            _service.TambahTagihan(pembayaran);
+            _service.CatatPembayaran(pembayaran);
 
             // Assert
-            Assert.Equal("BelumBayar", pembayaran.Status);
             _mockRepository.Verify(repo => repo.Insert(pembayaran), Times.Once);
         }
 
         [Fact]
-        public void BayarTagihan_ShouldUpdatePembayaran_WhenValidIdIsProvided()
+        public void UbahPembayaran_ShouldUpdatePembayaran_WhenDataIsValid()
         {
             // Arrange
-            var pembayaran = new Pembayaran { Id = 1, JumlahTagihan = 100000, JumlahDibayar = 50000 };
-            _mockRepository.Setup(repo => repo.GetById(1)).Returns(pembayaran);
+            var pembayaran = new Pembayaran { Id = 1, KontrakSewaId = 1, JumlahDibayar = 100000, MetodePembayaran = "Transfer" };
 
             // Act
-            _service.BayarTagihan(1, 50000, "Transfer");
+            _service.UbahPembayaran(pembayaran);
 
             // Assert
             Assert.Equal(100000, pembayaran.JumlahDibayar);

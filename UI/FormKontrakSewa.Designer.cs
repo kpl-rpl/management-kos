@@ -33,6 +33,8 @@ namespace management_kos.UI
             txtDeposit        = new TextBox();
             lblStatus         = new Label();
             cmbStatus         = new ComboBox();
+            lblMetodePembayaran = new Label();
+            cmbMetodePembayaran = new ComboBox();
             lblCatatan        = new Label();
             txtCatatan        = new TextBox();
             btnTambah         = new Button();
@@ -41,12 +43,23 @@ namespace management_kos.UI
             btnSelesai        = new Button();
             btnBatal          = new Button();
             btnReset          = new Button();
+            splitData         = new SplitContainer();
+            pnlPembayaran     = new Panel();
+            lblPembayaranTitle = new Label();
             dgvKontrak        = new DataGridView();
+            dgvPembayaran     = new DataGridView();
+            ((System.ComponentModel.ISupportInitialize)splitData).BeginInit();
+            splitData.Panel1.SuspendLayout();
+            splitData.Panel2.SuspendLayout();
+            splitData.SuspendLayout();
+            pnlPembayaran.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvKontrak).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvPembayaran).BeginInit();
 
             // Panel input
             pnlInput.BackColor = Color.FromArgb(245, 247, 250);
             pnlInput.Dock      = DockStyle.Top;
-            pnlInput.Height    = 395;
+            pnlInput.Height    = 425;
             pnlInput.Padding   = new Padding(16);
 
             // Judul
@@ -124,15 +137,23 @@ namespace management_kos.UI
             cmbStatus.DropDownStyle  = ComboBoxStyle.DropDownList;
             cmbStatus.SelectedIndexChanged += cmbStatus_SelectedIndexChanged;
 
+            // Metode Pembayaran
+            lblMetodePembayaran.Text     = "Metode Pembayaran:";
+            lblMetodePembayaran.Location = new Point(16, 306);
+            lblMetodePembayaran.AutoSize = true;
+            cmbMetodePembayaran.Location      = new Point(200, 303);
+            cmbMetodePembayaran.Size          = new Size(140, 24);
+            cmbMetodePembayaran.DropDownStyle = ComboBoxStyle.DropDownList;
+
             // Catatan
             lblCatatan.Text     = "Catatan:";
-            lblCatatan.Location = new Point(16, 306);
+            lblCatatan.Location = new Point(16, 338);
             lblCatatan.AutoSize = true;
-            txtCatatan.Location = new Point(200, 303);
+            txtCatatan.Location = new Point(200, 335);
             txtCatatan.Size     = new Size(300, 24);
 
             // Tombol-tombol
-            int btnY = 340;
+            int btnY = 372;
 
             btnTambah.Name      = "btnTambah";
             btnTambah.Text      = "Tambah";
@@ -197,11 +218,20 @@ namespace management_kos.UI
                 lblHarga,         lblHargaValue,
                 lblDeposit,       txtDeposit,
                 lblStatus,        cmbStatus,
+                lblMetodePembayaran, cmbMetodePembayaran,
                 lblCatatan,       txtCatatan,
                 btnTambah, btnUpdate, btnHapus, btnSelesai, btnBatal, btnReset
             });
 
-            // DataGridView
+            // Split data
+            splitData.Dock = DockStyle.Fill;
+            splitData.Orientation = Orientation.Horizontal;
+            splitData.SplitterDistance = 310;
+            splitData.Panel1.Controls.Add(dgvKontrak);
+            splitData.Panel2.Controls.Add(dgvPembayaran);
+            splitData.Panel2.Controls.Add(pnlPembayaran);
+
+            // DataGridView Kontrak
             dgvKontrak.Dock                = DockStyle.Fill;
             dgvKontrak.ReadOnly            = true;
             dgvKontrak.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -220,12 +250,49 @@ namespace management_kos.UI
             dgvKontrak.EnableHeadersVisualStyles = false;
             dgvKontrak.CellClick += dgvKontrak_CellClick;
 
+            // Header pembayaran
+            pnlPembayaran.Dock = DockStyle.Top;
+            pnlPembayaran.Height = 36;
+            pnlPembayaran.BackColor = Color.FromArgb(240, 244, 248);
+            lblPembayaranTitle.Text = "Riwayat Pembayaran";
+            lblPembayaranTitle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblPembayaranTitle.ForeColor = Color.FromArgb(32, 43, 59);
+            lblPembayaranTitle.Location = new Point(12, 8);
+            lblPembayaranTitle.AutoSize = true;
+            pnlPembayaran.Controls.Add(lblPembayaranTitle);
+
+            // DataGridView Pembayaran
+            dgvPembayaran.Dock                = DockStyle.Fill;
+            dgvPembayaran.ReadOnly            = true;
+            dgvPembayaran.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvPembayaran.SelectionMode       = DataGridViewSelectionMode.FullRowSelect;
+            dgvPembayaran.AllowUserToAddRows  = false;
+            dgvPembayaran.BackgroundColor     = Color.White;
+            dgvPembayaran.BorderStyle         = BorderStyle.None;
+            dgvPembayaran.RowHeadersVisible   = false;
+            dgvPembayaran.Font                = new Font("Segoe UI", 9F);
+            dgvPembayaran.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.FromArgb(32, 43, 59),
+                ForeColor = Color.White,
+                Font      = new Font("Segoe UI", 9.5F, FontStyle.Bold)
+            };
+            dgvPembayaran.EnableHeadersVisualStyles = false;
+
             this.Text      = "Manajemen Kontrak Sewa";
             this.Size      = new Size(980, 680);
             this.Font      = new Font("Segoe UI", 9F);
             this.BackColor = Color.White;
-            this.Controls.Add(dgvKontrak);
+            this.Controls.Add(splitData);
             this.Controls.Add(pnlInput);
+            ((System.ComponentModel.ISupportInitialize)dgvPembayaran).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvKontrak).EndInit();
+            pnlPembayaran.ResumeLayout(false);
+            pnlPembayaran.PerformLayout();
+            splitData.Panel2.ResumeLayout(false);
+            splitData.Panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitData).EndInit();
+            splitData.ResumeLayout(false);
         }
 
         #endregion
@@ -248,6 +315,8 @@ namespace management_kos.UI
         private TextBox         txtDeposit;
         private Label           lblStatus;
         private ComboBox        cmbStatus;
+        private Label           lblMetodePembayaran;
+        private ComboBox        cmbMetodePembayaran;
         private Label           lblCatatan;
         private TextBox         txtCatatan;
         private Button          btnTambah;
@@ -256,6 +325,10 @@ namespace management_kos.UI
         private Button          btnSelesai;
         private Button          btnBatal;
         private Button          btnReset;
+        private SplitContainer  splitData;
+        private Panel           pnlPembayaran;
+        private Label           lblPembayaranTitle;
         private DataGridView    dgvKontrak;
+        private DataGridView    dgvPembayaran;
     }
 }

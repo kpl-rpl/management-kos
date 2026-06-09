@@ -54,13 +54,17 @@ public class KontrakSewaRepository : RepositoryBase, IKontrakSewaRepository
             Map,
             cmd => cmd.Parameters.AddWithValue("@Status", status));
 
-    public void Insert(KontrakSewa k) =>
-        Execute(@"
+    public void Insert(KontrakSewa k)
+    {
+        var newId = ExecuteAndGetLastInsertedId(@"
             INSERT INTO KontrakSewa
                 (PenghuniId, KamarId, TanggalMulai, TanggalSelesai, HargaSewaBulanan, Deposit, Status, Catatan)
             VALUES
                 (@PenghuniId, @KamarId, @TanggalMulai, @TanggalSelesai, @HargaSewaBulanan, @Deposit, @Status, @Catatan);",
             cmd => BindParams(cmd, k));
+
+        k.Id = Convert.ToInt32(newId);
+    }
 
     public void Update(KontrakSewa k) =>
         Execute(@"

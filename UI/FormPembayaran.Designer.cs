@@ -18,10 +18,6 @@ namespace management_kos.UI
             lblTitle = new Label();
             lblKontrakSewaId = new Label();
             cmbKontrakSewa = new ComboBox();
-            lblPeriode = new Label();
-            txtPeriode = new TextBox();
-            lblJumlahTagihan = new Label();
-            txtJumlahTagihan = new TextBox();
             lblJumlahDibayar = new Label();
             txtJumlahDibayar = new TextBox();
             lblMetode = new Label();
@@ -60,38 +56,28 @@ namespace management_kos.UI
             cmbKontrakSewa.Size = new Size(380, 24);
             cmbKontrakSewa.DropDownStyle = ComboBoxStyle.DropDownList;
 
-            // Baris 1: Periode
-            lblPeriode.Text = "Periode (cth: Mei 2025):"; lblPeriode.AutoSize = true;
-            lblPeriode.Location = new Point(lx, startY + rowH + 4);
-            txtPeriode.Location = new Point(tx, startY + rowH); txtPeriode.Size = new Size(160, 24);
-
-            // Baris 2: Jumlah Tagihan
-            lblJumlahTagihan.Text = "Jumlah Tagihan (Rp):"; lblJumlahTagihan.AutoSize = true;
-            lblJumlahTagihan.Location = new Point(lx, startY + rowH * 2 + 4);
-            txtJumlahTagihan.Location = new Point(tx, startY + rowH * 2); txtJumlahTagihan.Size = new Size(160, 24);
-
-            // Baris 3: Jumlah Dibayar
+            // Baris 1: Jumlah Dibayar
             lblJumlahDibayar.Text = "Jumlah Dibayar (Rp):"; lblJumlahDibayar.AutoSize = true;
-            lblJumlahDibayar.Location = new Point(lx, startY + rowH * 3 + 4);
-            txtJumlahDibayar.Location = new Point(tx, startY + rowH * 3); txtJumlahDibayar.Size = new Size(160, 24);
+            lblJumlahDibayar.Location = new Point(lx, startY + rowH + 4);
+            txtJumlahDibayar.Location = new Point(tx, startY + rowH); txtJumlahDibayar.Size = new Size(160, 24);
 
-            // Baris 4: Metode
+            // Baris 2: Metode
             lblMetode.Text = "Metode Pembayaran:"; lblMetode.AutoSize = true;
-            lblMetode.Location = new Point(lx, startY + rowH * 4 + 4);
+            lblMetode.Location = new Point(lx, startY + rowH * 2 + 4);
             cmbMetodePembayaran.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbMetodePembayaran.FormattingEnabled = true;
-            cmbMetodePembayaran.Location = new Point(tx, startY + rowH * 4);
+            cmbMetodePembayaran.Location = new Point(tx, startY + rowH * 2);
             cmbMetodePembayaran.Size = new Size(160, 24);
 
-            // Baris 5: Catatan
+            // Baris 3: Catatan
             lblCatatan.Text = "Catatan:"; lblCatatan.AutoSize = true;
-            lblCatatan.Location = new Point(lx, startY + rowH * 5 + 4);
-            txtCatatan.Location = new Point(tx, startY + rowH * 5); txtCatatan.Size = new Size(280, 24);
+            lblCatatan.Location = new Point(lx, startY + rowH * 3 + 4);
+            txtCatatan.Location = new Point(tx, startY + rowH * 3); txtCatatan.Size = new Size(280, 24);
 
             //Tombol kanan atas berwarna
             int bx = 610, by = startY, bw = 120, bh = 32, bg = 8;
 
-            btnTambah.Text = "Tambah Tagihan";
+            btnTambah.Text = "Tambah";
             btnTambah.Location = new Point(bx, by);
             btnTambah.Size = new Size(bw, bh);
             btnTambah.BackColor = Color.FromArgb(37, 99, 235);
@@ -134,8 +120,6 @@ namespace management_kos.UI
             {
                 lblTitle,
                 lblKontrakSewaId, cmbKontrakSewa,
-                lblPeriode,       txtPeriode,
-                lblJumlahTagihan, txtJumlahTagihan,
                 lblJumlahDibayar, txtJumlahDibayar,
                 lblMetode,        cmbMetodePembayaran,
                 lblCatatan,       txtCatatan,
@@ -179,10 +163,6 @@ namespace management_kos.UI
         private Label lblTitle;
         private Label lblKontrakSewaId;
         private ComboBox cmbKontrakSewa;
-        private Label lblPeriode;
-        private TextBox txtPeriode;
-        private Label lblJumlahTagihan;
-        private TextBox txtJumlahTagihan;
         private Label lblJumlahDibayar;
         private TextBox txtJumlahDibayar;
         private Label lblMetode;

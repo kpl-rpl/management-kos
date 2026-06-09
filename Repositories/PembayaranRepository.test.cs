@@ -18,7 +18,7 @@ namespace management_kos.Repositories
         public void Add_ShouldAddPembayaran()
         {
             // Arrange
-            var pembayaran = new management_kos.Models.Pembayaran { Id = 1, JumlahTagihan = 100000, TanggalBayar = DateTime.Now };
+            var pembayaran = new management_kos.Models.Pembayaran { Id = 1, JumlahDibayar = 100000, TanggalBayar = DateTime.Now };
             _mockRepository.Setup(repo => repo.Insert(pembayaran)).Verifiable();
 
             // Act
@@ -32,7 +32,7 @@ namespace management_kos.Repositories
         public void GetById_ShouldReturnCorrectPembayaran()
         {
             // Arrange
-            var pembayaran = new management_kos.Models.Pembayaran { Id = 1, JumlahTagihan = 100000, TanggalBayar = DateTime.Now };
+            var pembayaran = new management_kos.Models.Pembayaran { Id = 1, JumlahDibayar = 100000, TanggalBayar = DateTime.Now };
             _mockRepository.Setup(repo => repo.GetById(1)).Returns(pembayaran);
 
             // Act
@@ -49,8 +49,8 @@ namespace management_kos.Repositories
             // Arrange
             var pembayaranList = new List<management_kos.Models.Pembayaran>
             {
-                new management_kos.Models.Pembayaran { Id = 1, JumlahTagihan = 100000, TanggalBayar = DateTime.Now },
-                new management_kos.Models.Pembayaran { Id = 2, JumlahTagihan = 200000, TanggalBayar = DateTime.Now }
+                new management_kos.Models.Pembayaran { Id = 1, JumlahDibayar = 100000, TanggalBayar = DateTime.Now },
+                new management_kos.Models.Pembayaran { Id = 2, JumlahDibayar = 200000, TanggalBayar = DateTime.Now }
             };
             _mockRepository.Setup(repo => repo.GetAll()).Returns(pembayaranList);
 
@@ -66,7 +66,7 @@ namespace management_kos.Repositories
         public void Delete_ShouldRemovePembayaran()
         {
             // Arrange
-            var pembayaran = new management_kos.Models.Pembayaran { Id = 1, JumlahTagihan = 100000, TanggalBayar = DateTime.Now };
+            var pembayaran = new management_kos.Models.Pembayaran { Id = 1, JumlahDibayar = 100000, TanggalBayar = DateTime.Now };
             _mockRepository.Setup(repo => repo.Delete(1)).Verifiable();
 
             // Act

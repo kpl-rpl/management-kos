@@ -68,12 +68,9 @@ erDiagram
     Pembayaran {
         int Id PK
         int KontrakSewaId FK
-        varchar Periode
         date TanggalBayar
-        decimal JumlahTagihan
         decimal JumlahDibayar
         varchar MetodePembayaran
-        varchar Status
         text Catatan
     }
 
@@ -139,15 +136,18 @@ flowchart TD
     PILIH_KOS_KON --> FILTER_KAMAR[Tampilkan kamar dari Kos terpilih]
     FILTER_KAMAR --> PILIH_KAMAR[Pilih Kamar]
     PILIH_KAMAR --> HARGA_AUTO[Harga kontrak otomatis dari harga kamar]
-    HARGA_AUTO --> STATUS{Status kontrak?}
+    HARGA_AUTO --> PILIH_METODE[Pilih metode pembayaran dari MetodePembayaranRef]
+    PILIH_METODE --> STATUS{Status kontrak?}
 
     STATUS -- Dipesan --> DEPOSIT_INPUT[Deposit boleh diisi]
     DEPOSIT_INPUT --> SIMPAN_KONTRAK[Simpan Kontrak Dipesan]
-    SIMPAN_KONTRAK --> KAMAR_DIPESAN[Kamar berstatus Dipesan]
+    SIMPAN_KONTRAK --> PAY_AWAL_DPS[Create Pembayaran awal dari deposit atau harga sewa]
+    PAY_AWAL_DPS --> KAMAR_DIPESAN[Kamar berstatus Dipesan]
 
     STATUS -- Aktif --> DEPOSIT_ZERO[Deposit otomatis 0 dan field deposit disable]
     DEPOSIT_ZERO --> SIMPAN_AKTIF[Simpan Kontrak Aktif]
-    SIMPAN_AKTIF --> KAMAR_TERISI[Kamar berstatus Terisi]
+    SIMPAN_AKTIF --> PAY_AWAL_AKTIF[Create Pembayaran awal sebesar harga sewa]
+    PAY_AWAL_AKTIF --> KAMAR_TERISI[Kamar berstatus Terisi]
 
     KAMAR_DIPESAN --> MONITOR[Admin memantau daftar kontrak]
     KAMAR_TERISI --> MONITOR
@@ -163,14 +163,10 @@ flowchart TD
     KAMAR_KOSONG --> MONITOR
 
     AKSI -- Catat lunas --> LUNAS[Klik tombol Lunas]
-    LUNAS --> CEK_TAGIHAN{Tagihan periode berjalan sudah ada?}
-    CEK_TAGIHAN -- Belum --> CREATE_PAY[Create Pembayaran periode berjalan]
-    CREATE_PAY --> SET_LUNAS[Set JumlahDibayar = JumlahTagihan dan Status = Lunas]
-    CEK_TAGIHAN -- Sudah tapi belum lunas --> BAYAR_SISA[Bayar sisa tagihan]
-    BAYAR_SISA --> SET_LUNAS
-    CEK_TAGIHAN -- Sudah lunas --> INFO_LUNAS[/Tampil info sudah lunas/]
+    LUNAS --> POPUP_METODE[/Popup pilih metode pembayaran/]
+    POPUP_METODE --> CREATE_PAY[Create Pembayaran]
+    CREATE_PAY --> SET_LUNAS[Set JumlahDibayar = HargaSewaBulanan]
     SET_LUNAS --> MONITOR
-    INFO_LUNAS --> MONITOR
 
     AKSI -- Selesai --> END([Operasional selesai])
 ```

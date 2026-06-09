@@ -19,7 +19,7 @@ public class MySqlDbContext
         _databaseName = GetEnvValue(env, "DB_NAME", "management_kos");
         _commandTimeoutSeconds = GetPositiveIntEnvValue(env, "DB_COMMAND_TIMEOUT_SECONDS", 30);
 
-        _serverConnectionString = $"Server={server};Port={port};User ID={user};Password={password};";
+        _serverConnectionString = $"Server={server};Port={port};User ID={user};Password={password};Allow User Variables=True;";
     }
 
     public MySqlConnection CreateConnection()

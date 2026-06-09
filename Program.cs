@@ -45,7 +45,9 @@ namespace management_kos
 
             IRoleRepository roleRepository = new RoleRepository(dbContext);
             IAppUserRepository appUserRepository = new AppUserRepository(dbContext);
+            IMetodePembayaranRefRepository metodePembayaranRepository = new MetodePembayaranRefRepository(dbContext);
             var appUserService = new AppUserService(appUserRepository, roleRepository);
+            var referenceDataService = new ReferenceDataService(roleRepository, metodePembayaranRepository);
 
             using var loginForm = new FormLogin(appUserService);
             if (loginForm.ShowDialog() != DialogResult.OK)
@@ -53,7 +55,7 @@ namespace management_kos
                 return;
             }
 
-            Application.Run(new FormMain(kosService, kamarService, penghuniService, pembayaranService, kontrakSewaService));
+            Application.Run(new FormMain(kosService, kamarService, penghuniService, pembayaranService, kontrakSewaService, referenceDataService));
         }
     }
 }

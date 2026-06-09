@@ -10,19 +10,21 @@ public partial class FormMain : Form
     private readonly HomeView _homeView;
     private readonly PembayaranService _pembayaranService;
     private readonly KontrakSewaService _kontrakSewaService;
+    private readonly ReferenceDataService _referenceDataService;
     private FormKos? _formKos;
     private FormKamar? _formKamar;
     private FormPenghuni? _formPenghuni;
     private FormPembayaran? _formPembayaran;
     private FormKontrakSewa? _formKontrakSewa;
 
-    public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService, PembayaranService pembayaranService, KontrakSewaService kontrakSewaService)
+    public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService, PembayaranService pembayaranService, KontrakSewaService kontrakSewaService, ReferenceDataService referenceDataService)
     {
         _kosService = kosService;
         _kamarService = kamarService;
         _penghuniService = penghuniService;
         _pembayaranService = pembayaranService;
         _kontrakSewaService = kontrakSewaService;
+        _referenceDataService = referenceDataService;
         _homeView = new HomeView { Dock = DockStyle.Fill };
         InitializeComponent();
     }
@@ -104,7 +106,7 @@ public partial class FormMain : Form
     private void ShowDataKontrakSewaView()
     {
         if (_formKontrakSewa is null || _formKontrakSewa.IsDisposed)
-            _formKontrakSewa = new FormKontrakSewa(_kontrakSewaService, _pembayaranService, _penghuniService, _kamarService, _kosService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
+            _formKontrakSewa = new FormKontrakSewa(_kontrakSewaService, _pembayaranService, _penghuniService, _kamarService, _kosService, _referenceDataService) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
 
         pnlContent.Controls.Clear();
         pnlContent.Controls.Add(_formKontrakSewa);

@@ -60,4 +60,14 @@ public abstract class RepositoryBase
         configureParameters?.Invoke(command);
         return command.ExecuteNonQuery();
     }
+
+    protected long ExecuteAndGetLastInsertedId(string sql, Action<MySqlCommand>? configureParameters = null)
+    {
+        using var connection = _dbContext.CreateConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        configureParameters?.Invoke(command);
+        command.ExecuteNonQuery();
+        return command.LastInsertedId;
+    }
 }

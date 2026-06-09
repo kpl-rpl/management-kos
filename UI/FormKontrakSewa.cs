@@ -23,6 +23,7 @@ namespace management_kos.UI
         private readonly PenghuniService _penghuniService;
         private readonly KamarService _kamarService;
         private readonly KosService _kosService;
+        private readonly ReferenceDataService _referenceDataService;
         private int _selectedId = 0;
 
         public FormKontrakSewa(
@@ -30,13 +31,15 @@ namespace management_kos.UI
             PembayaranService pembayaranService,
             PenghuniService penghuniService,
             KamarService kamarService,
-            KosService kosService)
+            KosService kosService,
+            ReferenceDataService referenceDataService)
         {
             _service = service;
             _pembayaranService = pembayaranService;
             _penghuniService = penghuniService;
             _kamarService = kamarService;
             _kosService = kosService;
+            _referenceDataService = referenceDataService;
             InitializeComponent();
             this.Load += FormKontrakSewa_Load;
         }
@@ -53,6 +56,7 @@ namespace management_kos.UI
 
             LoadPenghuniDropdown();
             LoadKosDropdown();
+            LoadMetodePembayaranDropdown();
             ApplyState(FormState.Idle);
             RefreshGrid();
         }
@@ -71,6 +75,14 @@ namespace management_kos.UI
             cmbKos.DataSource = list;
             cmbKos.DisplayMember = "NamaKos";
             cmbKos.ValueMember = "Id";
+        }
+
+        private void LoadMetodePembayaranDropdown()
+        {
+            var list = _referenceDataService.GetAllMetodePembayaran();
+            cmbMetodePembayaran.DisplayMember = nameof(MetodePembayaranRef.NamaMetode);
+            cmbMetodePembayaran.ValueMember = nameof(MetodePembayaranRef.NamaMetode);
+            cmbMetodePembayaran.DataSource = list;
         }
 
         private void LoadKamarDropdown(int kosId)
@@ -138,6 +150,7 @@ namespace management_kos.UI
                     btn.Enabled = enabled.Contains(btn.Name);
             }
             if (state == FormState.Idle) _selectedId = 0;
+            cmbMetodePembayaran.Enabled = state == FormState.Idle;
         }
 
         private void btnTambah_Click(object sender, EventArgs e)
@@ -145,10 +158,16 @@ namespace management_kos.UI
             try
             {
                 var k = BuildFromInput();
+                var metodePembayaran = GetSelectedMetodePembayaran();
+                if (string.IsNullOrWhiteSpace(metodePembayaran))
+                    throw new ArgumentException("Metode pembayaran wajib dipilih.");
+
                 _service.TambahKontrak(k);
+                CatatPembayaranAwal(k, metodePembayaran);
                 RefreshGrid();
+                RefreshPembayaranGrid();
                 ClearInput();
-                MessageBox.Show("Kontrak berhasil ditambahkan.", "Informasi",
+                MessageBox.Show("Kontrak berhasil ditambahkan dan pembayaran awal tercatat.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -205,10 +224,14 @@ namespace management_kos.UI
             if (_selectedId <= 0) return;
             try
             {
-                CatatPembayaranLunas(_selectedId);
+                var metode = PromptMetodePembayaran(GetSelectedMetodePembayaran());
+                if (metode is null) return;
+
+                CatatPembayaranLunas(_selectedId, metode);
                 RefreshGrid();
+                RefreshPembayaranGrid(_selectedId);
                 ClearInput();
-                MessageBox.Show("Pembayaran kontrak bulan ini ditandai Lunas.", "Informasi",
+                MessageBox.Show("Pembayaran kontrak berhasil dicatat lunas.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -218,38 +241,114 @@ namespace management_kos.UI
             }
         }
 
-        private void CatatPembayaranLunas(int kontrakId)
+        private void CatatPembayaranLunas(int kontrakId, string metodePembayaran)
         {
             var kontrak = _service.GetById(kontrakId)
                 ?? throw new InvalidOperationException("Kontrak tidak ditemukan.");
 
-            var periode = DateTime.Today.ToString("yyyy-MM");
-            var pembayaran = _pembayaranService
-                .GetByKontrak(kontrakId)
-                .FirstOrDefault(p => string.Equals(p.Periode, periode, StringComparison.OrdinalIgnoreCase));
-
-            if (pembayaran is null)
+            _pembayaranService.CatatPembayaran(new Pembayaran
             {
-                _pembayaranService.TambahTagihan(new Pembayaran
-                {
-                    KontrakSewaId = kontrak.Id,
-                    Periode = periode,
-                    TanggalBayar = DateTime.Today,
-                    JumlahTagihan = kontrak.HargaSewaBulanan,
-                    JumlahDibayar = kontrak.HargaSewaBulanan,
-                    MetodePembayaran = "Tunai",
-                    Catatan = "Pembayaran lunas dicatat dari modul kontrak sewa."
-                });
-                return;
+                KontrakSewaId = kontrak.Id,
+                TanggalBayar = DateTime.Today,
+                JumlahDibayar = kontrak.HargaSewaBulanan,
+                MetodePembayaran = metodePembayaran,
+                Catatan = "Pembayaran lunas dicatat dari modul kontrak sewa."
+            });
+        }
+
+        private void CatatPembayaranAwal(KontrakSewa kontrak, string metodePembayaran)
+        {
+            if (kontrak.Id <= 0)
+                throw new InvalidOperationException("ID kontrak baru tidak valid untuk pencatatan pembayaran.");
+
+            var isDeposit = kontrak.Status == KontrakStatus.Dipesan
+                && kontrak.Deposit.HasValue
+                && kontrak.Deposit.Value > 0;
+
+            var jumlahDibayar = isDeposit
+                ? kontrak.Deposit!.Value
+                : kontrak.HargaSewaBulanan;
+
+            _pembayaranService.CatatPembayaran(new Pembayaran
+            {
+                KontrakSewaId = kontrak.Id,
+                TanggalBayar = DateTime.Today,
+                JumlahDibayar = jumlahDibayar,
+                MetodePembayaran = metodePembayaran,
+                Catatan = isDeposit
+                    ? "Deposit dicatat saat kontrak sewa dibuat."
+                    : "Pembayaran awal dicatat saat kontrak sewa dibuat."
+            });
+        }
+
+        private string? PromptMetodePembayaran(string defaultMetode)
+        {
+            var metodeList = _referenceDataService.GetAllMetodePembayaran();
+            if (metodeList.Count == 0)
+                throw new InvalidOperationException("Data reference metode pembayaran belum tersedia.");
+
+            using var dialog = new Form
+            {
+                Text = "Pilih Metode Pembayaran",
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition = FormStartPosition.CenterParent,
+                ClientSize = new Size(320, 130),
+                MaximizeBox = false,
+                MinimizeBox = false
+            };
+
+            var label = new Label
+            {
+                Text = "Metode Pembayaran:",
+                Location = new Point(16, 18),
+                AutoSize = true
+            };
+
+            var combo = new ComboBox
+            {
+                Location = new Point(16, 46),
+                Size = new Size(288, 24),
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            combo.DisplayMember = nameof(MetodePembayaranRef.NamaMetode);
+            combo.ValueMember = nameof(MetodePembayaranRef.NamaMetode);
+            combo.DataSource = metodeList;
+            var defaultIndex = metodeList.FindIndex(m => m.NamaMetode == defaultMetode);
+            if (combo.Items.Count > 0)
+            {
+                combo.SelectedIndex = defaultIndex >= 0 ? defaultIndex : 0;
             }
 
-            var sisaTagihan = pembayaran.JumlahTagihan - pembayaran.JumlahDibayar;
-            if (sisaTagihan <= 0 || pembayaran.Status == StatusPembayaran.Lunas.ToString())
+            var btnOk = new Button
             {
-                throw new InvalidOperationException("Pembayaran periode ini sudah lunas.");
-            }
+                Text = "OK",
+                DialogResult = DialogResult.OK,
+                Location = new Point(134, 88),
+                Size = new Size(80, 28)
+            };
 
-            _pembayaranService.BayarTagihan(pembayaran.Id, sisaTagihan, "Tunai");
+            var btnCancel = new Button
+            {
+                Text = "Batal",
+                DialogResult = DialogResult.Cancel,
+                Location = new Point(224, 88),
+                Size = new Size(80, 28)
+            };
+
+            dialog.Controls.AddRange(new Control[] { label, combo, btnOk, btnCancel });
+            dialog.AcceptButton = btnOk;
+            dialog.CancelButton = btnCancel;
+
+            return dialog.ShowDialog(this) == DialogResult.OK
+                ? combo.SelectedValue?.ToString()
+                : null;
+        }
+
+        private string GetSelectedMetodePembayaran()
+        {
+            return cmbMetodePembayaran.SelectedValue?.ToString()
+                ?? (cmbMetodePembayaran.SelectedItem as MetodePembayaranRef)?.NamaMetode
+                ?? string.Empty;
         }
 
         private void btnBatal_Click(object sender, EventArgs e)
@@ -308,6 +407,7 @@ namespace management_kos.UI
 
             // Automata: transisi ke state Selected saat baris dipilih
             ApplyState(FormState.Selected);
+            RefreshPembayaranGrid(_selectedId);
         }
 
         private KontrakSewa BuildFromInput()
@@ -340,7 +440,9 @@ namespace management_kos.UI
         {
             LoadPenghuniDropdown();
             LoadKosDropdown();
+            LoadMetodePembayaranDropdown();
             RefreshGrid();
+            RefreshPembayaranGrid();
         }
 
         private void RefreshGrid()
@@ -351,19 +453,34 @@ namespace management_kos.UI
                 dgvKontrak.Columns["Catatan"].Visible = false;
         }
 
+        private void RefreshPembayaranGrid(int? kontrakId = null)
+        {
+            var data = kontrakId.HasValue && kontrakId.Value > 0
+                ? _pembayaranService.GetByKontrak(kontrakId.Value)
+                : _pembayaranService.GetAll();
+
+            dgvPembayaran.DataSource = null;
+            dgvPembayaran.DataSource = data;
+
+            if (dgvPembayaran.Columns["Catatan"] != null)
+                dgvPembayaran.Columns["Catatan"].Visible = false;
+        }
+
         private void ClearInput()
         {
             if (cmbPenghuni.Items.Count > 0) cmbPenghuni.SelectedIndex = 0;
             if (cmbKos.Items.Count > 0) cmbKos.SelectedIndex = 0;
             if (cmbKamar.Items.Count > 0) cmbKamar.SelectedIndex = 0;
+            if (cmbMetodePembayaran.Items.Count > 0) cmbMetodePembayaran.SelectedIndex = 0;
             dtpTanggalMulai.Value   = DateTime.Today;
             dtpTanggalSelesai.Value = DateTime.Today.AddMonths(12);
             UpdateHargaKamarInfo();
             txtDeposit.Text         = string.Empty;
             txtCatatan.Text         = string.Empty;
-            cmbStatus.SelectedIndex = 0;
+            if (cmbStatus.Items.Count > 0) cmbStatus.SelectedIndex = 0;
             ApplyDepositState();
             ApplyState(FormState.Idle);
+            RefreshPembayaranGrid();
         }
     }
 }
