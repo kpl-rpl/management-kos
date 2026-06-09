@@ -19,26 +19,40 @@ namespace management_kos.UI
         };
 
         private readonly KontrakSewaService _service;
+        private readonly PembayaranService _pembayaranService;
         private readonly PenghuniService _penghuniService;
         private readonly KamarService _kamarService;
+        private readonly KosService _kosService;
         private int _selectedId = 0;
 
-        public FormKontrakSewa(KontrakSewaService service, PenghuniService penghuniService, KamarService kamarService)
+        public FormKontrakSewa(
+            KontrakSewaService service,
+            PembayaranService pembayaranService,
+            PenghuniService penghuniService,
+            KamarService kamarService,
+            KosService kosService)
         {
             _service = service;
+            _pembayaranService = pembayaranService;
             _penghuniService = penghuniService;
             _kamarService = kamarService;
+            _kosService = kosService;
             InitializeComponent();
             this.Load += FormKontrakSewa_Load;
         }
 
         private void FormKontrakSewa_Load(object sender, EventArgs e)
         {
-            cmbStatus.Items.AddRange(Enum.GetNames(typeof(KontrakStatus)));
-            cmbStatus.SelectedItem = KontrakStatus.Aktif.ToString();
+            cmbStatus.Items.AddRange(new[]
+            {
+                KontrakStatus.Dipesan.ToString(),
+                KontrakStatus.Aktif.ToString()
+            });
+            cmbStatus.SelectedItem = KontrakStatus.Dipesan.ToString();
+            ApplyDepositState();
 
             LoadPenghuniDropdown();
-            LoadKamarDropdown();
+            LoadKosDropdown();
             ApplyState(FormState.Idle);
             RefreshGrid();
         }
@@ -51,13 +65,67 @@ namespace management_kos.UI
             cmbPenghuni.ValueMember = "Id";
         }
 
-        private void LoadKamarDropdown()
+        private void LoadKosDropdown()
         {
-            var list = _kamarService.GetAllKamar();
+            var list = _kosService.GetAllKos();
+            cmbKos.DataSource = list;
+            cmbKos.DisplayMember = "NamaKos";
+            cmbKos.ValueMember = "Id";
+        }
+
+        private void LoadKamarDropdown(int kosId)
+        {
+            var list = _kamarService.GetKamarByKosId(kosId);
             list = list.FindAll(k => k.Status != KamarStatus.Perbaikan);
             cmbKamar.DataSource = list;
-            cmbKamar.DisplayMember = "DisplayText";
+            cmbKamar.DisplayMember = "NomorKamar";
             cmbKamar.ValueMember = "Id";
+            UpdateHargaKamarInfo();
+        }
+
+        private void cmbKos_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbKos.SelectedValue is int kosId && kosId > 0)
+            {
+                LoadKamarDropdown(kosId);
+            }
+        }
+
+        private void cmbKamar_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateHargaKamarInfo();
+        }
+
+        private void cmbStatus_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplyDepositState();
+        }
+
+        private void ApplyDepositState()
+        {
+            var status = cmbStatus.SelectedItem?.ToString();
+            var isAktif = status == KontrakStatus.Aktif.ToString();
+
+            if (isAktif)
+            {
+                txtDeposit.Text = "0";
+            }
+
+            txtDeposit.Enabled = !isAktif;
+            txtDeposit.BackColor = isAktif
+                ? Color.FromArgb(229, 231, 235)
+                : Color.White;
+        }
+
+        private void UpdateHargaKamarInfo()
+        {
+            if (cmbKamar.SelectedItem is Kamar kamar)
+            {
+                lblHargaValue.Text = kamar.HargaKamar.ToString("N0");
+                return;
+            }
+
+            lblHargaValue.Text = "-";
         }
 
         // Automata: terapkan state baru — enable/disable tombol sesuai tabel transisi
@@ -137,10 +205,10 @@ namespace management_kos.UI
             if (_selectedId <= 0) return;
             try
             {
-                _service.SelesaikanKontrak(_selectedId);
+                CatatPembayaranLunas(_selectedId);
                 RefreshGrid();
                 ClearInput();
-                MessageBox.Show("Kontrak ditandai Selesai.", "Informasi",
+                MessageBox.Show("Pembayaran kontrak bulan ini ditandai Lunas.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -148,6 +216,40 @@ namespace management_kos.UI
                 MessageBox.Show(ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void CatatPembayaranLunas(int kontrakId)
+        {
+            var kontrak = _service.GetById(kontrakId)
+                ?? throw new InvalidOperationException("Kontrak tidak ditemukan.");
+
+            var periode = DateTime.Today.ToString("yyyy-MM");
+            var pembayaran = _pembayaranService
+                .GetByKontrak(kontrakId)
+                .FirstOrDefault(p => string.Equals(p.Periode, periode, StringComparison.OrdinalIgnoreCase));
+
+            if (pembayaran is null)
+            {
+                _pembayaranService.TambahTagihan(new Pembayaran
+                {
+                    KontrakSewaId = kontrak.Id,
+                    Periode = periode,
+                    TanggalBayar = DateTime.Today,
+                    JumlahTagihan = kontrak.HargaSewaBulanan,
+                    JumlahDibayar = kontrak.HargaSewaBulanan,
+                    MetodePembayaran = "Tunai",
+                    Catatan = "Pembayaran lunas dicatat dari modul kontrak sewa."
+                });
+                return;
+            }
+
+            var sisaTagihan = pembayaran.JumlahTagihan - pembayaran.JumlahDibayar;
+            if (sisaTagihan <= 0 || pembayaran.Status == StatusPembayaran.Lunas.ToString())
+            {
+                throw new InvalidOperationException("Pembayaran periode ini sudah lunas.");
+            }
+
+            _pembayaranService.BayarTagihan(pembayaran.Id, sisaTagihan, "Tunai");
         }
 
         private void btnBatal_Click(object sender, EventArgs e)
@@ -185,11 +287,15 @@ namespace management_kos.UI
             cmbPenghuni.SelectedValue = penghuniId;
 
             var kamarId = Convert.ToInt32(row.Cells["KamarId"].Value);
+            var kamar = _kamarService.GetAllKamar().FirstOrDefault(k => k.Id == kamarId);
+            if (kamar is not null)
+            {
+                cmbKos.SelectedValue = kamar.KosId;
+            }
             cmbKamar.SelectedValue = kamarId;
 
             dtpTanggalMulai.Value   = Convert.ToDateTime(row.Cells["TanggalMulai"].Value);
             dtpTanggalSelesai.Value = Convert.ToDateTime(row.Cells["TanggalSelesai"].Value);
-            txtHarga.Text           = Convert.ToString(row.Cells["HargaSewaBulanan"].Value);
             txtDeposit.Text         = row.Cells["Deposit"].Value == DBNull.Value || row.Cells["Deposit"].Value == null
                                       ? string.Empty
                                       : Convert.ToString(row.Cells["Deposit"].Value);
@@ -198,6 +304,7 @@ namespace management_kos.UI
             var statusValue = Convert.ToString(row.Cells["Status"].Value) ?? KontrakStatus.Aktif.ToString();
             int idx = cmbStatus.Items.IndexOf(statusValue);
             cmbStatus.SelectedIndex = idx >= 0 ? idx : 0;
+            ApplyDepositState();
 
             // Automata: transisi ke state Selected saat baris dipilih
             ApplyState(FormState.Selected);
@@ -209,8 +316,8 @@ namespace management_kos.UI
                 throw new ArgumentException("Penghuni harus dipilih.");
             if (cmbKamar.SelectedValue is not int kamarId || kamarId <= 0)
                 throw new ArgumentException("Kamar harus dipilih.");
-            if (!decimal.TryParse(txtHarga.Text.Trim(), out decimal harga))
-                throw new ArgumentException("Harga Sewa Bulanan harus berupa angka.");
+            if (cmbKamar.SelectedItem is not Kamar kamar)
+                throw new ArgumentException("Data kamar tidak valid.");
 
             decimal.TryParse(txtDeposit.Text.Trim(), out decimal deposit);
 
@@ -220,7 +327,7 @@ namespace management_kos.UI
                 KamarId          = kamarId,
                 TanggalMulai     = dtpTanggalMulai.Value.Date,
                 TanggalSelesai   = dtpTanggalSelesai.Value.Date,
-                HargaSewaBulanan = harga,
+                HargaSewaBulanan = kamar.HargaKamar,
                 Deposit          = string.IsNullOrWhiteSpace(txtDeposit.Text) ? null : deposit,
                 Status           = Enum.TryParse(cmbStatus.SelectedItem?.ToString(), out KontrakStatus parsed)
                                    ? parsed
@@ -232,7 +339,7 @@ namespace management_kos.UI
         public void RefreshData()
         {
             LoadPenghuniDropdown();
-            LoadKamarDropdown();
+            LoadKosDropdown();
             RefreshGrid();
         }
 
@@ -247,13 +354,15 @@ namespace management_kos.UI
         private void ClearInput()
         {
             if (cmbPenghuni.Items.Count > 0) cmbPenghuni.SelectedIndex = 0;
+            if (cmbKos.Items.Count > 0) cmbKos.SelectedIndex = 0;
             if (cmbKamar.Items.Count > 0) cmbKamar.SelectedIndex = 0;
             dtpTanggalMulai.Value   = DateTime.Today;
             dtpTanggalSelesai.Value = DateTime.Today.AddMonths(12);
-            txtHarga.Text           = string.Empty;
+            UpdateHargaKamarInfo();
             txtDeposit.Text         = string.Empty;
             txtCatatan.Text         = string.Empty;
             cmbStatus.SelectedIndex = 0;
+            ApplyDepositState();
             ApplyState(FormState.Idle);
         }
     }

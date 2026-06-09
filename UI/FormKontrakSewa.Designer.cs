@@ -19,6 +19,8 @@ namespace management_kos.UI
             lblTitle          = new Label();
             lblPenghuniId     = new Label();
             cmbPenghuni       = new ComboBox();
+            lblKosId          = new Label();
+            cmbKos            = new ComboBox();
             lblKamarId        = new Label();
             cmbKamar          = new ComboBox();
             lblTanggalMulai   = new Label();
@@ -26,7 +28,7 @@ namespace management_kos.UI
             lblTanggalSelesai = new Label();
             dtpTanggalSelesai = new DateTimePicker();
             lblHarga          = new Label();
-            txtHarga          = new TextBox();
+            lblHargaValue     = new Label();
             lblDeposit        = new Label();
             txtDeposit        = new TextBox();
             lblStatus         = new Label();
@@ -44,7 +46,7 @@ namespace management_kos.UI
             // Panel input
             pnlInput.BackColor = Color.FromArgb(245, 247, 250);
             pnlInput.Dock      = DockStyle.Top;
-            pnlInput.Height    = 370;
+            pnlInput.Height    = 395;
             pnlInput.Padding   = new Padding(16);
 
             // Judul
@@ -62,62 +64,75 @@ namespace management_kos.UI
             cmbPenghuni.Size          = new Size(220, 24);
             cmbPenghuni.DropDownStyle = ComboBoxStyle.DropDownList;
 
+            // Kos
+            lblKosId.Text     = "Kos:";
+            lblKosId.Location = new Point(16, 82);
+            lblKosId.AutoSize = true;
+            cmbKos.Location      = new Point(180, 79);
+            cmbKos.Size          = new Size(220, 24);
+            cmbKos.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbKos.SelectedIndexChanged += cmbKos_SelectedIndexChanged;
+
             // Kamar
             lblKamarId.Text     = "Kamar:";
-            lblKamarId.Location = new Point(16, 82);
+            lblKamarId.Location = new Point(16, 114);
             lblKamarId.AutoSize = true;
-            cmbKamar.Location      = new Point(180, 79);
+            cmbKamar.Location      = new Point(180, 111);
             cmbKamar.Size          = new Size(220, 24);
             cmbKamar.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbKamar.SelectedIndexChanged += cmbKamar_SelectedIndexChanged;
 
             // Tanggal Mulai
             lblTanggalMulai.Text     = "Tanggal Mulai:";
-            lblTanggalMulai.Location = new Point(16, 114);
+            lblTanggalMulai.Location = new Point(16, 146);
             lblTanggalMulai.AutoSize = true;
-            dtpTanggalMulai.Location = new Point(180, 111);
+            dtpTanggalMulai.Location = new Point(180, 143);
             dtpTanggalMulai.Size     = new Size(160, 24);
             dtpTanggalMulai.Format   = DateTimePickerFormat.Short;
 
             // Tanggal Selesai
             lblTanggalSelesai.Text     = "Tanggal Selesai:";
-            lblTanggalSelesai.Location = new Point(16, 146);
+            lblTanggalSelesai.Location = new Point(16, 178);
             lblTanggalSelesai.AutoSize = true;
-            dtpTanggalSelesai.Location = new Point(180, 143);
+            dtpTanggalSelesai.Location = new Point(180, 175);
             dtpTanggalSelesai.Size     = new Size(160, 24);
             dtpTanggalSelesai.Format   = DateTimePickerFormat.Short;
             dtpTanggalSelesai.Value    = DateTime.Today.AddMonths(12);
 
             // Harga Sewa
-            lblHarga.Text     = "Harga Sewa/Bulan (Rp):";
-            lblHarga.Location = new Point(16, 178);
+            lblHarga.Text     = "Harga Kamar/Bulan (Rp):";
+            lblHarga.Location = new Point(16, 210);
             lblHarga.AutoSize = true;
-            txtHarga.Location = new Point(200, 175);
-            txtHarga.Size     = new Size(140, 24);
+            lblHargaValue.Location = new Point(200, 210);
+            lblHargaValue.Size     = new Size(140, 24);
+            lblHargaValue.Text     = "-";
+            lblHargaValue.Font     = new Font("Segoe UI", 9F, FontStyle.Bold);
 
             // Deposit
             lblDeposit.Text     = "Deposit (Rp, opsional):";
-            lblDeposit.Location = new Point(16, 210);
+            lblDeposit.Location = new Point(16, 242);
             lblDeposit.AutoSize = true;
-            txtDeposit.Location = new Point(200, 207);
+            txtDeposit.Location = new Point(200, 239);
             txtDeposit.Size     = new Size(140, 24);
 
             // Status
             lblStatus.Text     = "Status:";
-            lblStatus.Location = new Point(16, 242);
+            lblStatus.Location = new Point(16, 274);
             lblStatus.AutoSize = true;
-            cmbStatus.Location       = new Point(200, 239);
+            cmbStatus.Location       = new Point(200, 271);
             cmbStatus.Size           = new Size(140, 24);
             cmbStatus.DropDownStyle  = ComboBoxStyle.DropDownList;
+            cmbStatus.SelectedIndexChanged += cmbStatus_SelectedIndexChanged;
 
             // Catatan
             lblCatatan.Text     = "Catatan:";
-            lblCatatan.Location = new Point(16, 274);
+            lblCatatan.Location = new Point(16, 306);
             lblCatatan.AutoSize = true;
-            txtCatatan.Location = new Point(200, 271);
+            txtCatatan.Location = new Point(200, 303);
             txtCatatan.Size     = new Size(300, 24);
 
             // Tombol-tombol
-            int btnY = 314;
+            int btnY = 340;
 
             btnTambah.Name      = "btnTambah";
             btnTambah.Text      = "Tambah";
@@ -147,7 +162,7 @@ namespace management_kos.UI
             btnHapus.Click    += btnHapus_Click;
 
             btnSelesai.Name      = "btnSelesai";
-            btnSelesai.Text      = "Selesaikan";
+            btnSelesai.Text      = "Lunas";
             btnSelesai.Location  = new Point(316, btnY);
             btnSelesai.Size      = new Size(100, 32);
             btnSelesai.BackColor = Color.FromArgb(22, 163, 74);
@@ -175,10 +190,11 @@ namespace management_kos.UI
             {
                 lblTitle,
                 lblPenghuniId,    cmbPenghuni,
+                lblKosId,         cmbKos,
                 lblKamarId,       cmbKamar,
                 lblTanggalMulai,  dtpTanggalMulai,
                 lblTanggalSelesai, dtpTanggalSelesai,
-                lblHarga,         txtHarga,
+                lblHarga,         lblHargaValue,
                 lblDeposit,       txtDeposit,
                 lblStatus,        cmbStatus,
                 lblCatatan,       txtCatatan,
@@ -218,6 +234,8 @@ namespace management_kos.UI
         private Label           lblTitle;
         private Label           lblPenghuniId;
         private ComboBox        cmbPenghuni;
+        private Label           lblKosId;
+        private ComboBox        cmbKos;
         private Label           lblKamarId;
         private ComboBox        cmbKamar;
         private Label           lblTanggalMulai;
@@ -225,7 +243,7 @@ namespace management_kos.UI
         private Label           lblTanggalSelesai;
         private DateTimePicker  dtpTanggalSelesai;
         private Label           lblHarga;
-        private TextBox         txtHarga;
+        private Label           lblHargaValue;
         private Label           lblDeposit;
         private TextBox         txtDeposit;
         private Label           lblStatus;

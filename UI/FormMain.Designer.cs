@@ -83,6 +83,7 @@ partial class FormMain
         btnDataPembayaran.Size = new Size(180, 36);
         btnDataPembayaran.TabIndex = 5;
         btnDataPembayaran.Text = "Data Pembayaran";
+        btnDataPembayaran.Visible = false;
         btnDataPembayaran.UseVisualStyleBackColor = true;
         btnDataPembayaran.Click += btnDataPembayaran_Click;
         //
@@ -90,7 +91,7 @@ partial class FormMain
         //
         btnDataKontrakSewa.FlatStyle = FlatStyle.Flat;
         btnDataKontrakSewa.ForeColor = Color.White;
-        btnDataKontrakSewa.Location = new Point(20, 300);
+        btnDataKontrakSewa.Location = new Point(20, 258);
         btnDataKontrakSewa.Name = "btnDataKontrakSewa";
         btnDataKontrakSewa.Size = new Size(180, 36);
         btnDataKontrakSewa.TabIndex = 6;
