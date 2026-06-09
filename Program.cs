@@ -43,6 +43,16 @@ namespace management_kos
             IKontrakSewaRepository kontrakSewaRepository = new KontrakSewaRepository(dbContext);
             var kontrakSewaService = new KontrakSewaService(kontrakSewaRepository, penghuniRepository, kamarRepository);
 
+            IRoleRepository roleRepository = new RoleRepository(dbContext);
+            IAppUserRepository appUserRepository = new AppUserRepository(dbContext);
+            var appUserService = new AppUserService(appUserRepository, roleRepository);
+
+            using var loginForm = new FormLogin(appUserService);
+            if (loginForm.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
             Application.Run(new FormMain(kosService, kamarService, penghuniService, pembayaranService, kontrakSewaService));
         }
     }
