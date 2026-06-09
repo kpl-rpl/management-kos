@@ -22,8 +22,9 @@ public class KosRepository : IKosRepository
         using var command = connection.CreateCommand();
         command.CommandTimeout = _commandTimeoutSeconds;
         command.CommandText = @"
-            SELECT Id, NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan
+            SELECT Id, NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan, IsActive
             FROM Kos
+            WHERE IsActive = 1
             ORDER BY Id DESC;";
 
         using var reader = command.ExecuteReader();
@@ -38,7 +39,8 @@ public class KosRepository : IKosRepository
                 JumlahKamar = reader.GetInt32(4),
                 NamaPemilik = reader.GetString(5),
                 NomorTelepon = reader.GetString(6),
-                Catatan = reader.IsDBNull(7) ? null : reader.GetString(7)
+                Catatan = reader.IsDBNull(7) ? null : reader.GetString(7),
+                IsActive = reader.GetBoolean(8)
             });
         }
 
@@ -51,7 +53,7 @@ public class KosRepository : IKosRepository
         using var command = connection.CreateCommand();
         command.CommandTimeout = _commandTimeoutSeconds;
         command.CommandText = @"
-            SELECT Id, NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan
+            SELECT Id, NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan, IsActive
             FROM Kos
             WHERE Id = @Id;";
         command.Parameters.AddWithValue("@Id", id);
@@ -71,7 +73,8 @@ public class KosRepository : IKosRepository
             JumlahKamar = reader.GetInt32(4),
             NamaPemilik = reader.GetString(5),
             NomorTelepon = reader.GetString(6),
-            Catatan = reader.IsDBNull(7) ? null : reader.GetString(7)
+            Catatan = reader.IsDBNull(7) ? null : reader.GetString(7),
+            IsActive = reader.GetBoolean(8)
         };
     }
 
@@ -83,8 +86,8 @@ public class KosRepository : IKosRepository
         using var command = connection.CreateCommand();
         command.CommandTimeout = _commandTimeoutSeconds;
         command.CommandText = @"
-            INSERT INTO Kos (NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan)
-            VALUES (@NamaKos, @Alamat, @HargaDasar, @JumlahKamar, @NamaPemilik, @NomorTelepon, @Catatan);";
+            INSERT INTO Kos (NamaKos, Alamat, HargaDasar, JumlahKamar, NamaPemilik, NomorTelepon, Catatan, IsActive)
+            VALUES (@NamaKos, @Alamat, @HargaDasar, @JumlahKamar, @NamaPemilik, @NomorTelepon, @Catatan, @IsActive);";
 
         command.Parameters.AddWithValue("@NamaKos", kos.NamaKos);
         command.Parameters.AddWithValue("@Alamat", kos.Alamat);
@@ -93,6 +96,7 @@ public class KosRepository : IKosRepository
         command.Parameters.AddWithValue("@NamaPemilik", kos.NamaPemilik);
         command.Parameters.AddWithValue("@NomorTelepon", kos.NomorTelepon);
         command.Parameters.AddWithValue("@Catatan", (object?)kos.Catatan ?? DBNull.Value);
+        command.Parameters.AddWithValue("@IsActive", kos.IsActive);
 
         command.ExecuteNonQuery();
     }
@@ -112,7 +116,8 @@ public class KosRepository : IKosRepository
                 JumlahKamar = @JumlahKamar,
                 NamaPemilik = @NamaPemilik,
                 NomorTelepon = @NomorTelepon,
-                Catatan = @Catatan
+                Catatan = @Catatan,
+                IsActive = @IsActive
             WHERE Id = @Id;";
 
         command.Parameters.AddWithValue("@Id", kos.Id);
@@ -123,6 +128,7 @@ public class KosRepository : IKosRepository
         command.Parameters.AddWithValue("@NamaPemilik", kos.NamaPemilik);
         command.Parameters.AddWithValue("@NomorTelepon", kos.NomorTelepon);
         command.Parameters.AddWithValue("@Catatan", (object?)kos.Catatan ?? DBNull.Value);
+        command.Parameters.AddWithValue("@IsActive", kos.IsActive);
 
         var affectedRows = command.ExecuteNonQuery();
         if (affectedRows == 0)
@@ -136,7 +142,7 @@ public class KosRepository : IKosRepository
         using var connection = _dbContext.CreateConnection();
         using var command = connection.CreateCommand();
         command.CommandTimeout = _commandTimeoutSeconds;
-        command.CommandText = "DELETE FROM Kos WHERE Id = @Id;";
+        command.CommandText = "UPDATE Kos SET IsActive = 0 WHERE Id = @Id;";
         command.Parameters.AddWithValue("@Id", id);
 
         var affectedRows = command.ExecuteNonQuery();

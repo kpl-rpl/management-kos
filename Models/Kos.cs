@@ -10,4 +10,5 @@ public class Kos
     public string NamaPemilik { get; set; } = string.Empty;
     public string NomorTelepon { get; set; } = string.Empty;
     public string? Catatan { get; set; }
+    public bool IsActive { get; set; } = true;
 }
