@@ -53,13 +53,8 @@ public class PenghuniService
     public void TambahPenghuni(Penghuni penghuni)
     {
         Validate(penghuni);
-        EnsureKamarExists(penghuni.KamarId);
-        EnsureKamarTersedia(penghuni.KamarId);
 
         _penghuniRepository.Insert(penghuni);
-
-        // Tandai kamar menjadi Terisi setelah penghuni ditambahkan
-        UpdateStatusKamar(penghuni.KamarId, KamarStatus.Terisi);
     }
 
     public void UbahPenghuni(Penghuni penghuni)
@@ -71,24 +66,10 @@ public class PenghuniService
 
         Validate(penghuni);
 
-        var existing = _penghuniRepository.GetById(penghuni.Id)
+        _ = _penghuniRepository.GetById(penghuni.Id)
             ?? throw new ArgumentException("Penghuni tidak ditemukan.");
 
-        // Jika pindah kamar, pastikan kamar tujuan tersedia
-        if (existing.KamarId != penghuni.KamarId)
-        {
-            EnsureKamarExists(penghuni.KamarId);
-            EnsureKamarTersedia(penghuni.KamarId);
-        }
-
         _penghuniRepository.Update(penghuni);
-
-        // Jika pindah kamar, perbarui status kedua kamar
-        if (existing.KamarId != penghuni.KamarId)
-        {
-            UpdateStatusKamar(penghuni.KamarId, KamarStatus.Terisi);
-            RecalculateStatusKamarLama(existing.KamarId);
-        }
     }
 
     public void HapusPenghuni(int id)
@@ -98,15 +79,10 @@ public class PenghuniService
             throw new ArgumentException("ID Penghuni tidak valid.");
         }
 
-        var penghuni = _penghuniRepository.GetById(id)
+        _ = _penghuniRepository.GetById(id)
             ?? throw new ArgumentException("Penghuni tidak ditemukan.");
 
-        var kamarId = penghuni.KamarId;
-
         _penghuniRepository.Delete(id);
-
-        // Kembalikan status kamar ke Kosong jika sudah tidak ada penghuni aktif
-        RecalculateStatusKamarLama(kamarId);
     }
 
     public void CheckOutPenghuni(int id, DateTime tanggalKeluar)
@@ -119,16 +95,13 @@ public class PenghuniService
         var penghuni = _penghuniRepository.GetById(id)
             ?? throw new ArgumentException("Penghuni tidak ditemukan.");
 
-        if (tanggalKeluar < penghuni.TanggalMasuk)
+        if (penghuni.TanggalMasuk.HasValue && tanggalKeluar < penghuni.TanggalMasuk)
         {
             throw new ArgumentException("Tanggal keluar tidak boleh sebelum tanggal masuk.");
         }
 
         penghuni.TanggalKeluar = tanggalKeluar;
         _penghuniRepository.Update(penghuni);
-
-        // Perbarui status kamar berdasarkan penghuni aktif yang tersisa
-        RecalculateStatusKamarLama(penghuni.KamarId);
     }
 
     //Private helpers
@@ -191,9 +164,6 @@ public class PenghuniService
         // Tabel aturan validasi
         var rules = new List<(Func<Penghuni, bool> IsInvalid, string Message)>
     {
-        (x => x.KamarId <= 0,
-            "KamarId wajib diisi dan harus lebih dari 0."),
-
         (x => string.IsNullOrWhiteSpace(x.Nama),
             "Nama penghuni wajib diisi."),
 
@@ -203,10 +173,8 @@ public class PenghuniService
         (x => x.Email is not null && !EmailRegex.IsMatch(x.Email),
             "Format Email tidak valid."),
 
-        (x => x.TanggalMasuk == default,
-            "Tanggal Masuk wajib diisi."),
-
         (x => x.TanggalKeluar.HasValue &&
+              x.TanggalMasuk.HasValue &&
               x.TanggalKeluar.Value < x.TanggalMasuk,
             "Tanggal Keluar tidak boleh sebelum Tanggal Masuk."),
     };
