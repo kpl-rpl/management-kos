@@ -1,0 +1,3 @@
+ALTER TABLE Penghuni
+    MODIFY COLUMN KamarId INT NULL,
+    MODIFY COLUMN TanggalMasuk DATE NULL;

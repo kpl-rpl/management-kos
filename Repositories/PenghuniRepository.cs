@@ -24,10 +24,29 @@ namespace management_kos.Repositories
             using var command = connection.CreateCommand();
 
             command.CommandText = @"
-            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan, IsActive
-            FROM Penghuni
-            WHERE IsActive = 1
-            ORDER BY Id DESC;";
+            SELECT p.Id,
+                   p.KamarId,
+                   p.Nama,
+                   p.NomorTelepon,
+                   p.Email,
+                   p.TanggalMasuk,
+                   p.TanggalKeluar,
+                   p.Catatan,
+                   p.IsActive,
+                   (
+                       SELECT CONCAT(kos.NamaKos, ' - ', k.NomorKamar)
+                       FROM KontrakSewa ks
+                       INNER JOIN Kamar k ON k.Id = ks.KamarId
+                       INNER JOIN Kos kos ON kos.Id = k.KosId
+                       WHERE ks.PenghuniId = p.Id
+                         AND ks.Status IN ('Aktif', 'Dipesan')
+                       ORDER BY CASE ks.Status WHEN 'Aktif' THEN 0 ELSE 1 END,
+                                ks.TanggalMulai DESC
+                       LIMIT 1
+                   ) AS InfoKamar
+            FROM Penghuni p
+            WHERE p.IsActive = 1
+            ORDER BY p.Id DESC;";
 
             using var reader = command.ExecuteReader();
             while (reader.Read())
@@ -44,9 +63,28 @@ namespace management_kos.Repositories
             using var command = connection.CreateCommand();
 
             command.CommandText = @"
-            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan, IsActive
-            FROM Penghuni
-            WHERE Id = @Id;";
+            SELECT p.Id,
+                   p.KamarId,
+                   p.Nama,
+                   p.NomorTelepon,
+                   p.Email,
+                   p.TanggalMasuk,
+                   p.TanggalKeluar,
+                   p.Catatan,
+                   p.IsActive,
+                   (
+                       SELECT CONCAT(kos.NamaKos, ' - ', k.NomorKamar)
+                       FROM KontrakSewa ks
+                       INNER JOIN Kamar k ON k.Id = ks.KamarId
+                       INNER JOIN Kos kos ON kos.Id = k.KosId
+                       WHERE ks.PenghuniId = p.Id
+                         AND ks.Status IN ('Aktif', 'Dipesan')
+                       ORDER BY CASE ks.Status WHEN 'Aktif' THEN 0 ELSE 1 END,
+                                ks.TanggalMulai DESC
+                       LIMIT 1
+                   ) AS InfoKamar
+            FROM Penghuni p
+            WHERE p.Id = @Id;";
 
             command.Parameters.AddWithValue("@Id", id);
 
@@ -92,15 +130,12 @@ namespace management_kos.Repositories
             using var command = connection.CreateCommand();
 
             command.CommandText = @"
-            INSERT INTO Penghuni (KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan, IsActive)
-            VALUES (@KamarId, @Nama, @NomorTelepon, @Email, @TanggalMasuk, @TanggalKeluar, @Catatan, @IsActive);";
+            INSERT INTO Penghuni (Nama, NomorTelepon, Email, Catatan, IsActive)
+            VALUES (@Nama, @NomorTelepon, @Email, @Catatan, @IsActive);";
 
-            command.Parameters.AddWithValue("@KamarId", penghuni.KamarId);
             command.Parameters.AddWithValue("@Nama", penghuni.Nama);
             command.Parameters.AddWithValue("@NomorTelepon", penghuni.NomorTelepon);
             command.Parameters.AddWithValue("@Email", (object?)penghuni.Email ?? DBNull.Value);
-            command.Parameters.AddWithValue("@TanggalMasuk", penghuni.TanggalMasuk);
-            command.Parameters.AddWithValue("@TanggalKeluar", (object?)penghuni.TanggalKeluar ?? DBNull.Value);
             command.Parameters.AddWithValue("@Catatan", (object?)penghuni.Catatan ?? DBNull.Value);
             command.Parameters.AddWithValue("@IsActive", penghuni.IsActive);
 
@@ -116,23 +151,17 @@ namespace management_kos.Repositories
 
             command.CommandText = @"
             UPDATE Penghuni
-                SET KamarId = @KamarId,
-                    Nama = @Nama,
+                SET Nama = @Nama,
                     NomorTelepon = @NomorTelepon,
                     Email = @Email,
-                    TanggalMasuk = @TanggalMasuk,
-                    TanggalKeluar = @TanggalKeluar,
                     Catatan = @Catatan,
                     IsActive = @IsActive
             WHERE Id = @Id;";
 
             command.Parameters.AddWithValue("@Id", penghuni.Id);
-            command.Parameters.AddWithValue("@KamarId", penghuni.KamarId);
             command.Parameters.AddWithValue("@Nama", penghuni.Nama);
             command.Parameters.AddWithValue("@NomorTelepon", penghuni.NomorTelepon);
             command.Parameters.AddWithValue("@Email", (object?)penghuni.Email ?? DBNull.Value);
-            command.Parameters.AddWithValue("@TanggalMasuk", penghuni.TanggalMasuk);
-            command.Parameters.AddWithValue("@TanggalKeluar", (object?)penghuni.TanggalKeluar ?? DBNull.Value);
             command.Parameters.AddWithValue("@Catatan", (object?)penghuni.Catatan ?? DBNull.Value);
             command.Parameters.AddWithValue("@IsActive", penghuni.IsActive);
 
@@ -175,7 +204,9 @@ namespace management_kos.Repositories
                 }
             }
 
-            if (penghuni.TanggalKeluar.HasValue && penghuni.TanggalKeluar < penghuni.TanggalMasuk)
+            if (penghuni.TanggalKeluar.HasValue &&
+                penghuni.TanggalMasuk.HasValue &&
+                penghuni.TanggalKeluar < penghuni.TanggalMasuk)
             {
                 throw new ArgumentException("Tanggal keluar tidak boleh lebih awal dari tanggal masuk.");
             }
@@ -186,14 +217,17 @@ namespace management_kos.Repositories
             return new Penghuni
             {
                 Id = reader.GetInt32(0),
-                KamarId = reader.GetInt32(1),
+                KamarId = reader.IsDBNull(1) ? null : reader.GetInt32(1),
                 Nama = reader.GetString(2),
                 NomorTelepon = reader.GetString(3),
                 Email = reader.IsDBNull(4) ? null : reader.GetString(4),
-                TanggalMasuk = reader.GetDateTime(5),
+                TanggalMasuk = reader.IsDBNull(5) ? null : reader.GetDateTime(5),
                 TanggalKeluar = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
                 Catatan = reader.IsDBNull(7) ? null : reader.GetString(7),
-                IsActive = reader.GetBoolean(8)
+                IsActive = reader.GetBoolean(8),
+                InfoKamar = reader.FieldCount > 9 && !reader.IsDBNull(9)
+                    ? reader.GetString(9)
+                    : null
             };
         }
     }
