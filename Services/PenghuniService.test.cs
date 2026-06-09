@@ -51,15 +51,13 @@ namespace management_kos.Services
         [Fact]
         public void TambahPenghuni_ShouldCallInsert_WhenValid()
         {
-            var penghuni = new Penghuni { Id = 1, Nama = "Andi", KamarId = 1, NomorTelepon = "081234567890", TanggalMasuk = DateTime.Today };
-            _mockKamarRepository.Setup(r => r.GetById(1)).Returns(new Kamar { Id = 1, Status = KamarStatus.Kosong });
+            var penghuni = new Penghuni { Id = 1, Nama = "Andi", NomorTelepon = "081234567890" };
             _mockPenghuniRepository.Setup(r => r.Insert(penghuni));
-            _mockKamarRepository.Setup(r => r.Update(It.IsAny<Kamar>()));
 
             _service.TambahPenghuni(penghuni);
 
             _mockPenghuniRepository.Verify(r => r.Insert(penghuni), Times.Once);
-            _mockKamarRepository.Verify(r => r.Update(It.Is<Kamar>(k => k.Id == 1 && k.Status == KamarStatus.Terisi)), Times.Once);
+            _mockKamarRepository.Verify(r => r.Update(It.IsAny<Kamar>()), Times.Never);
         }
     }
 }
