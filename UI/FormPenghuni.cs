@@ -13,13 +13,11 @@ namespace management_kos.UI
     public partial class FormPenghuni : Form
     {
         private readonly PenghuniService _penghuniService;
-        private readonly KamarService _kamarService;
         private int _selectedPenghuniId = 0;
 
-        public FormPenghuni(PenghuniService penghuniService, KamarService kamarService)
+        public FormPenghuni(PenghuniService penghuniService)
         {
             _penghuniService = penghuniService;
-            _kamarService = kamarService;
             InitializeComponent();
             this.Load += FormPenghuni_Load;
         }
@@ -98,20 +96,7 @@ namespace management_kos.UI
             txtNama.Text    = Convert.ToString(row.Cells[nameof(Penghuni.Nama)].Value);
             txtTelpon.Text  = Convert.ToString(row.Cells[nameof(Penghuni.NomorTelepon)].Value);
             txtEmail.Text   = Convert.ToString(row.Cells[nameof(Penghuni.Email)].Value);
-
-            var tanggalMasukVal = row.Cells[nameof(Penghuni.TanggalMasuk)].Value;
-            if (tanggalMasukVal != null && tanggalMasukVal != DBNull.Value)
-                dtpTanggalMasuk.Value = Convert.ToDateTime(tanggalMasukVal);
-
-            var kamarId = Convert.ToInt32(row.Cells[nameof(Penghuni.KamarId)].Value);
-            foreach (var item in dropDownKamar.Items)
-            {
-                if (item is management_kos.Models.Kamar k && k.Id == kamarId)
-                {
-                    dropDownKamar.SelectedItem = item;
-                    break;
-                }
-            }
+            txtCatatan.Text = Convert.ToString(row.Cells[nameof(Penghuni.Catatan)].Value);
         }
 
         // Helper methods
@@ -121,18 +106,13 @@ namespace management_kos.UI
                 throw new ArgumentException("Nama wajib diisi.");
             if (string.IsNullOrWhiteSpace(txtTelpon.Text))
                 throw new ArgumentException("No. Telepon wajib diisi.");
-            if (dropDownKamar.SelectedValue == null)
-                throw new ArgumentException("Kamar harus dipilih.");
-
-            int kamarId = (int)dropDownKamar.SelectedValue;
 
             return new Penghuni
             {
                 Nama         = txtNama.Text.Trim(),
                 NomorTelepon = txtTelpon.Text.Trim(),
                 Email        = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text.Trim(),
-                KamarId      = kamarId,
-                TanggalMasuk = dtpTanggalMasuk.Value.Date
+                Catatan      = string.IsNullOrWhiteSpace(txtCatatan.Text) ? null : txtCatatan.Text.Trim()
             };
         }
 
@@ -142,15 +122,12 @@ namespace management_kos.UI
             txtNama.Clear();
             txtTelpon.Clear();
             txtEmail.Clear();
-            dtpTanggalMasuk.Value = DateTime.Today;
-            if (dropDownKamar.Items.Count > 0)
-                dropDownKamar.SelectedIndex = 0;
+            txtCatatan.Clear();
             txtNama.Focus();
         }
 
         public void RefreshData()
         {
-            LoadKamarDropdown();
             RefreshGrid();
         }
 
@@ -159,21 +136,30 @@ namespace management_kos.UI
             var items = _penghuniService.GetAllPenghuni();
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = items;
+
+            HideColumn(nameof(Penghuni.KamarId));
+            HideColumn(nameof(Penghuni.TanggalMasuk));
+            HideColumn(nameof(Penghuni.TanggalKeluar));
+            HideColumn(nameof(Penghuni.IsActive));
+
+            if (dataGridView1.Columns[nameof(Penghuni.InfoKamar)] is not null)
+            {
+                dataGridView1.Columns[nameof(Penghuni.InfoKamar)].HeaderText = "Kamar";
+            }
         }
 
         private void FormPenghuni_Load(object sender, EventArgs e)
         {
-            LoadKamarDropdown();
             RefreshGrid();
             ClearInput();
         }
 
-        private void LoadKamarDropdown()
+        private void HideColumn(string columnName)
         {
-            var kamarList = _kamarService.GetAllKamar();
-            dropDownKamar.DataSource = kamarList;
-            dropDownKamar.DisplayMember = "DisplayText";
-            dropDownKamar.ValueMember = "Id";
+            if (dataGridView1.Columns[columnName] is not null)
+            {
+                dataGridView1.Columns[columnName].Visible = false;
+            }
         }
     }
 }

@@ -20,12 +20,10 @@
             label2 = new Label();
             label3 = new Label();
             label4 = new Label();
-            label5 = new Label();
-            dtpTanggalMasuk = new DateTimePicker();
             txtNama = new TextBox();
             txtTelpon = new TextBox();
             txtEmail = new TextBox();
-            dropDownKamar = new ComboBox();
+            txtCatatan = new TextBox();
             btnTambah = new Button();
             btnUpdate = new Button();
             btnHapus = new Button();
@@ -37,7 +35,7 @@
             //pnlInput
             pnlInput.BackColor = Color.FromArgb(245, 247, 250);
             pnlInput.Dock = DockStyle.Top;
-            pnlInput.Height = 265;
+            pnlInput.Height = 230;
             pnlInput.Padding = new Padding(16);
 
             //Title
@@ -62,19 +60,10 @@
             label3.Location = new Point(lx, startY + rowH * 2 + 4);
             txtEmail.Location = new Point(tx, startY + rowH * 2); txtEmail.Size = new Size(220, 24);
 
-            label4.Text = "Kamar:"; label4.AutoSize = true;
+            label4.Text = "Catatan:"; label4.AutoSize = true;
             label4.Location = new Point(lx, startY + rowH * 3 + 4);
-            dropDownKamar.Location = new Point(tx, startY + rowH * 3);
-            dropDownKamar.Size = new Size(220, 24);
-            dropDownKamar.FormattingEnabled = true;
-            dropDownKamar.DisplayMember = "DisplayText";
-            dropDownKamar.ValueMember = "Id";
-
-            label5.Text = "Tanggal Masuk:"; label5.AutoSize = true;
-            label5.Location = new Point(lx, startY + rowH * 4 + 4);
-            dtpTanggalMasuk.Location = new Point(tx, startY + rowH * 4);
-            dtpTanggalMasuk.Size = new Size(160, 24);
-            dtpTanggalMasuk.Format = DateTimePickerFormat.Short;
+            txtCatatan.Location = new Point(tx, startY + rowH * 3);
+            txtCatatan.Size = new Size(300, 24);
 
             //Tombol kanan atas berwarna
             int bx = 430, by = startY, bw = 100, bh = 30, bg = 8;
@@ -116,8 +105,7 @@
                 label1, txtNama,
                 label2, txtTelpon,
                 label3, txtEmail,
-                label4, dropDownKamar,
-                label5, dtpTanggalMasuk,
+                label4, txtCatatan,
                 btnTambah, btnUpdate, btnHapus, btnReset
             });
 
@@ -161,12 +149,10 @@
         private Label label2;
         private Label label3;
         private Label label4;
-        private Label label5;
         private TextBox txtNama;
         private TextBox txtTelpon;
         private TextBox txtEmail;
-        private ComboBox dropDownKamar;
-        private DateTimePicker dtpTanggalMasuk;
+        private TextBox txtCatatan;
         private Button btnTambah;
         private Button btnUpdate;
         private Button btnHapus;
