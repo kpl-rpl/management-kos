@@ -71,7 +71,12 @@ public class KamarRepository : IKamarRepository
         var result = new List<Kamar>();
         using var connection = _dbContext.CreateConnection();
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT Id, KosId, NomorKamar, HargaKamar, Status, IsActive FROM Kamar WHERE KosId = @KosId AND IsActive = 1 ORDER BY Id DESC;";
+        // Include NamaKos by joining with Kos so UI can show kos name
+        command.CommandText = @"SELECT k.Id, k.KosId, k.NomorKamar, k.HargaKamar, k.Status, kos.NamaKos, k.IsActive 
+            FROM Kamar k 
+            LEFT JOIN Kos kos ON kos.Id = k.KosId 
+            WHERE k.KosId = @KosId AND k.IsActive = 1 
+            ORDER BY k.Id DESC;";
         command.Parameters.AddWithValue("@KosId", kosId);
         using var reader = command.ExecuteReader();
         while (reader.Read())
@@ -85,7 +90,8 @@ public class KamarRepository : IKamarRepository
                 Status = Enum.TryParse(reader.GetString(4), true, out KamarStatus parsedStatus)
                          ? parsedStatus
                          : KamarStatus.Kosong,
-                IsActive = reader.GetBoolean(5)
+                NamaKos = reader.IsDBNull(5) ? null : reader.GetString(5),
+                IsActive = reader.GetBoolean(6)
             });
         }
         return result;
