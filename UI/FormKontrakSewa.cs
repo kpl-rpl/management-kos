@@ -81,7 +81,7 @@ namespace management_kos.UI
         {
             var list = _referenceDataService.GetAllMetodePembayaran();
             cmbMetodePembayaran.DisplayMember = nameof(MetodePembayaranRef.NamaMetode);
-            cmbMetodePembayaran.ValueMember = nameof(MetodePembayaranRef.NamaMetode);
+            cmbMetodePembayaran.ValueMember = nameof(MetodePembayaranRef.Id);
             cmbMetodePembayaran.DataSource = list;
         }
 
@@ -158,8 +158,8 @@ namespace management_kos.UI
             try
             {
                 var k = BuildFromInput();
-                var metodePembayaran = GetSelectedMetodePembayaran();
-                if (string.IsNullOrWhiteSpace(metodePembayaran))
+                var metodePembayaran = GetSelectedMetodePembayaranRef();
+                if (metodePembayaran is null)
                     throw new ArgumentException("Metode pembayaran wajib dipilih.");
 
                 _service.TambahKontrak(k);
@@ -224,7 +224,7 @@ namespace management_kos.UI
             if (_selectedId <= 0) return;
             try
             {
-                var metode = PromptMetodePembayaran(GetSelectedMetodePembayaran());
+                var metode = PromptMetodePembayaran(GetSelectedMetodePembayaranRef());
                 if (metode is null) return;
 
                 CatatPembayaranLunas(_selectedId, metode);
@@ -241,7 +241,7 @@ namespace management_kos.UI
             }
         }
 
-        private void CatatPembayaranLunas(int kontrakId, string metodePembayaran)
+        private void CatatPembayaranLunas(int kontrakId, MetodePembayaranRef metodePembayaran)
         {
             var kontrak = _service.GetById(kontrakId)
                 ?? throw new InvalidOperationException("Kontrak tidak ditemukan.");
@@ -251,12 +251,12 @@ namespace management_kos.UI
                 KontrakSewaId = kontrak.Id,
                 TanggalBayar = DateTime.Today,
                 JumlahDibayar = kontrak.HargaSewaBulanan,
-                MetodePembayaran = metodePembayaran,
+                MetodePembayaran = metodePembayaran.NamaMetode,
                 Catatan = "Pembayaran lunas dicatat dari modul kontrak sewa."
             });
         }
 
-        private void CatatPembayaranAwal(KontrakSewa kontrak, string metodePembayaran)
+        private void CatatPembayaranAwal(KontrakSewa kontrak, MetodePembayaranRef metodePembayaran)
         {
             if (kontrak.Id <= 0)
                 throw new InvalidOperationException("ID kontrak baru tidak valid untuk pencatatan pembayaran.");
@@ -274,14 +274,14 @@ namespace management_kos.UI
                 KontrakSewaId = kontrak.Id,
                 TanggalBayar = DateTime.Today,
                 JumlahDibayar = jumlahDibayar,
-                MetodePembayaran = metodePembayaran,
+                MetodePembayaran = metodePembayaran.NamaMetode,
                 Catatan = isDeposit
                     ? "Deposit dicatat saat kontrak sewa dibuat."
                     : "Pembayaran awal dicatat saat kontrak sewa dibuat."
             });
         }
 
-        private string? PromptMetodePembayaran(string defaultMetode)
+        private MetodePembayaranRef? PromptMetodePembayaran(MetodePembayaranRef? defaultMetode)
         {
             var metodeList = _referenceDataService.GetAllMetodePembayaran();
             if (metodeList.Count == 0)
@@ -311,9 +311,9 @@ namespace management_kos.UI
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             combo.DisplayMember = nameof(MetodePembayaranRef.NamaMetode);
-            combo.ValueMember = nameof(MetodePembayaranRef.NamaMetode);
+            combo.ValueMember = nameof(MetodePembayaranRef.Id);
             combo.DataSource = metodeList;
-            var defaultIndex = metodeList.FindIndex(m => m.NamaMetode == defaultMetode);
+            var defaultIndex = metodeList.FindIndex(m => m.Id == defaultMetode?.Id);
             if (combo.Items.Count > 0)
             {
                 combo.SelectedIndex = defaultIndex >= 0 ? defaultIndex : 0;
@@ -340,15 +340,13 @@ namespace management_kos.UI
             dialog.CancelButton = btnCancel;
 
             return dialog.ShowDialog(this) == DialogResult.OK
-                ? combo.SelectedValue?.ToString()
+                ? combo.SelectedItem as MetodePembayaranRef
                 : null;
         }
 
-        private string GetSelectedMetodePembayaran()
+        private MetodePembayaranRef? GetSelectedMetodePembayaranRef()
         {
-            return cmbMetodePembayaran.SelectedValue?.ToString()
-                ?? (cmbMetodePembayaran.SelectedItem as MetodePembayaranRef)?.NamaMetode
-                ?? string.Empty;
+            return cmbMetodePembayaran.SelectedItem as MetodePembayaranRef;
         }
 
         private void btnBatal_Click(object sender, EventArgs e)
