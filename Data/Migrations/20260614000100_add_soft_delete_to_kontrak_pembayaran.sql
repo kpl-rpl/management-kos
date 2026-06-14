@@ -4,7 +4,9 @@ ALTER TABLE KontrakSewa
 ALTER TABLE Pembayaran
     ADD COLUMN IF NOT EXISTS IsActive TINYINT(1) NOT NULL DEFAULT 1;
 
+DROP TRIGGER IF EXISTS trg_kontrak_sewa_after_delete;
 DROP TRIGGER IF EXISTS trg_kontrak_sewa_after_update;
+
 
 CREATE TRIGGER trg_kontrak_sewa_after_update
 AFTER UPDATE ON KontrakSewa
