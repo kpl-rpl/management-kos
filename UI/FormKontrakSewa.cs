@@ -449,8 +449,8 @@ namespace management_kos.UI
         {
             dgvKontrak.DataSource = null;
             dgvKontrak.DataSource = _service.GetAll();
-            if (dgvKontrak.Columns["Catatan"] != null)
-                dgvKontrak.Columns["Catatan"].Visible = false;
+            HideColumn(dgvKontrak, "Catatan");
+            HideColumn(dgvKontrak, nameof(KontrakSewa.IsActive));
         }
 
         private void RefreshPembayaranGrid(int? kontrakId = null)
@@ -462,8 +462,17 @@ namespace management_kos.UI
             dgvPembayaran.DataSource = null;
             dgvPembayaran.DataSource = data;
 
-            if (dgvPembayaran.Columns["Catatan"] != null)
-                dgvPembayaran.Columns["Catatan"].Visible = false;
+            HideColumn(dgvPembayaran, "Catatan");
+            HideColumn(dgvPembayaran, nameof(Pembayaran.IsActive));
+        }
+
+        private static void HideColumn(DataGridView grid, string columnName)
+        {
+            var column = grid.Columns[columnName];
+            if (column is not null)
+            {
+                column.Visible = false;
+            }
         }
 
         private void ClearInput()

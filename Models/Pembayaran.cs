@@ -8,4 +8,5 @@ public class Pembayaran
     public decimal JumlahDibayar { get; set; }
     public string MetodePembayaran { get; set; } = string.Empty;
     public string? Catatan { get; set; }
+    public bool IsActive { get; set; } = true;
 }

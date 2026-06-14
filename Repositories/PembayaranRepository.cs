@@ -16,8 +16,9 @@ public class PembayaranRepository : RepositoryBase, IPembayaranRepository
         try
         {
             return QueryList(@"
-                SELECT Id, KontrakSewaId, TanggalBayar, JumlahDibayar, MetodePembayaran, Catatan
+                SELECT Id, KontrakSewaId, TanggalBayar, JumlahDibayar, MetodePembayaran, Catatan, IsActive
                 FROM Pembayaran
+                WHERE IsActive = 1
                 ORDER BY Id DESC;", Map) ?? new List<Pembayaran>();
         }
         catch (Exception)
@@ -33,9 +34,9 @@ public class PembayaranRepository : RepositoryBase, IPembayaranRepository
         try
         {
             return QuerySingle(@"
-                SELECT Id, KontrakSewaId, TanggalBayar, JumlahDibayar, MetodePembayaran, Catatan
+                SELECT Id, KontrakSewaId, TanggalBayar, JumlahDibayar, MetodePembayaran, Catatan, IsActive
                 FROM Pembayaran
-                WHERE Id = @Id;",
+                WHERE Id = @Id AND IsActive = 1;",
                 Map,
                 command => command.Parameters.AddWithValue("@Id", id));
         }
@@ -52,9 +53,10 @@ public class PembayaranRepository : RepositoryBase, IPembayaranRepository
         try
         {
             return QueryList(@"
-                SELECT Id, KontrakSewaId, TanggalBayar, JumlahDibayar, MetodePembayaran, Catatan
+                SELECT Id, KontrakSewaId, TanggalBayar, JumlahDibayar, MetodePembayaran, Catatan, IsActive
                 FROM Pembayaran
                 WHERE KontrakSewaId = @KontrakSewaId
+                  AND IsActive = 1
                 ORDER BY TanggalBayar DESC, Id DESC;",
                 Map,
                 command => command.Parameters.AddWithValue("@KontrakSewaId", kontrakSewaId)) ?? new List<Pembayaran>();
@@ -113,7 +115,8 @@ public class PembayaranRepository : RepositoryBase, IPembayaranRepository
                     TanggalBayar = @TanggalBayar,
                     JumlahDibayar = @JumlahDibayar,
                     MetodePembayaran = @MetodePembayaran,
-                    Catatan = @Catatan
+                    Catatan = @Catatan,
+                    IsActive = @IsActive
                 WHERE Id = @Id;",
                 command =>
                 {
@@ -123,6 +126,7 @@ public class PembayaranRepository : RepositoryBase, IPembayaranRepository
                     command.Parameters.AddWithValue("@JumlahDibayar", pembayaran.JumlahDibayar);
                     command.Parameters.AddWithValue("@MetodePembayaran", pembayaran.MetodePembayaran);
                     command.Parameters.AddWithValue("@Catatan", (object?)pembayaran.Catatan ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@IsActive", pembayaran.IsActive);
                 });
         }
         catch (Exception)
@@ -139,7 +143,7 @@ public class PembayaranRepository : RepositoryBase, IPembayaranRepository
         try
         {
             Execute(
-                "DELETE FROM Pembayaran WHERE Id = @Id;",
+                "UPDATE Pembayaran SET IsActive = 0 WHERE Id = @Id;",
                 command => command.Parameters.AddWithValue("@Id", id));
         }
         catch (Exception)
@@ -160,7 +164,8 @@ public class PembayaranRepository : RepositoryBase, IPembayaranRepository
                 TanggalBayar = reader.IsDBNull(2) ? null : reader.GetDateTime(2),
                 JumlahDibayar = !reader.IsDBNull(3) ? reader.GetDecimal(3) : 0,
                 MetodePembayaran = !reader.IsDBNull(4) ? reader.GetString(4) : string.Empty,
-                Catatan = reader.IsDBNull(5) ? null : reader.GetString(5)
+                Catatan = reader.IsDBNull(5) ? null : reader.GetString(5),
+                IsActive = !reader.IsDBNull(6) && reader.GetBoolean(6)
             };
         }
         catch (Exception)

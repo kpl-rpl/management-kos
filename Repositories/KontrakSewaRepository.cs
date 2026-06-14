@@ -20,37 +20,38 @@ public class KontrakSewaRepository : RepositoryBase, IKontrakSewaRepository
         { "Deposit",          6 },
         { "Status",           7 },
         { "Catatan",          8 },
+        { "IsActive",         9 },
     };
 
     private const string SelectColumns =
-        "Id, PenghuniId, KamarId, TanggalMulai, TanggalSelesai, HargaSewaBulanan, Deposit, Status, Catatan";
+        "Id, PenghuniId, KamarId, TanggalMulai, TanggalSelesai, HargaSewaBulanan, Deposit, Status, Catatan, IsActive";
 
     public KontrakSewaRepository(MySqlDbContext dbContext) : base(dbContext) { }
 
     public List<KontrakSewa> GetAll() =>
-        QueryList($"SELECT {SelectColumns} FROM KontrakSewa ORDER BY Id DESC;", Map);
+        QueryList($"SELECT {SelectColumns} FROM KontrakSewa WHERE IsActive = 1 ORDER BY Id DESC;", Map);
 
     public KontrakSewa? GetById(int id) =>
         QuerySingle(
-            $"SELECT {SelectColumns} FROM KontrakSewa WHERE Id = @Id;",
+            $"SELECT {SelectColumns} FROM KontrakSewa WHERE Id = @Id AND IsActive = 1;",
             Map,
             cmd => cmd.Parameters.AddWithValue("@Id", id));
 
     public List<KontrakSewa> GetByPenghuniId(int penghuniId) =>
         QueryList(
-            $"SELECT {SelectColumns} FROM KontrakSewa WHERE PenghuniId = @PenghuniId ORDER BY Id DESC;",
+            $"SELECT {SelectColumns} FROM KontrakSewa WHERE PenghuniId = @PenghuniId AND IsActive = 1 ORDER BY Id DESC;",
             Map,
             cmd => cmd.Parameters.AddWithValue("@PenghuniId", penghuniId));
 
     public List<KontrakSewa> GetByKamarId(int kamarId) =>
         QueryList(
-            $"SELECT {SelectColumns} FROM KontrakSewa WHERE KamarId = @KamarId ORDER BY Id DESC;",
+            $"SELECT {SelectColumns} FROM KontrakSewa WHERE KamarId = @KamarId AND IsActive = 1 ORDER BY Id DESC;",
             Map,
             cmd => cmd.Parameters.AddWithValue("@KamarId", kamarId));
 
     public List<KontrakSewa> GetByStatus(string status) =>
         QueryList(
-            $"SELECT {SelectColumns} FROM KontrakSewa WHERE Status = @Status ORDER BY Id DESC;",
+            $"SELECT {SelectColumns} FROM KontrakSewa WHERE Status = @Status AND IsActive = 1 ORDER BY Id DESC;",
             Map,
             cmd => cmd.Parameters.AddWithValue("@Status", status));
 
@@ -76,7 +77,8 @@ public class KontrakSewaRepository : RepositoryBase, IKontrakSewaRepository
                 HargaSewaBulanan = @HargaSewaBulanan,
                 Deposit          = @Deposit,
                 Status           = @Status,
-                Catatan          = @Catatan
+                Catatan          = @Catatan,
+                IsActive         = @IsActive
             WHERE Id = @Id;",
             cmd =>
             {
@@ -85,7 +87,7 @@ public class KontrakSewaRepository : RepositoryBase, IKontrakSewaRepository
             });
 
     public void Delete(int id) =>
-        Execute("DELETE FROM KontrakSewa WHERE Id = @Id;",
+        Execute("UPDATE KontrakSewa SET IsActive = 0 WHERE Id = @Id;",
             cmd => cmd.Parameters.AddWithValue("@Id", id));
 
     // Semua binding parameter dikelola di satu tempat (table-driven parameter binding).
@@ -99,6 +101,7 @@ public class KontrakSewaRepository : RepositoryBase, IKontrakSewaRepository
         cmd.Parameters.AddWithValue("@Deposit", (object?)k.Deposit ?? DBNull.Value);
         cmd.Parameters.AddWithValue("@Status", k.Status.ToString());
         cmd.Parameters.AddWithValue("@Catatan", (object?)k.Catatan ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@IsActive", k.IsActive);
     }
 
     // Mapping dikontrol oleh tabel Col — urutan kolom tidak perlu diingat per-field.
@@ -115,5 +118,6 @@ public class KontrakSewaRepository : RepositoryBase, IKontrakSewaRepository
                            ? parsedStatus
                            : KontrakStatus.Aktif,
         Catatan          = r.IsDBNull(Col["Catatan"]) ? null : r.GetString(Col["Catatan"]),
+        IsActive         = r.GetBoolean(Col["IsActive"]),
     };
 }

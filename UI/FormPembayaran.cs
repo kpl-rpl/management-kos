@@ -200,8 +200,17 @@ namespace management_kos.UI
             dgvPembayaran.DataSource = null;
             dgvPembayaran.DataSource = data;
 
-            if (dgvPembayaran.Columns["Catatan"] != null)
-                dgvPembayaran.Columns["Catatan"].Visible = false;
+            HideColumn("Catatan");
+            HideColumn(nameof(Pembayaran.IsActive));
+        }
+
+        private void HideColumn(string columnName)
+        {
+            var column = dgvPembayaran.Columns[columnName];
+            if (column is not null)
+            {
+                column.Visible = false;
+            }
         }
 
         private void ClearInput()

@@ -148,14 +148,30 @@ namespace management_kos.UI
 
             if (dgvKos.Columns.Count > 0)
             {
-                if (dgvKos.Columns.Contains(nameof(Kamar.Id)))
-                    dgvKos.Columns[nameof(Kamar.Id)].HeaderText = "ID";
-                if (dgvKos.Columns.Contains(nameof(Kamar.NomorKamar)))
-                    dgvKos.Columns[nameof(Kamar.NomorKamar)].HeaderText = "Nomor Kamar";
-                if (dgvKos.Columns.Contains(nameof(Kamar.Status)))
-                    dgvKos.Columns[nameof(Kamar.Status)].HeaderText = "Status";
+                SetHeader(nameof(Kamar.Id), "ID");
+                SetHeader(nameof(Kamar.NomorKamar), "Nomor Kamar");
+                SetHeader(nameof(Kamar.Status), "Status");
+                HideColumn(nameof(Kamar.IsActive));
 
                 dgvKos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            }
+        }
+
+        private void SetHeader(string columnName, string headerText)
+        {
+            var column = dgvKos.Columns[columnName];
+            if (column is not null)
+            {
+                column.HeaderText = headerText;
+            }
+        }
+
+        private void HideColumn(string columnName)
+        {
+            var column = dgvKos.Columns[columnName];
+            if (column is not null)
+            {
+                column.Visible = false;
             }
         }
 

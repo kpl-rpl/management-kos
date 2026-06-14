@@ -116,11 +116,30 @@ public partial class FormKos : Form
 
         if (dgvKos.Columns.Count > 0)
         {
-            dgvKos.Columns[nameof(Kos.Id)].HeaderText = "ID";
-            dgvKos.Columns[nameof(Kos.NamaKos)].HeaderText = "Nama Kos";
-            dgvKos.Columns[nameof(Kos.HargaDasar)].HeaderText = "Harga Dasar";
-            dgvKos.Columns[nameof(Kos.JumlahKamar)].HeaderText = "Jumlah Kamar";
+            SetHeader(nameof(Kos.Id), "ID");
+            SetHeader(nameof(Kos.NamaKos), "Nama Kos");
+            SetHeader(nameof(Kos.HargaDasar), "Harga Dasar");
+            SetHeader(nameof(Kos.JumlahKamar), "Jumlah Kamar");
+            HideColumn(nameof(Kos.IsActive));
             dgvKos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+    }
+
+    private void SetHeader(string columnName, string headerText)
+    {
+        var column = dgvKos.Columns[columnName];
+        if (column is not null)
+        {
+            column.HeaderText = headerText;
+        }
+    }
+
+    private void HideColumn(string columnName)
+    {
+        var column = dgvKos.Columns[columnName];
+        if (column is not null)
+        {
+            column.Visible = false;
         }
     }
 
