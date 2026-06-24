@@ -24,9 +24,11 @@ namespace management_kos.UI
         {
             cmbMetodePembayaran.Items.AddRange(new[] { "Transfer", "Tunai", "QRIS" });
             cmbMetodePembayaran.SelectedIndex = 0;
+            cmbFilterMetode.Items.AddRange(new[] { "Semua", "Transfer", "Tunai", "QRIS" });
+            cmbFilterMetode.SelectedIndex = 0;
 
             LoadKontrakDropdown();
-            HideCrudButtons();
+            ApplyHistoryOnlyMode();
             RefreshGrid();
             UpdateSummary();
         }
@@ -46,6 +48,12 @@ namespace management_kos.UI
             {
                 RefreshGrid(kontrakId);
             }
+        }
+
+        private void btnCari_Click(object sender, EventArgs e)
+        {
+            var kontrakId = cmbKontrakSewa.SelectedValue is int id && id > 0 ? id : (int?)null;
+            RefreshGrid(kontrakId);
         }
 
         private void btnTambah_Click(object sender, EventArgs e)
@@ -180,10 +188,31 @@ namespace management_kos.UI
             var data = kontrakId.HasValue && kontrakId.Value > 0
                 ? _pembayaranService.GetByKontrak(kontrakId.Value)
                 : _pembayaranService.GetAll();
+
+            var keyword = txtCari.Text.Trim();
+            var metode = cmbFilterMetode.SelectedItem?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(metode) && metode != "Semua")
+            {
+                data = data.Where(p => p.MetodePembayaran.Equals(metode, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                data = data.Where(p =>
+                    p.Id.ToString().Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    || p.JumlahDibayar.ToString().Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    || p.MetodePembayaran.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    || (p.Catatan?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                ).ToList();
+            }
+
             dgvPembayaran.DataSource = null;
             dgvPembayaran.DataSource = data;
 
+            SetHeader(nameof(Pembayaran.Id), "Nomor");
             HideColumn("Catatan");
+            HideColumn(nameof(Pembayaran.KontrakSewaId));
             HideColumn(nameof(Pembayaran.IsActive));
         }
 
@@ -212,11 +241,29 @@ namespace management_kos.UI
             }
         }
 
-        private void HideCrudButtons()
+        private void ApplyHistoryOnlyMode()
         {
+            lblTitle.Text = "Riwayat Pembayaran";
+            lblJumlahDibayar.Visible = false;
+            txtJumlahDibayar.Visible = false;
+            lblMetode.Visible = false;
+            cmbMetodePembayaran.Visible = false;
+            lblCatatan.Visible = false;
+            txtCatatan.Visible = false;
+            btnTambah.Visible = false;
             btnBayar.Visible = false;
             btnUpdate.Visible = false;
             btnHapus.Visible = false;
+            btnReset.Visible = false;
+        }
+
+        private void SetHeader(string columnName, string headerText)
+        {
+            var column = dgvPembayaran.Columns[columnName];
+            if (column is not null)
+            {
+                column.HeaderText = headerText;
+            }
         }
 
         private void HideColumn(string columnName)

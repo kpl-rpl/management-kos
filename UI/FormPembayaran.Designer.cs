@@ -30,6 +30,9 @@ namespace management_kos.UI
             lblSisaValue = new Label();
             lblCatatan = new Label();
             txtCatatan = new TextBox();
+            txtCari = new TextBox();
+            cmbFilterMetode = new ComboBox();
+            btnCari = new Button();
             btnTambah = new Button();
             btnBayar = new Button();
             btnUpdate = new Button();
@@ -100,6 +103,20 @@ namespace management_kos.UI
             lblSisaValue.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblSisaValue.Location = new Point(560, startY + rowH * 3 + 4);
 
+            txtCari.Location = new Point(16, 224);
+            txtCari.Size = new Size(260, 24);
+            txtCari.PlaceholderText = "Cari pembayaran...";
+
+            cmbFilterMetode.Location = new Point(286, 224);
+            cmbFilterMetode.Size = new Size(140, 24);
+            cmbFilterMetode.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            btnCari.Text = "Cari";
+            btnCari.Location = new Point(436, 222);
+            btnCari.Size = new Size(80, 28);
+            btnCari.FlatStyle = FlatStyle.Flat;
+            btnCari.Click += btnCari_Click;
+
             // Baris 3: Catatan
             lblCatatan.Text = "Catatan:"; lblCatatan.AutoSize = true;
             lblCatatan.Location = new Point(lx, startY + rowH * 3 + 4);
@@ -108,9 +125,9 @@ namespace management_kos.UI
             //Tombol kanan atas berwarna
             int bx = 610, by = startY, bw = 120, bh = 32, bg = 8;
 
-            btnTambah.Text = "Catat";
+            btnTambah.Text = "Catat Pembayaran";
             btnTambah.Location = new Point(bx, by);
-            btnTambah.Size = new Size(bw, bh);
+            btnTambah.Size = new Size(150, bh);
             btnTambah.BackColor = Color.FromArgb(37, 99, 235);
             btnTambah.ForeColor = Color.White;
             btnTambah.FlatStyle = FlatStyle.Flat;
@@ -140,9 +157,9 @@ namespace management_kos.UI
             btnHapus.FlatStyle = FlatStyle.Flat;
             btnHapus.Click += btnHapus_Click;
 
-            btnReset.Text = "Reset";
-            btnReset.Location = new Point(bx, by + (bh + bg) * 2);
-            btnReset.Size = new Size(bw, bh);
+            btnReset.Text = "Bersihkan";
+            btnReset.Location = new Point(bx, by + bh + bg);
+            btnReset.Size = new Size(150, bh);
             btnReset.FlatStyle = FlatStyle.Flat;
             btnReset.Click += btnReset_Click;
 
@@ -156,6 +173,7 @@ namespace management_kos.UI
                 lblTotalTagihan, lblTotalTagihanValue,
                 lblTotalDibayar, lblTotalDibayarValue,
                 lblSisa, lblSisaValue,
+                txtCari, cmbFilterMetode, btnCari,
                 lblCatatan,       txtCatatan,
                 btnTambah, btnBayar, btnUpdate, btnHapus, btnReset
             });
@@ -209,6 +227,9 @@ namespace management_kos.UI
         private Label lblSisaValue;
         private Label lblCatatan;
         private TextBox txtCatatan;
+        private TextBox txtCari;
+        private ComboBox cmbFilterMetode;
+        private Button btnCari;
         private Button btnTambah;
         private Button btnBayar;
         private Button btnUpdate;
