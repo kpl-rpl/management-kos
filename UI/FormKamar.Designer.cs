@@ -30,6 +30,9 @@ namespace management_kos.UI
             radioButton2 = new RadioButton();
             radioButton3 = new RadioButton();
             radioButton4 = new RadioButton();
+            txtCari = new TextBox();
+            cmbFilterStatus = new ComboBox();
+            btnCari = new Button();
             btnTambah = new Button();
             btnUpdate = new Button();
             btnHapus = new Button();
@@ -135,6 +138,20 @@ namespace management_kos.UI
             btnReset.FlatStyle = FlatStyle.Flat;
             btnReset.Click += btnReset_Click;
 
+            txtCari.Location = new Point(bx, by + (bh + bg) * 2);
+            txtCari.Size = new Size(180, 24);
+            txtCari.PlaceholderText = "Cari kamar...";
+
+            cmbFilterStatus.Location = new Point(bx + 190, by + (bh + bg) * 2);
+            cmbFilterStatus.Size = new Size(130, 24);
+            cmbFilterStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            btnCari.Text = "Cari";
+            btnCari.Location = new Point(bx + 330, by + (bh + bg) * 2 - 2);
+            btnCari.Size = new Size(70, 28);
+            btnCari.FlatStyle = FlatStyle.Flat;
+            btnCari.Click += btnCari_Click;
+
             //Tambah ke pnlInput
             pnlInput.Controls.AddRange(new Control[]
             {
@@ -143,7 +160,8 @@ namespace management_kos.UI
                 label1, textBox1,
                 lblHargaKamar, txtHargaKamar,
                 label2, radioButton1, radioButton2, radioButton3, radioButton4,
-                btnTambah, btnUpdate, btnHapus, btnReset
+                btnTambah, btnUpdate, btnHapus, btnReset,
+                txtCari, cmbFilterStatus, btnCari
             });
 
             //DataGridView
@@ -200,6 +218,9 @@ namespace management_kos.UI
         private RadioButton radioButton2;
         private RadioButton radioButton3;
         private RadioButton radioButton4;
+        private TextBox txtCari;
+        private ComboBox cmbFilterStatus;
+        private Button btnCari;
         private Button btnTambah;
         private Button btnUpdate;
         private Button btnHapus;

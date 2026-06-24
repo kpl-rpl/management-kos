@@ -35,6 +35,8 @@ namespace management_kos.UI
 
         private void FormKamar_Load(object sender, EventArgs e)
         {
+            cmbFilterStatus.Items.AddRange(new[] { "Semua", "Kosong", "Terisi", "Dipesan", "Perbaikan" });
+            cmbFilterStatus.SelectedIndex = 0;
             LoadKosToComboBox();
             radioButton1.Checked = true;
             RefreshGrid();
@@ -142,13 +144,30 @@ namespace management_kos.UI
         {
             if (_selectedKosId <= 0) return;
             var data = _kamarService.GetKamarByKosId(_selectedKosId);
+            var keyword = txtCari.Text.Trim();
+            var status = cmbFilterStatus.SelectedItem?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(status) && status != "Semua")
+            {
+                data = data.Where(k => k.Status.ToString() == status).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                data = data.Where(k =>
+                    k.Id.ToString().Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    || k.NomorKamar.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    || (k.NamaKos?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || k.Status.ToString().Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+            }
 
             dgvKos.DataSource = null;
             dgvKos.DataSource = data;
 
             if (dgvKos.Columns.Count > 0)
             {
-                SetHeader(nameof(Kamar.Id), "ID");
+                SetHeader(nameof(Kamar.Id), "Nomor");
                 SetHeader(nameof(Kamar.NomorKamar), "Nomor Kamar");
                 SetHeader(nameof(Kamar.Status), "Status");
                 SetHeader(nameof(Kamar.DisplayText), "Nama Kamar");
@@ -191,6 +210,11 @@ namespace management_kos.UI
         private void btnReset_Click(object sender, EventArgs e)
         {
             ClearInput();
+        }
+
+        private void btnCari_Click(object sender, EventArgs e)
+        {
+            RefreshGrid();
         }
 
         private void btnTambah_Click(object sender, EventArgs e)
