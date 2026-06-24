@@ -2,6 +2,36 @@
 Project ini adalah **aplikasi Management Kos**.
 Arsitektur disusun sederhana agar mudah dipahami, mudah dirawat, dan mudah dikembangkan untuk modul lanjutan.
 
+## Revisi KPL Terbaru
+
+### Alur bisnis utama
+
+1. Admin mengelola data `Kos` dan `Kamar`.
+2. Admin membuat `KontrakSewa` dengan memilih kamar, tanggal masuk, dan durasi sewa dalam bulan.
+3. Jika penghuni belum ada, data penghuni dibuat dari form kontrak sewa. Data penghuni tidak menyimpan `KamarId` karena satu penghuni dapat memiliki lebih dari satu kontrak/kamar.
+4. Sistem menghitung `JumlahBulanTagihan` dengan pembulatan ke atas. Contoh: 2,5 bulan dihitung menjadi 3 bulan.
+5. `TotalTagihan` dihitung dari `HargaSewaBulanan * JumlahBulanTagihan`.
+6. Pembayaran dikelola dari menu `Pembayaran`, terpisah dari kontrak sewa. Satu kontrak dapat memiliki banyak pembayaran/cicilan.
+7. Menu pembayaran menampilkan total tagihan, total dibayar, dan sisa pembayaran.
+8. Status kamar dikelola oleh service aplikasi, bukan trigger database.
+
+### Design pattern yang digunakan
+
+- **Layered Architecture**: `UI -> Service -> Repository -> Database`.
+- **Repository Pattern**: akses database dibungkus di repository seperti `KontrakSewaRepository` dan `PembayaranRepository`.
+- **Service Layer**: validasi bisnis dan perhitungan tagihan berada di service.
+- **Manual Dependency Injection**: dependency disusun di `Program.cs`.
+- **Table-driven validation**: beberapa validasi memakai daftar aturan agar mudah dirawat.
+- **Finite-state/Automata UI**: tombol pada form kontrak sewa dikontrol oleh state form.
+
+### Clean code
+
+- Nama model, service, repository, dan method dibuat sesuai tanggung jawabnya.
+- Query SQL memakai parameter untuk menghindari string SQL yang rawan error.
+- Perhitungan durasi dan total tagihan berada di service, bukan tersebar di UI.
+- `Penghuni` tidak lagi menyimpan `KamarId`; relasi kamar selalu lewat `KontrakSewa`.
+- Trigger kontrak sewa dihapus agar aturan status kamar tidak dobel antara database dan aplikasi.
+
 ## 1. Daftar Modul Sistem dan Status Implementasi
 
 Berikut daftar modul utama dalam aplikasi ini beserta status implementasinya saat ini:
@@ -206,7 +236,6 @@ Bagian ini adalah rencana struktur database yang saya pakai sebagai acuan pengem
 
 3. **Penghuni**
    - `Id` (PK)
-   - `KamarId` (FK -> `Kamar.Id`)
    - `Nama`
    - `NomorTelepon`
    - `Email` (nullable)
@@ -248,22 +277,22 @@ Bagian ini adalah rencana struktur database yang saya pakai sebagai acuan pengem
    - `Id` (PK)
    - `PenghuniId` (FK -> `Penghuni.Id`)
    - `KamarId` (FK -> `Kamar.Id`)
-   - `TanggalMulai` (DATE)
-   - `TanggalSelesai` (DATE)
+   - `TanggalMulai` (DATE, tanggal masuk)
+   - `TanggalSelesai` (DATE, hasil hitung dari durasi)
+   - `DurasiBulanInput` (DECIMAL)
+   - `JumlahBulanTagihan` (INT, pembulatan ke atas)
    - `HargaSewaBulanan` (DECIMAL)
+   - `TotalTagihan` (DECIMAL)
    - `Deposit` (DECIMAL, nullable)
-   - `Status` (Aktif/Selesai/Dibatalkan)
+   - `Status` (Dipesan/Aktif/Selesai/Dibatalkan)
    - `Catatan` (TEXT, nullable)
 
 2. **Pembayaran**
    - `Id` (PK)
    - `KontrakSewaId` (FK -> `KontrakSewa.Id`)
-   - `Periode` (VARCHAR, contoh: `2026-04`)
-   - `TanggalBayar` (DATE, nullable jika belum bayar)
-   - `JumlahTagihan` (DECIMAL)
+   - `TanggalBayar` (DATE)
    - `JumlahDibayar` (DECIMAL)
-   - `MetodePembayaran` (Transfer/Tunai/E-Wallet)
-   - `Status` (BelumBayar/Lunas/Parsial)
+   - `MetodePembayaran` (Transfer/Tunai/QRIS)
    - `Catatan` (TEXT, nullable)
 
 3. **TagihanTambahan**
@@ -292,16 +321,13 @@ Bagian ini adalah rencana struktur database yang saya pakai sebagai acuan pengem
 - `Kamar` 1..N `MaintenanceKamar`
 - `Role` 1..N `AppUser`
 
-### 8.4 Strategi soft delete dan trigger
+### 8.4 Strategi soft delete dan konsistensi status kamar
 
 - Data user dan master tidak dihapus secara fisik.
 - Aksi hapus pada `Kos`, `Kamar`, `Penghuni`, `Role`, `AppUser`, dan `MetodePembayaranRef` mengubah `IsActive = 0`.
 - Tabel transaksi seperti `KontrakSewa` dan `Pembayaran` tetap menyimpan histori transaksi.
-- Database trigger dipakai sebagai backup konsistensi status kamar:
-  - `AFTER INSERT` pada `KontrakSewa`
-  - `AFTER UPDATE` pada `KontrakSewa`
-  - `AFTER DELETE` pada `KontrakSewa`
-- Service layer tetap menjadi tempat utama business logic agar alur aplikasi mudah diuji dan di-debug.
+- Trigger database kontrak sewa dihapus agar aturan status kamar tidak dobel.
+- Service layer menjadi tempat utama business logic, termasuk perubahan status kamar saat kontrak dibuat, dibatalkan, diselesaikan, atau dihapus.
 
 ### 8.5 Strategi migration
 - Satu perubahan schema = satu file migration SQL di `Data/Migrations`.

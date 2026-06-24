@@ -116,7 +116,7 @@ public partial class FormKos : Form
 
         if (dgvKos.Columns.Count > 0)
         {
-            SetHeader(nameof(Kos.Id), "ID");
+            SetHeader(nameof(Kos.Id), "Nomor");
             SetHeader(nameof(Kos.NamaKos), "Nama Kos");
             SetHeader(nameof(Kos.HargaDasar), "Harga Dasar");
             SetHeader(nameof(Kos.JumlahKamar), "Jumlah Kamar");

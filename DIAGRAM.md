@@ -59,7 +59,10 @@ erDiagram
         int KamarId FK
         date TanggalMulai
         date TanggalSelesai
+        decimal DurasiBulanInput
+        int JumlahBulanTagihan
         decimal HargaSewaBulanan
+        decimal TotalTagihan
         decimal Deposit
         varchar Status
         text Catatan
@@ -95,6 +98,9 @@ Catatan:
 - `Kos`, `Kamar`, dan `Penghuni` adalah data master.
 - `KontrakSewa` dan `Pembayaran` adalah data transaksi.
 - `Penghuni` tidak lagi menentukan kamar langsung. Penghuni baru mendapatkan kamar saat admin membuat `KontrakSewa`.
+- Satu penghuni dapat menyewa lebih dari satu kamar karena relasi kamar disimpan di `KontrakSewa`.
+- Durasi kontrak diinput sebagai jumlah bulan; nilai pecahan dibulatkan ke atas untuk tagihan.
+- Pembayaran dicatat terpisah dan dapat dilakukan berkali-kali untuk satu kontrak.
 - Harga sewa kontrak mengambil `Kamar.HargaKamar`, bukan input manual di form kontrak.
 - Data user dan master memakai soft delete melalui `IsActive`.
 
@@ -126,9 +132,8 @@ flowchart TD
     PILIH_KOS --> KAMAR_CRUD[Tambah / edit / nonaktifkan Kamar]
     KAMAR_CRUD --> SETUP
 
-    SETUP -- Belum ada Penghuni --> PENGHUNI[Kelola Data Penghuni]
-    PENGHUNI --> PENGHUNI_CRUD[Tambah / edit / nonaktifkan data identitas penghuni]
-    PENGHUNI_CRUD --> SETUP
+    SETUP -- Belum ada Penghuni --> KONTRAK_BARU[Tambah penghuni dari Kontrak Sewa]
+    KONTRAK_BARU --> SETUP
 
     SETUP -- Lengkap --> KONTRAK[Menu Kontrak Sewa]
     KONTRAK --> PILIH_PENGHUNI[Pilih Penghuni]
@@ -136,18 +141,17 @@ flowchart TD
     PILIH_KOS_KON --> FILTER_KAMAR[Tampilkan kamar dari Kos terpilih]
     FILTER_KAMAR --> PILIH_KAMAR[Pilih Kamar]
     PILIH_KAMAR --> HARGA_AUTO[Harga kontrak otomatis dari harga kamar]
-    HARGA_AUTO --> PILIH_METODE[Pilih metode pembayaran dari MetodePembayaranRef]
-    PILIH_METODE --> STATUS{Status kontrak?}
+    HARGA_AUTO --> INPUT_DURASI[Input tanggal masuk dan durasi bulan]
+    INPUT_DURASI --> HITUNG_TOTAL[Hitung jumlah bulan tagihan dan total tagihan]
+    HITUNG_TOTAL --> STATUS{Status kontrak?}
 
     STATUS -- Dipesan --> DEPOSIT_INPUT[Deposit boleh diisi]
     DEPOSIT_INPUT --> SIMPAN_KONTRAK[Simpan Kontrak Dipesan]
-    SIMPAN_KONTRAK --> PAY_AWAL_DPS[Create Pembayaran awal dari deposit atau harga sewa]
-    PAY_AWAL_DPS --> KAMAR_DIPESAN[Kamar berstatus Dipesan]
+    SIMPAN_KONTRAK --> KAMAR_DIPESAN[Kamar berstatus Dipesan]
 
     STATUS -- Aktif --> DEPOSIT_ZERO[Deposit otomatis 0 dan field deposit disable]
     DEPOSIT_ZERO --> SIMPAN_AKTIF[Simpan Kontrak Aktif]
-    SIMPAN_AKTIF --> PAY_AWAL_AKTIF[Create Pembayaran awal sebesar harga sewa]
-    PAY_AWAL_AKTIF --> KAMAR_TERISI[Kamar berstatus Terisi]
+    SIMPAN_AKTIF --> KAMAR_TERISI[Kamar berstatus Terisi]
 
     KAMAR_DIPESAN --> MONITOR[Admin memantau daftar kontrak]
     KAMAR_TERISI --> MONITOR
@@ -162,11 +166,11 @@ flowchart TD
     RESET_KAMAR -- Ya --> MONITOR
     KAMAR_KOSONG --> MONITOR
 
-    AKSI -- Catat lunas --> LUNAS[Klik tombol Lunas]
-    LUNAS --> POPUP_METODE[/Popup pilih metode pembayaran/]
-    POPUP_METODE --> CREATE_PAY[Create Pembayaran]
-    CREATE_PAY --> SET_LUNAS[Set JumlahDibayar = HargaSewaBulanan]
-    SET_LUNAS --> MONITOR
+    AKSI -- Catat pembayaran --> BAYAR[Menu Pembayaran]
+    BAYAR --> PILIH_KONTRAK_PAY[Pilih kontrak]
+    PILIH_KONTRAK_PAY --> RINGKASAN_PAY[Tampil total tagihan, dibayar, dan sisa]
+    RINGKASAN_PAY --> CREATE_PAY[Catat pembayaran/cicilan]
+    CREATE_PAY --> MONITOR
 
     AKSI -- Selesai --> END([Operasional selesai])
 ```
