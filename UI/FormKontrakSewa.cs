@@ -52,8 +52,10 @@ namespace management_kos.UI
                 KontrakStatus.Aktif.ToString()
             });
             cmbStatus.SelectedItem = KontrakStatus.Dipesan.ToString();
+            ComboBoxSearchHelper.EnableSearch(cmbStatus);
             cmbFilterStatus.Items.AddRange(new[] { "Semua", "Dipesan", "Aktif", "Selesai", "Dibatalkan" });
             cmbFilterStatus.SelectedIndex = 0;
+            ComboBoxSearchHelper.EnableSearch(cmbFilterStatus);
             ApplyDepositState();
 
             LoadPenghuniDropdown();
@@ -71,6 +73,7 @@ namespace management_kos.UI
             cmbPenghuni.DataSource = list;
             cmbPenghuni.DisplayMember = "Nama";
             cmbPenghuni.ValueMember = "Id";
+            ComboBoxSearchHelper.EnableSearch(cmbPenghuni);
         }
 
         private void LoadKosDropdown()
@@ -79,6 +82,7 @@ namespace management_kos.UI
             cmbKos.DataSource = list;
             cmbKos.DisplayMember = "NamaKos";
             cmbKos.ValueMember = "Id";
+            ComboBoxSearchHelper.EnableSearch(cmbKos);
         }
 
         private void LoadMetodePembayaranDropdown()
@@ -87,6 +91,7 @@ namespace management_kos.UI
             cmbMetodePembayaran.DisplayMember = nameof(MetodePembayaranRef.NamaMetode);
             cmbMetodePembayaran.ValueMember = nameof(MetodePembayaranRef.Id);
             cmbMetodePembayaran.DataSource = list;
+            ComboBoxSearchHelper.EnableSearch(cmbMetodePembayaran);
         }
 
         private void LoadKamarDropdown(int kosId)
@@ -96,6 +101,7 @@ namespace management_kos.UI
             cmbKamar.DataSource = list;
             cmbKamar.DisplayMember = "NomorKamar";
             cmbKamar.ValueMember = "Id";
+            ComboBoxSearchHelper.EnableSearch(cmbKamar);
             UpdateHargaKamarInfo();
         }
 
@@ -415,7 +421,7 @@ namespace management_kos.UI
             var data = string.IsNullOrWhiteSpace(keyword)
                 ? _service.GetAll()
                 : _service.Search(keyword);
-            var status = cmbFilterStatus.SelectedItem?.ToString();
+            var status = cmbFilterStatus.Text.Trim();
             if (!string.IsNullOrWhiteSpace(status) && status != "Semua")
             {
                 data = data.Where(k => k.Status.ToString() == status).ToList();

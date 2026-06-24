@@ -24,8 +24,10 @@ namespace management_kos.UI
         {
             cmbMetodePembayaran.Items.AddRange(new[] { "Transfer", "Tunai", "QRIS" });
             cmbMetodePembayaran.SelectedIndex = 0;
+            ComboBoxSearchHelper.EnableSearch(cmbMetodePembayaran);
             cmbFilterMetode.Items.AddRange(new[] { "Semua", "Transfer", "Tunai", "QRIS" });
             cmbFilterMetode.SelectedIndex = 0;
+            ComboBoxSearchHelper.EnableSearch(cmbFilterMetode);
 
             LoadKontrakDropdown();
             ApplyHistoryOnlyMode();
@@ -39,6 +41,7 @@ namespace management_kos.UI
             cmbKontrakSewa.DataSource = list;
             cmbKontrakSewa.DisplayMember = "DisplayText";
             cmbKontrakSewa.ValueMember = "Id";
+            ComboBoxSearchHelper.EnableSearch(cmbKontrakSewa);
         }
 
         private void cmbKontrakSewa_SelectedIndexChanged(object sender, EventArgs e)
@@ -190,7 +193,7 @@ namespace management_kos.UI
                 : _pembayaranService.GetAll();
 
             var keyword = txtCari.Text.Trim();
-            var metode = cmbFilterMetode.SelectedItem?.ToString();
+            var metode = cmbFilterMetode.Text.Trim();
 
             if (!string.IsNullOrWhiteSpace(metode) && metode != "Semua")
             {

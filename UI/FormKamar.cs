@@ -37,6 +37,7 @@ namespace management_kos.UI
         {
             cmbFilterStatus.Items.AddRange(new[] { "Semua", "Kosong", "Terisi", "Dipesan", "Perbaikan" });
             cmbFilterStatus.SelectedIndex = 0;
+            ComboBoxSearchHelper.EnableSearch(cmbFilterStatus);
             LoadKosToComboBox();
             radioButton1.Checked = true;
             RefreshGrid();
@@ -48,6 +49,7 @@ namespace management_kos.UI
             comboBox1.DataSource = listKos;
             comboBox1.DisplayMember = "NamaKos";
             comboBox1.ValueMember = "Id";
+            ComboBoxSearchHelper.EnableSearch(comboBox1);
 
             if (listKos.Count == 0)
             {
@@ -145,7 +147,7 @@ namespace management_kos.UI
             if (_selectedKosId <= 0) return;
             var data = _kamarService.GetKamarByKosId(_selectedKosId);
             var keyword = txtCari.Text.Trim();
-            var status = cmbFilterStatus.SelectedItem?.ToString();
+            var status = cmbFilterStatus.Text.Trim();
 
             if (!string.IsNullOrWhiteSpace(status) && status != "Semua")
             {
