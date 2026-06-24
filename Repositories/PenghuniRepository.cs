@@ -25,7 +25,6 @@ namespace management_kos.Repositories
 
             command.CommandText = @"
             SELECT p.Id,
-                   p.KamarId,
                    p.Nama,
                    p.NomorTelepon,
                    p.Email,
@@ -64,7 +63,6 @@ namespace management_kos.Repositories
 
             command.CommandText = @"
             SELECT p.Id,
-                   p.KamarId,
                    p.Nama,
                    p.NomorTelepon,
                    p.Email,
@@ -97,31 +95,6 @@ namespace management_kos.Repositories
             return Map(reader);
         }
 
-        public List<Penghuni> GetByKamarId(int kamarId)
-        {
-            var result = new List<Penghuni>();
-
-            using var connection = _dbContext.CreateConnection();
-            using var command = connection.CreateCommand();
-
-            command.CommandText = @"
-            SELECT Id, KamarId, Nama, NomorTelepon, Email, TanggalMasuk, TanggalKeluar, Catatan, IsActive
-            FROM Penghuni
-            WHERE KamarId = @KamarId
-              AND IsActive = 1
-            ORDER BY Id DESC;";
-
-            command.Parameters.AddWithValue("@KamarId", kamarId);
-
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                result.Add(Map(reader));
-            }
-
-            return result;
-        }
-
         public void Insert(Penghuni penghuni)
         {
             ValidatePenghuni(penghuni);
@@ -140,6 +113,7 @@ namespace management_kos.Repositories
             command.Parameters.AddWithValue("@IsActive", penghuni.IsActive);
 
             command.ExecuteNonQuery();
+            penghuni.Id = Convert.ToInt32(command.LastInsertedId);
         }
 
         public void Update(Penghuni penghuni)
@@ -217,16 +191,15 @@ namespace management_kos.Repositories
             return new Penghuni
             {
                 Id = reader.GetInt32(0),
-                KamarId = reader.IsDBNull(1) ? null : reader.GetInt32(1),
-                Nama = reader.GetString(2),
-                NomorTelepon = reader.GetString(3),
-                Email = reader.IsDBNull(4) ? null : reader.GetString(4),
-                TanggalMasuk = reader.IsDBNull(5) ? null : reader.GetDateTime(5),
-                TanggalKeluar = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
-                Catatan = reader.IsDBNull(7) ? null : reader.GetString(7),
-                IsActive = reader.GetBoolean(8),
-                InfoKamar = reader.FieldCount > 9 && !reader.IsDBNull(9)
-                    ? reader.GetString(9)
+                Nama = reader.GetString(1),
+                NomorTelepon = reader.GetString(2),
+                Email = reader.IsDBNull(3) ? null : reader.GetString(3),
+                TanggalMasuk = reader.IsDBNull(4) ? null : reader.GetDateTime(4),
+                TanggalKeluar = reader.IsDBNull(5) ? null : reader.GetDateTime(5),
+                Catatan = reader.IsDBNull(6) ? null : reader.GetString(6),
+                IsActive = reader.GetBoolean(7),
+                InfoKamar = reader.FieldCount > 8 && !reader.IsDBNull(8)
+                    ? reader.GetString(8)
                     : null
             };
         }

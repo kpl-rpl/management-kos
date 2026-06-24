@@ -10,12 +10,14 @@ namespace management_kos.Services
     public class PembayaranServiceTest
     {
         private readonly Mock<IPembayaranRepository> _mockRepository;
+        private readonly Mock<IKontrakSewaRepository> _mockKontrakRepository;
         private readonly PembayaranService _service;
 
         public PembayaranServiceTest()
         {
             _mockRepository = new Mock<IPembayaranRepository>();
-            _service = new PembayaranService(_mockRepository.Object);
+            _mockKontrakRepository = new Mock<IKontrakSewaRepository>();
+            _service = new PembayaranService(_mockRepository.Object, _mockKontrakRepository.Object);
         }
 
         [Fact]
@@ -80,6 +82,26 @@ namespace management_kos.Services
 
             // Assert
             _mockRepository.Verify(repo => repo.Delete(1), Times.Once);
+        }
+
+        [Fact]
+        public void GetSummary_ShouldCalculateTotalDibayarAndSisa()
+        {
+            _mockKontrakRepository.Setup(repo => repo.GetById(1))
+                .Returns(new KontrakSewa { Id = 1, TotalTagihan = 3_000_000 });
+            _mockRepository.Setup(repo => repo.GetByKontrakSewaId(1))
+                .Returns(new List<Pembayaran>
+                {
+                    new Pembayaran { KontrakSewaId = 1, JumlahDibayar = 1_000_000 },
+                    new Pembayaran { KontrakSewaId = 1, JumlahDibayar = 750_000 }
+                });
+
+            var summary = _service.GetSummary(1);
+
+            Assert.Equal(3_000_000, summary.TotalTagihan);
+            Assert.Equal(1_750_000, summary.TotalDibayar);
+            Assert.Equal(1_250_000, summary.SisaPembayaran);
+            Assert.False(summary.Lunas);
         }
     }
 }

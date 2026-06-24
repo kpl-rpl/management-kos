@@ -26,7 +26,13 @@ namespace management_kos.UI
             lblTanggalMulai   = new Label();
             dtpTanggalMulai   = new DateTimePicker();
             lblTanggalSelesai = new Label();
-            dtpTanggalSelesai = new DateTimePicker();
+            txtDurasiBulan    = new TextBox();
+            lblNamaPenghuniBaru = new Label();
+            txtNamaPenghuniBaru = new TextBox();
+            lblTeleponPenghuniBaru = new Label();
+            txtTeleponPenghuniBaru = new TextBox();
+            lblEmailPenghuniBaru = new Label();
+            txtEmailPenghuniBaru = new TextBox();
             lblHarga          = new Label();
             lblHargaValue     = new Label();
             lblDeposit        = new Label();
@@ -42,7 +48,10 @@ namespace management_kos.UI
             btnHapus          = new Button();
             btnSelesai        = new Button();
             btnBatal          = new Button();
+            btnPerpanjang     = new Button();
             btnReset          = new Button();
+            txtCari           = new TextBox();
+            btnCari           = new Button();
             splitData         = new SplitContainer();
             pnlPembayaran     = new Panel();
             lblPembayaranTitle = new Label();
@@ -59,7 +68,7 @@ namespace management_kos.UI
             // Panel input
             pnlInput.BackColor = Color.FromArgb(245, 247, 250);
             pnlInput.Dock      = DockStyle.Top;
-            pnlInput.Height    = 425;
+            pnlInput.Height    = 500;
             pnlInput.Padding   = new Padding(16);
 
             // Judul
@@ -104,13 +113,31 @@ namespace management_kos.UI
             dtpTanggalMulai.Format   = DateTimePickerFormat.Short;
 
             // Tanggal Selesai
-            lblTanggalSelesai.Text     = "Tanggal Selesai:";
+            lblTanggalSelesai.Text     = "Durasi (bulan):";
             lblTanggalSelesai.Location = new Point(16, 178);
             lblTanggalSelesai.AutoSize = true;
-            dtpTanggalSelesai.Location = new Point(180, 175);
-            dtpTanggalSelesai.Size     = new Size(160, 24);
-            dtpTanggalSelesai.Format   = DateTimePickerFormat.Short;
-            dtpTanggalSelesai.Value    = DateTime.Today.AddMonths(12);
+            txtDurasiBulan.Location = new Point(180, 175);
+            txtDurasiBulan.Size     = new Size(160, 24);
+            txtDurasiBulan.Text     = "1";
+
+            // Penghuni baru
+            lblNamaPenghuniBaru.Text = "Nama Penghuni Baru:";
+            lblNamaPenghuniBaru.Location = new Point(430, 50);
+            lblNamaPenghuniBaru.AutoSize = true;
+            txtNamaPenghuniBaru.Location = new Point(590, 47);
+            txtNamaPenghuniBaru.Size = new Size(220, 24);
+
+            lblTeleponPenghuniBaru.Text = "No. Telepon Baru:";
+            lblTeleponPenghuniBaru.Location = new Point(430, 82);
+            lblTeleponPenghuniBaru.AutoSize = true;
+            txtTeleponPenghuniBaru.Location = new Point(590, 79);
+            txtTeleponPenghuniBaru.Size = new Size(220, 24);
+
+            lblEmailPenghuniBaru.Text = "Email Baru:";
+            lblEmailPenghuniBaru.Location = new Point(430, 114);
+            lblEmailPenghuniBaru.AutoSize = true;
+            txtEmailPenghuniBaru.Location = new Point(590, 111);
+            txtEmailPenghuniBaru.Size = new Size(220, 24);
 
             // Harga Sewa
             lblHarga.Text     = "Harga Kamar/Bulan (Rp):";
@@ -183,7 +210,7 @@ namespace management_kos.UI
             btnHapus.Click    += btnHapus_Click;
 
             btnSelesai.Name      = "btnSelesai";
-            btnSelesai.Text      = "Lunas";
+            btnSelesai.Text      = "Selesai";
             btnSelesai.Location  = new Point(316, btnY);
             btnSelesai.Size      = new Size(100, 32);
             btnSelesai.BackColor = Color.FromArgb(22, 163, 74);
@@ -200,12 +227,32 @@ namespace management_kos.UI
             btnBatal.FlatStyle = FlatStyle.Flat;
             btnBatal.Click    += btnBatal_Click;
 
+            btnPerpanjang.Name      = "btnPerpanjang";
+            btnPerpanjang.Text      = "Perpanjang";
+            btnPerpanjang.Location  = new Point(526, btnY);
+            btnPerpanjang.Size      = new Size(100, 32);
+            btnPerpanjang.BackColor = Color.FromArgb(14, 116, 144);
+            btnPerpanjang.ForeColor = Color.White;
+            btnPerpanjang.FlatStyle = FlatStyle.Flat;
+            btnPerpanjang.Click    += btnPerpanjang_Click;
+
             btnReset.Name      = "btnReset";
             btnReset.Text      = "Reset";
-            btnReset.Location  = new Point(526, btnY);
+            btnReset.Location  = new Point(636, btnY);
             btnReset.Size      = new Size(80, 32);
             btnReset.FlatStyle = FlatStyle.Flat;
             btnReset.Click    += btnReset_Click;
+
+            txtCari.Location = new Point(16, 450);
+            txtCari.Size = new Size(300, 24);
+            txtCari.PlaceholderText = "Cari kontrak...";
+
+            btnCari.Name = "btnCari";
+            btnCari.Text = "Cari";
+            btnCari.Location = new Point(326, 448);
+            btnCari.Size = new Size(80, 28);
+            btnCari.FlatStyle = FlatStyle.Flat;
+            btnCari.Click += btnCari_Click;
 
             pnlInput.Controls.AddRange(new Control[]
             {
@@ -214,13 +261,17 @@ namespace management_kos.UI
                 lblKosId,         cmbKos,
                 lblKamarId,       cmbKamar,
                 lblTanggalMulai,  dtpTanggalMulai,
-                lblTanggalSelesai, dtpTanggalSelesai,
+                lblTanggalSelesai, txtDurasiBulan,
+                lblNamaPenghuniBaru, txtNamaPenghuniBaru,
+                lblTeleponPenghuniBaru, txtTeleponPenghuniBaru,
+                lblEmailPenghuniBaru, txtEmailPenghuniBaru,
                 lblHarga,         lblHargaValue,
                 lblDeposit,       txtDeposit,
                 lblStatus,        cmbStatus,
                 lblMetodePembayaran, cmbMetodePembayaran,
                 lblCatatan,       txtCatatan,
-                btnTambah, btnUpdate, btnHapus, btnSelesai, btnBatal, btnReset
+                btnTambah, btnUpdate, btnHapus, btnSelesai, btnBatal, btnPerpanjang, btnReset,
+                txtCari, btnCari
             });
 
             // Split data
@@ -308,7 +359,13 @@ namespace management_kos.UI
         private Label           lblTanggalMulai;
         private DateTimePicker  dtpTanggalMulai;
         private Label           lblTanggalSelesai;
-        private DateTimePicker  dtpTanggalSelesai;
+        private TextBox         txtDurasiBulan;
+        private Label           lblNamaPenghuniBaru;
+        private TextBox         txtNamaPenghuniBaru;
+        private Label           lblTeleponPenghuniBaru;
+        private TextBox         txtTeleponPenghuniBaru;
+        private Label           lblEmailPenghuniBaru;
+        private TextBox         txtEmailPenghuniBaru;
         private Label           lblHarga;
         private Label           lblHargaValue;
         private Label           lblDeposit;
@@ -324,7 +381,10 @@ namespace management_kos.UI
         private Button          btnHapus;
         private Button          btnSelesai;
         private Button          btnBatal;
+        private Button          btnPerpanjang;
         private Button          btnReset;
+        private TextBox         txtCari;
+        private Button          btnCari;
         private SplitContainer  splitData;
         private Panel           pnlPembayaran;
         private Label           lblPembayaranTitle;

@@ -9,7 +9,6 @@ namespace management_kos.Repositories
     {
         List<Penghuni> GetAll();
         Penghuni? GetById(int id);
-        List<Penghuni> GetByKamarId(int kamarId);
 
         void Insert(Penghuni penghuni);
         void Update(Penghuni penghuni);

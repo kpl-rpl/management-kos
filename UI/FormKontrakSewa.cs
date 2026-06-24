@@ -14,8 +14,8 @@ namespace management_kos.UI
         // Automata: tabel transisi — setiap state menentukan tombol mana yang aktif
         private static readonly Dictionary<FormState, HashSet<string>> EnabledButtons = new()
         {
-            [FormState.Idle]     = new HashSet<string> { "btnTambah", "btnReset" },
-            [FormState.Selected] = new HashSet<string> { "btnTambah", "btnUpdate", "btnHapus", "btnSelesai", "btnBatal", "btnReset" },
+            [FormState.Idle]     = new HashSet<string> { "btnTambah", "btnReset", "btnCari" },
+            [FormState.Selected] = new HashSet<string> { "btnTambah", "btnUpdate", "btnHapus", "btnSelesai", "btnBatal", "btnPerpanjang", "btnReset", "btnCari" },
         };
 
         private readonly KontrakSewaService _service;
@@ -57,6 +57,8 @@ namespace management_kos.UI
             LoadPenghuniDropdown();
             LoadKosDropdown();
             LoadMetodePembayaranDropdown();
+            lblMetodePembayaran.Visible = false;
+            cmbMetodePembayaran.Visible = false;
             ApplyState(FormState.Idle);
             RefreshGrid();
         }
@@ -158,16 +160,20 @@ namespace management_kos.UI
             try
             {
                 var k = BuildFromInput();
-                var metodePembayaran = GetSelectedMetodePembayaranRef();
-                if (metodePembayaran is null)
-                    throw new ArgumentException("Metode pembayaran wajib dipilih.");
+                var penghuniBaru = BuildPenghuniBaruFromInput();
+                if (penghuniBaru is null)
+                {
+                    _service.TambahKontrak(k);
+                }
+                else
+                {
+                    _service.TambahKontrakDenganPenghuni(penghuniBaru, k);
+                    LoadPenghuniDropdown();
+                }
 
-                _service.TambahKontrak(k);
-                CatatPembayaranAwal(k, metodePembayaran);
                 RefreshGrid();
-                RefreshPembayaranGrid();
                 ClearInput();
-                MessageBox.Show("Kontrak berhasil ditambahkan dan pembayaran awal tercatat.", "Informasi",
+                MessageBox.Show("Kontrak berhasil ditambahkan. Pembayaran dapat dicatat dari menu Pembayaran.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -224,14 +230,11 @@ namespace management_kos.UI
             if (_selectedId <= 0) return;
             try
             {
-                var metode = PromptMetodePembayaran(GetSelectedMetodePembayaranRef());
-                if (metode is null) return;
-
-                CatatPembayaranLunas(_selectedId, metode);
+                _service.SelesaikanKontrak(_selectedId);
                 RefreshGrid();
                 RefreshPembayaranGrid(_selectedId);
                 ClearInput();
-                MessageBox.Show("Pembayaran kontrak berhasil dicatat lunas.", "Informasi",
+                MessageBox.Show("Kontrak berhasil diselesaikan.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -239,114 +242,6 @@ namespace management_kos.UI
                 MessageBox.Show(ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void CatatPembayaranLunas(int kontrakId, MetodePembayaranRef metodePembayaran)
-        {
-            var kontrak = _service.GetById(kontrakId)
-                ?? throw new InvalidOperationException("Kontrak tidak ditemukan.");
-
-            _pembayaranService.CatatPembayaran(new Pembayaran
-            {
-                KontrakSewaId = kontrak.Id,
-                TanggalBayar = DateTime.Today,
-                JumlahDibayar = kontrak.HargaSewaBulanan,
-                MetodePembayaran = metodePembayaran.NamaMetode,
-                Catatan = "Pembayaran lunas dicatat dari modul kontrak sewa."
-            });
-        }
-
-        private void CatatPembayaranAwal(KontrakSewa kontrak, MetodePembayaranRef metodePembayaran)
-        {
-            if (kontrak.Id <= 0)
-                throw new InvalidOperationException("ID kontrak baru tidak valid untuk pencatatan pembayaran.");
-
-            var isDeposit = kontrak.Status == KontrakStatus.Dipesan
-                && kontrak.Deposit.HasValue
-                && kontrak.Deposit.Value > 0;
-
-            var jumlahDibayar = isDeposit
-                ? kontrak.Deposit!.Value
-                : kontrak.HargaSewaBulanan;
-
-            _pembayaranService.CatatPembayaran(new Pembayaran
-            {
-                KontrakSewaId = kontrak.Id,
-                TanggalBayar = DateTime.Today,
-                JumlahDibayar = jumlahDibayar,
-                MetodePembayaran = metodePembayaran.NamaMetode,
-                Catatan = isDeposit
-                    ? "Deposit dicatat saat kontrak sewa dibuat."
-                    : "Pembayaran awal dicatat saat kontrak sewa dibuat."
-            });
-        }
-
-        private MetodePembayaranRef? PromptMetodePembayaran(MetodePembayaranRef? defaultMetode)
-        {
-            var metodeList = _referenceDataService.GetAllMetodePembayaran();
-            if (metodeList.Count == 0)
-                throw new InvalidOperationException("Data reference metode pembayaran belum tersedia.");
-
-            using var dialog = new Form
-            {
-                Text = "Pilih Metode Pembayaran",
-                FormBorderStyle = FormBorderStyle.FixedDialog,
-                StartPosition = FormStartPosition.CenterParent,
-                ClientSize = new Size(320, 130),
-                MaximizeBox = false,
-                MinimizeBox = false
-            };
-
-            var label = new Label
-            {
-                Text = "Metode Pembayaran:",
-                Location = new Point(16, 18),
-                AutoSize = true
-            };
-
-            var combo = new ComboBox
-            {
-                Location = new Point(16, 46),
-                Size = new Size(288, 24),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            combo.DisplayMember = nameof(MetodePembayaranRef.NamaMetode);
-            combo.ValueMember = nameof(MetodePembayaranRef.Id);
-            combo.DataSource = metodeList;
-            var defaultIndex = metodeList.FindIndex(m => m.Id == defaultMetode?.Id);
-            if (combo.Items.Count > 0)
-            {
-                combo.SelectedIndex = defaultIndex >= 0 ? defaultIndex : 0;
-            }
-
-            var btnOk = new Button
-            {
-                Text = "OK",
-                DialogResult = DialogResult.OK,
-                Location = new Point(134, 88),
-                Size = new Size(80, 28)
-            };
-
-            var btnCancel = new Button
-            {
-                Text = "Batal",
-                DialogResult = DialogResult.Cancel,
-                Location = new Point(224, 88),
-                Size = new Size(80, 28)
-            };
-
-            dialog.Controls.AddRange(new Control[] { label, combo, btnOk, btnCancel });
-            dialog.AcceptButton = btnOk;
-            dialog.CancelButton = btnCancel;
-
-            return dialog.ShowDialog(this) == DialogResult.OK
-                ? combo.SelectedItem as MetodePembayaranRef
-                : null;
-        }
-
-        private MetodePembayaranRef? GetSelectedMetodePembayaranRef()
-        {
-            return cmbMetodePembayaran.SelectedItem as MetodePembayaranRef;
         }
 
         private void btnBatal_Click(object sender, EventArgs e)
@@ -372,6 +267,38 @@ namespace management_kos.UI
             ClearInput();
         }
 
+        private void btnCari_Click(object sender, EventArgs e)
+        {
+            RefreshGrid(txtCari.Text.Trim());
+        }
+
+        private void btnPerpanjang_Click(object sender, EventArgs e)
+        {
+            if (_selectedId <= 0)
+            {
+                MessageBox.Show("Pilih kontrak yang akan diperpanjang.", "Validasi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                if (!decimal.TryParse(txtDurasiBulan.Text.Trim(), out var durasi))
+                    throw new ArgumentException("Durasi perpanjangan harus berupa angka.");
+
+                _service.PerpanjangKontrak(_selectedId, durasi, txtCatatan.Text);
+                RefreshGrid();
+                ClearInput();
+                MessageBox.Show("Perpanjangan kontrak berhasil ditambahkan.", "Informasi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Validasi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
         private void dgvKontrak_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || e.RowIndex >= dgvKontrak.Rows.Count) return;
@@ -392,7 +319,7 @@ namespace management_kos.UI
             cmbKamar.SelectedValue = kamarId;
 
             dtpTanggalMulai.Value   = Convert.ToDateTime(row.Cells["TanggalMulai"].Value);
-            dtpTanggalSelesai.Value = Convert.ToDateTime(row.Cells["TanggalSelesai"].Value);
+            txtDurasiBulan.Text     = Convert.ToString(row.Cells[nameof(KontrakSewa.DurasiBulanInput)].Value);
             txtDeposit.Text         = row.Cells["Deposit"].Value == DBNull.Value || row.Cells["Deposit"].Value == null
                                       ? string.Empty
                                       : Convert.ToString(row.Cells["Deposit"].Value);
@@ -410,7 +337,12 @@ namespace management_kos.UI
 
         private KontrakSewa BuildFromInput()
         {
-            if (cmbPenghuni.SelectedValue is not int penghuniId || penghuniId <= 0)
+            var hasPenghuniBaru = !string.IsNullOrWhiteSpace(txtNamaPenghuniBaru.Text);
+            var penghuniId = cmbPenghuni.SelectedValue is int selectedPenghuniId
+                ? selectedPenghuniId
+                : 0;
+
+            if (!hasPenghuniBaru && penghuniId <= 0)
                 throw new ArgumentException("Penghuni harus dipilih.");
             if (cmbKamar.SelectedValue is not int kamarId || kamarId <= 0)
                 throw new ArgumentException("Kamar harus dipilih.");
@@ -418,19 +350,35 @@ namespace management_kos.UI
                 throw new ArgumentException("Data kamar tidak valid.");
 
             decimal.TryParse(txtDeposit.Text.Trim(), out decimal deposit);
+            if (!decimal.TryParse(txtDurasiBulan.Text.Trim(), out decimal durasiBulan))
+                throw new ArgumentException("Durasi sewa harus berupa angka.");
 
             return new KontrakSewa
             {
                 PenghuniId       = penghuniId,
                 KamarId          = kamarId,
                 TanggalMulai     = dtpTanggalMulai.Value.Date,
-                TanggalSelesai   = dtpTanggalSelesai.Value.Date,
+                DurasiBulanInput = durasiBulan,
                 HargaSewaBulanan = kamar.HargaKamar,
                 Deposit          = string.IsNullOrWhiteSpace(txtDeposit.Text) ? null : deposit,
                 Status           = Enum.TryParse(cmbStatus.SelectedItem?.ToString(), out KontrakStatus parsed)
                                    ? parsed
                                    : KontrakStatus.Aktif,
                 Catatan          = string.IsNullOrWhiteSpace(txtCatatan.Text) ? null : txtCatatan.Text.Trim()
+            };
+        }
+
+        private Penghuni? BuildPenghuniBaruFromInput()
+        {
+            if (string.IsNullOrWhiteSpace(txtNamaPenghuniBaru.Text))
+                return null;
+
+            return new Penghuni
+            {
+                Nama = txtNamaPenghuniBaru.Text.Trim(),
+                NomorTelepon = txtTeleponPenghuniBaru.Text.Trim(),
+                Email = string.IsNullOrWhiteSpace(txtEmailPenghuniBaru.Text) ? null : txtEmailPenghuniBaru.Text.Trim(),
+                TanggalMasuk = dtpTanggalMulai.Value.Date
             };
         }
 
@@ -443,12 +391,16 @@ namespace management_kos.UI
             RefreshPembayaranGrid();
         }
 
-        private void RefreshGrid()
+        private void RefreshGrid(string keyword = "")
         {
             dgvKontrak.DataSource = null;
-            dgvKontrak.DataSource = _service.GetAll();
+            dgvKontrak.DataSource = string.IsNullOrWhiteSpace(keyword)
+                ? _service.GetAll()
+                : _service.Search(keyword);
             HideColumn(dgvKontrak, "Catatan");
             HideColumn(dgvKontrak, nameof(KontrakSewa.IsActive));
+            HideColumn(dgvKontrak, nameof(KontrakSewa.PenghuniId));
+            HideColumn(dgvKontrak, nameof(KontrakSewa.KamarId));
         }
 
         private void RefreshPembayaranGrid(int? kontrakId = null)
@@ -480,10 +432,13 @@ namespace management_kos.UI
             if (cmbKamar.Items.Count > 0) cmbKamar.SelectedIndex = 0;
             if (cmbMetodePembayaran.Items.Count > 0) cmbMetodePembayaran.SelectedIndex = 0;
             dtpTanggalMulai.Value   = DateTime.Today;
-            dtpTanggalSelesai.Value = DateTime.Today.AddMonths(12);
+            txtDurasiBulan.Text     = "1";
             UpdateHargaKamarInfo();
             txtDeposit.Text         = string.Empty;
             txtCatatan.Text         = string.Empty;
+            txtNamaPenghuniBaru.Text = string.Empty;
+            txtTeleponPenghuniBaru.Text = string.Empty;
+            txtEmailPenghuniBaru.Text = string.Empty;
             if (cmbStatus.Items.Count > 0) cmbStatus.SelectedIndex = 0;
             ApplyDepositState();
             ApplyState(FormState.Idle);
