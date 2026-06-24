@@ -24,6 +24,8 @@
             txtTelpon = new TextBox();
             txtEmail = new TextBox();
             txtCatatan = new TextBox();
+            txtCari = new TextBox();
+            btnCari = new Button();
             btnTambah = new Button();
             btnUpdate = new Button();
             btnHapus = new Button();
@@ -44,6 +46,16 @@
             lblTitle.ForeColor = Color.FromArgb(32, 43, 59);
             lblTitle.Location = new Point(16, 12);
             lblTitle.AutoSize = true;
+
+            txtCari.Location = new Point(180, 14);
+            txtCari.Size = new Size(260, 24);
+            txtCari.PlaceholderText = "Cari penghuni...";
+
+            btnCari.Text = "Cari";
+            btnCari.Location = new Point(450, 12);
+            btnCari.Size = new Size(80, 28);
+            btnCari.FlatStyle = FlatStyle.Flat;
+            btnCari.Click += btnCari_Click;
 
             //Input fields
             int lx = 16, tx = 160, startY = 48, rowH = 37;
@@ -101,7 +113,7 @@
             //Tambah ke pnlInput
             pnlInput.Controls.AddRange(new Control[]
             {
-                lblTitle
+                lblTitle, txtCari, btnCari
             });
 
             //DataGridView
@@ -148,6 +160,8 @@
         private TextBox txtTelpon;
         private TextBox txtEmail;
         private TextBox txtCatatan;
+        private TextBox txtCari;
+        private Button btnCari;
         private Button btnTambah;
         private Button btnUpdate;
         private Button btnHapus;

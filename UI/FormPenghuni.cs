@@ -86,6 +86,11 @@ namespace management_kos.UI
             ClearInput();
         }
 
+        private void btnCari_Click(object sender, EventArgs e)
+        {
+            RefreshGrid();
+        }
+
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || e.RowIndex >= dataGridView1.Rows.Count) return;
@@ -133,7 +138,18 @@ namespace management_kos.UI
 
         private void RefreshGrid()
         {
+            var keyword = txtCari.Text.Trim();
             var items = _penghuniService.GetAllPenghuni();
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                items = items.Where(p =>
+                    p.Id.ToString().Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    || p.Nama.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    || p.NomorTelepon.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    || (p.Email?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (p.InfoKamar?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                ).ToList();
+            }
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = items;
 
