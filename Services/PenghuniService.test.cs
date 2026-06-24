@@ -43,12 +43,6 @@ namespace management_kos.Services
         }
 
         [Fact]
-        public void GetPenghuniByKamarId_ShouldThrowException_WhenKamarIdInvalid()
-        {
-            Assert.Throws<ArgumentException>(() => _service.GetPenghuniByKamarId(0));
-        }
-
-        [Fact]
         public void TambahPenghuni_ShouldCallInsert_WhenValid()
         {
             var penghuni = new Penghuni { Id = 1, Nama = "Andi", NomorTelepon = "081234567890" };

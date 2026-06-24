@@ -97,7 +97,7 @@ namespace management_kos.UI
             radioButton3.TabStop = true; radioButton3.UseVisualStyleBackColor = true;
             radioButton3.CheckedChanged += radioButton3_CheckedChanged;
 
-            radioButton4.Text = "Perbaiki"; radioButton4.AutoSize = true;
+            radioButton4.Text = "Perbaikan"; radioButton4.AutoSize = true;
             radioButton4.Location = new Point(tx + 230, startY + rowH * 3 + 2);
             radioButton4.TabStop = true; radioButton4.UseVisualStyleBackColor = true;
             radioButton4.CheckedChanged += radioButton4_CheckedChanged;

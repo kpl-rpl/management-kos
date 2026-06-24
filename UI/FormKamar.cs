@@ -151,6 +151,8 @@ namespace management_kos.UI
                 SetHeader(nameof(Kamar.Id), "ID");
                 SetHeader(nameof(Kamar.NomorKamar), "Nomor Kamar");
                 SetHeader(nameof(Kamar.Status), "Status");
+                SetHeader(nameof(Kamar.DisplayText), "Nama Kamar");
+                HideColumn(nameof(Kamar.KosId));
                 HideColumn(nameof(Kamar.IsActive));
 
                 dgvKos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;

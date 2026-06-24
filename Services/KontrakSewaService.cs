@@ -50,6 +50,8 @@ public class KontrakSewaService
 
     public List<KontrakSewa> GetAll() => _repo.GetAll();
 
+    public List<KontrakSewa> Search(string keyword) => _repo.Search(keyword);
+
     public KontrakSewa? GetById(int id)
     {
         Guard.Positive(id, "ID");
@@ -68,8 +70,23 @@ public class KontrakSewaService
         EnsurePenghuniExists(k.PenghuniId);
         EnsureKamarExists(k.KamarId);
         EnsureKamarAvailable(k, null);
+        PrepareBilling(k);
         _repo.Insert(k);
         UpdateKamarStatusForKontrak(k);
+    }
+
+    public void TambahKontrakDenganPenghuni(Penghuni penghuni, KontrakSewa kontrak)
+    {
+        if (penghuni is null)
+            throw new ArgumentNullException(nameof(penghuni));
+
+        _penghuniRepo.Insert(penghuni);
+        if (penghuni.Id <= 0)
+            throw new InvalidOperationException("ID penghuni baru tidak valid.");
+
+        kontrak.PenghuniId = penghuni.Id;
+        kontrak.TanggalMulai = penghuni.TanggalMasuk ?? kontrak.TanggalMulai;
+        TambahKontrak(kontrak);
     }
 
     public void UbahKontrak(KontrakSewa k)
@@ -80,6 +97,7 @@ public class KontrakSewaService
         EnsurePenghuniExists(k.PenghuniId);
         EnsureKamarExists(k.KamarId);
         EnsureKamarAvailable(k, k.Id);
+        PrepareBilling(k);
         _repo.Update(k);
         if (existing.KamarId != k.KamarId)
         {
@@ -114,20 +132,62 @@ public class KontrakSewaService
         ResetKamarIfNoActiveOrBooked(kontrak.KamarId, kontrak.Id);
     }
 
+    public KontrakSewa PerpanjangKontrak(int kontrakId, decimal durasiBulan, string? description)
+    {
+        Guard.Positive(kontrakId, "ID Kontrak");
+        var existing = _repo.GetById(kontrakId) ?? throw new Exception("Kontrak tidak ditemukan.");
+
+        if (existing.Status == KontrakStatus.Dibatalkan)
+            throw new ArgumentException("Kontrak yang dibatalkan tidak dapat diperpanjang.");
+
+        existing.Status = KontrakStatus.Selesai;
+        _repo.Update(existing);
+
+        var perpanjangan = new KontrakSewa
+        {
+            PenghuniId = existing.PenghuniId,
+            KamarId = existing.KamarId,
+            TanggalMulai = existing.TanggalSelesai,
+            DurasiBulanInput = durasiBulan,
+            HargaSewaBulanan = existing.HargaSewaBulanan,
+            Deposit = 0,
+            Status = KontrakStatus.Aktif,
+            Catatan = string.IsNullOrWhiteSpace(description)
+                ? $"Perpanjangan dari kontrak #{existing.Id}."
+                : description.Trim()
+        };
+
+        Validate(perpanjangan);
+        EnsurePenghuniExists(perpanjangan.PenghuniId);
+        EnsureKamarExists(perpanjangan.KamarId);
+        PrepareBilling(perpanjangan);
+        _repo.Insert(perpanjangan);
+        UpdateKamarStatusForKontrak(perpanjangan);
+        return perpanjangan;
+    }
+
     private void Validate(KontrakSewa k)
     {
         Guard.Positive(k.PenghuniId, "ID Penghuni");
         Guard.Positive(k.KamarId, "ID Kamar");
         Guard.Positive(k.HargaSewaBulanan, "Harga Sewa Bulanan");
 
-        if (k.TanggalSelesai <= k.TanggalMulai)
-            throw new ArgumentException("Tanggal selesai harus lebih dari tanggal mulai.");
+        if (k.DurasiBulanInput <= 0)
+            throw new ArgumentException("Durasi sewa harus lebih dari 0 bulan.");
 
         if (k.Deposit.HasValue && k.Deposit < 0)
             throw new ArgumentException("Deposit tidak boleh negatif.");
 
         if (!Enum.IsDefined(typeof(KontrakStatus), k.Status))
             throw new ArgumentException("Status tidak valid. Gunakan: Dipesan, Aktif, Selesai, atau Dibatalkan.");
+    }
+
+    private static void PrepareBilling(KontrakSewa k)
+    {
+        var jumlahBulan = Math.Max(1, (int)Math.Ceiling(k.DurasiBulanInput));
+        k.JumlahBulanTagihan = jumlahBulan;
+        k.TotalTagihan = k.HargaSewaBulanan * jumlahBulan;
+        k.TanggalSelesai = k.TanggalMulai.Date.AddMonths(jumlahBulan);
     }
 
     private void EnsurePenghuniExists(int id)
