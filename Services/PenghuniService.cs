@@ -59,21 +59,6 @@ public class PenghuniService
         _penghuniRepository.Delete(id);
     }
 
-    public void CheckOutPenghuni(int id, DateTime tanggalKeluar)
-    {
-        if (id <= 0)
-            throw new ArgumentException("ID Penghuni tidak valid.");
-
-        var penghuni = _penghuniRepository.GetById(id)
-            ?? throw new ArgumentException("Penghuni tidak ditemukan.");
-
-        if (penghuni.TanggalMasuk.HasValue && tanggalKeluar < penghuni.TanggalMasuk)
-            throw new ArgumentException("Tanggal keluar tidak boleh sebelum tanggal masuk.");
-
-        penghuni.TanggalKeluar = tanggalKeluar;
-        _penghuniRepository.Update(penghuni);
-    }
-
     private static void Validate(Penghuni p)
     {
         p.Nama = p.Nama?.Trim() ?? string.Empty;
@@ -86,8 +71,6 @@ public class PenghuniService
             (x => string.IsNullOrWhiteSpace(x.NomorTelepon) || !PhoneRegex.IsMatch(x.NomorTelepon),
                 "Nomor Telepon wajib diisi dengan format yang valid."),
             (x => x.Email is not null && !EmailRegex.IsMatch(x.Email), "Format Email tidak valid."),
-            (x => x.TanggalKeluar.HasValue && x.TanggalMasuk.HasValue && x.TanggalKeluar.Value < x.TanggalMasuk,
-                "Tanggal Keluar tidak boleh sebelum Tanggal Masuk."),
         };
 
         foreach (var rule in rules)

@@ -85,7 +85,6 @@ public class KontrakSewaService
             throw new InvalidOperationException("ID penghuni baru tidak valid.");
 
         kontrak.PenghuniId = penghuni.Id;
-        kontrak.TanggalMulai = penghuni.TanggalMasuk ?? kontrak.TanggalMulai;
         TambahKontrak(kontrak);
     }
 

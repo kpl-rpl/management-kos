@@ -10,10 +10,10 @@ namespace management_kos.Models
         public string Nama { get; set; } = string.Empty;
         public string NomorTelepon { get; set; } = string.Empty;
         public string? Email { get; set; }
-        public DateTime? TanggalMasuk { get; set; }
-        public DateTime? TanggalKeluar { get; set; }
         public string? Catatan { get; set; }
         public bool IsActive { get; set; } = true;
         public string? InfoKamar { get; set; }
+        public DateTime? TanggalMasukKontrak { get; set; }
+        public DateTime? TanggalKeluarKontrak { get; set; }
     }
 }

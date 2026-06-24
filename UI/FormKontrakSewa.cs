@@ -403,8 +403,7 @@ namespace management_kos.UI
             {
                 Nama = txtNamaPenghuniBaru.Text.Trim(),
                 NomorTelepon = txtTeleponPenghuniBaru.Text.Trim(),
-                Email = string.IsNullOrWhiteSpace(txtEmailPenghuniBaru.Text) ? null : txtEmailPenghuniBaru.Text.Trim(),
-                TanggalMasuk = dtpTanggalMulai.Value.Date
+                Email = string.IsNullOrWhiteSpace(txtEmailPenghuniBaru.Text) ? null : txtEmailPenghuniBaru.Text.Trim()
             };
         }
 

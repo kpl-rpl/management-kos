@@ -28,10 +28,28 @@ namespace management_kos.Repositories
                    p.Nama,
                    p.NomorTelepon,
                    p.Email,
-                   p.TanggalMasuk,
-                   p.TanggalKeluar,
                    p.Catatan,
                    p.IsActive,
+                   (
+                       SELECT ks.TanggalMulai
+                       FROM KontrakSewa ks
+                       WHERE ks.PenghuniId = p.Id
+                         AND ks.Status IN ('Aktif', 'Dipesan')
+                         AND ks.IsActive = 1
+                       ORDER BY CASE ks.Status WHEN 'Aktif' THEN 0 ELSE 1 END,
+                                ks.TanggalMulai DESC
+                       LIMIT 1
+                   ) AS TanggalMasukKontrak,
+                   (
+                       SELECT ks.TanggalSelesai
+                       FROM KontrakSewa ks
+                       WHERE ks.PenghuniId = p.Id
+                         AND ks.Status IN ('Aktif', 'Dipesan')
+                         AND ks.IsActive = 1
+                       ORDER BY CASE ks.Status WHEN 'Aktif' THEN 0 ELSE 1 END,
+                                ks.TanggalMulai DESC
+                       LIMIT 1
+                   ) AS TanggalKeluarKontrak,
                    (
                        SELECT CONCAT(kos.NamaKos, ' - ', k.NomorKamar)
                        FROM KontrakSewa ks
@@ -39,6 +57,7 @@ namespace management_kos.Repositories
                        INNER JOIN Kos kos ON kos.Id = k.KosId
                        WHERE ks.PenghuniId = p.Id
                          AND ks.Status IN ('Aktif', 'Dipesan')
+                         AND ks.IsActive = 1
                        ORDER BY CASE ks.Status WHEN 'Aktif' THEN 0 ELSE 1 END,
                                 ks.TanggalMulai DESC
                        LIMIT 1
@@ -66,10 +85,28 @@ namespace management_kos.Repositories
                    p.Nama,
                    p.NomorTelepon,
                    p.Email,
-                   p.TanggalMasuk,
-                   p.TanggalKeluar,
                    p.Catatan,
                    p.IsActive,
+                   (
+                       SELECT ks.TanggalMulai
+                       FROM KontrakSewa ks
+                       WHERE ks.PenghuniId = p.Id
+                         AND ks.Status IN ('Aktif', 'Dipesan')
+                         AND ks.IsActive = 1
+                       ORDER BY CASE ks.Status WHEN 'Aktif' THEN 0 ELSE 1 END,
+                                ks.TanggalMulai DESC
+                       LIMIT 1
+                   ) AS TanggalMasukKontrak,
+                   (
+                       SELECT ks.TanggalSelesai
+                       FROM KontrakSewa ks
+                       WHERE ks.PenghuniId = p.Id
+                         AND ks.Status IN ('Aktif', 'Dipesan')
+                         AND ks.IsActive = 1
+                       ORDER BY CASE ks.Status WHEN 'Aktif' THEN 0 ELSE 1 END,
+                                ks.TanggalMulai DESC
+                       LIMIT 1
+                   ) AS TanggalKeluarKontrak,
                    (
                        SELECT CONCAT(kos.NamaKos, ' - ', k.NomorKamar)
                        FROM KontrakSewa ks
@@ -77,6 +114,7 @@ namespace management_kos.Repositories
                        INNER JOIN Kos kos ON kos.Id = k.KosId
                        WHERE ks.PenghuniId = p.Id
                          AND ks.Status IN ('Aktif', 'Dipesan')
+                         AND ks.IsActive = 1
                        ORDER BY CASE ks.Status WHEN 'Aktif' THEN 0 ELSE 1 END,
                                 ks.TanggalMulai DESC
                        LIMIT 1
@@ -178,12 +216,6 @@ namespace management_kos.Repositories
                 }
             }
 
-            if (penghuni.TanggalKeluar.HasValue &&
-                penghuni.TanggalMasuk.HasValue &&
-                penghuni.TanggalKeluar < penghuni.TanggalMasuk)
-            {
-                throw new ArgumentException("Tanggal keluar tidak boleh lebih awal dari tanggal masuk.");
-            }
         }
 
         private static Penghuni Map(MySqlConnector.MySqlDataReader reader)
@@ -194,10 +226,10 @@ namespace management_kos.Repositories
                 Nama = reader.GetString(1),
                 NomorTelepon = reader.GetString(2),
                 Email = reader.IsDBNull(3) ? null : reader.GetString(3),
-                TanggalMasuk = reader.IsDBNull(4) ? null : reader.GetDateTime(4),
-                TanggalKeluar = reader.IsDBNull(5) ? null : reader.GetDateTime(5),
-                Catatan = reader.IsDBNull(6) ? null : reader.GetString(6),
-                IsActive = reader.GetBoolean(7),
+                Catatan = reader.IsDBNull(4) ? null : reader.GetString(4),
+                IsActive = reader.GetBoolean(5),
+                TanggalMasukKontrak = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
+                TanggalKeluarKontrak = reader.IsDBNull(7) ? null : reader.GetDateTime(7),
                 InfoKamar = reader.FieldCount > 8 && !reader.IsDBNull(8)
                     ? reader.GetString(8)
                     : null

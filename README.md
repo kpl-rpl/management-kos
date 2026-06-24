@@ -8,7 +8,7 @@ Arsitektur disusun sederhana agar mudah dipahami, mudah dirawat, dan mudah dikem
 
 1. Admin mengelola data `Kos` dan `Kamar`.
 2. Admin membuat `KontrakSewa` dengan memilih kamar, tanggal masuk, dan durasi sewa dalam bulan.
-3. Jika penghuni belum ada, data penghuni dibuat dari form kontrak sewa. Data penghuni tidak menyimpan `KamarId` karena satu penghuni dapat memiliki lebih dari satu kontrak/kamar.
+3. Jika penghuni belum ada, data penghuni dibuat dari form kontrak sewa. Data penghuni tidak menyimpan `KamarId`, `TanggalMasuk`, atau `TanggalKeluar` karena kamar dan periode tinggal diwakili oleh `KontrakSewa`. View Data Penghuni tetap dapat menampilkan tanggal masuk/keluar dari kontrak aktif atau booking terbaru.
 4. Sistem menghitung `JumlahBulanTagihan` dengan pembulatan ke atas. Contoh: 2,5 bulan dihitung menjadi 3 bulan.
 5. `TotalTagihan` dihitung dari `HargaSewaBulanan * JumlahBulanTagihan`.
 6. Pembayaran dikelola dari menu `Pembayaran`, terpisah dari kontrak sewa. Satu kontrak dapat memiliki banyak pembayaran/cicilan.
@@ -29,7 +29,7 @@ Arsitektur disusun sederhana agar mudah dipahami, mudah dirawat, dan mudah dikem
 - Nama model, service, repository, dan method dibuat sesuai tanggung jawabnya.
 - Query SQL memakai parameter untuk menghindari string SQL yang rawan error.
 - Perhitungan durasi dan total tagihan berada di service, bukan tersebar di UI.
-- `Penghuni` tidak lagi menyimpan `KamarId`; relasi kamar selalu lewat `KontrakSewa`.
+- `Penghuni` tidak lagi menyimpan `KamarId`, `TanggalMasuk`, atau `TanggalKeluar`; relasi kamar dan periode tinggal selalu lewat `KontrakSewa`.
 - Trigger kontrak sewa dihapus agar aturan status kamar tidak dobel antara database dan aplikasi.
 
 ## 1. Daftar Modul Sistem dan Status Implementasi
@@ -239,8 +239,6 @@ Bagian ini adalah rencana struktur database yang saya pakai sebagai acuan pengem
    - `Nama`
    - `NomorTelepon`
    - `Email` (nullable)
-   - `TanggalMasuk`
-   - `TanggalKeluar` (nullable)
    - `Catatan` (nullable)
    - `IsActive`
 

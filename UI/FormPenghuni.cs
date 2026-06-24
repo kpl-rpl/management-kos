@@ -148,13 +148,13 @@ namespace management_kos.UI
                     || p.NomorTelepon.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                     || (p.Email?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
                     || (p.InfoKamar?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (p.TanggalMasukKontrak?.ToString("dd/MM/yyyy").Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (p.TanggalKeluarKontrak?.ToString("dd/MM/yyyy").Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
                 ).ToList();
             }
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = items;
 
-            HideColumn(nameof(Penghuni.TanggalMasuk));
-            HideColumn(nameof(Penghuni.TanggalKeluar));
             HideColumn(nameof(Penghuni.IsActive));
 
             if (dataGridView1.Columns[nameof(Penghuni.InfoKamar)] is not null)
@@ -164,6 +164,8 @@ namespace management_kos.UI
             SetHeader(nameof(Penghuni.Id), "Nomor");
             SetHeader(nameof(Penghuni.NomorTelepon), "No. Telepon");
             SetHeader(nameof(Penghuni.Catatan), "Description");
+            SetHeader(nameof(Penghuni.TanggalMasukKontrak), "Tanggal Masuk");
+            SetHeader(nameof(Penghuni.TanggalKeluarKontrak), "Tanggal Keluar");
         }
 
         private void FormPenghuni_Load(object sender, EventArgs e)
