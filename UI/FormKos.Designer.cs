@@ -30,6 +30,8 @@ partial class FormKos
         txtNomorTelepon = new TextBox();
         lblCatatan = new Label();
         txtCatatan = new TextBox();
+        txtCari = new TextBox();
+        btnCari = new Button();
         btnTambah = new Button();
         btnUpdate = new Button();
         btnHapus = new Button();
@@ -115,6 +117,16 @@ partial class FormKos
         btnReset.FlatStyle = FlatStyle.Flat;
         btnReset.Click += btnReset_Click;
 
+        txtCari.Location = new Point(430, by + (bh + bg) * 2);
+        txtCari.Size = new Size(220, 24);
+        txtCari.PlaceholderText = "Cari kos...";
+
+        btnCari.Text = "Cari";
+        btnCari.Location = new Point(660, by + (bh + bg) * 2 - 2);
+        btnCari.Size = new Size(80, 28);
+        btnCari.FlatStyle = FlatStyle.Flat;
+        btnCari.Click += btnCari_Click;
+
         //Tambah ke pnlInput
         pnlInput.Controls.AddRange(new Control[]
         {
@@ -126,7 +138,8 @@ partial class FormKos
             lblNamaPemilik,  txtNamaPemilik,
             lblNomorTelepon, txtNomorTelepon,
             lblCatatan,      txtCatatan,
-            btnTambah, btnUpdate, btnHapus, btnReset
+            btnTambah, btnUpdate, btnHapus, btnReset,
+            txtCari, btnCari
         });
 
         //DataGridView
@@ -182,6 +195,8 @@ partial class FormKos
     private TextBox txtNomorTelepon;
     private Label lblCatatan;
     private TextBox txtCatatan;
+    private TextBox txtCari;
+    private Button btnCari;
     private Button btnTambah;
     private Button btnUpdate;
     private Button btnHapus;

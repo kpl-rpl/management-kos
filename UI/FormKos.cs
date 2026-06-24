@@ -87,6 +87,11 @@ public partial class FormKos : Form
         ClearInput();
     }
 
+    private void btnCari_Click(object sender, EventArgs e)
+    {
+        RefreshGrid();
+    }
+
     private void dgvKos_CellClick(object sender, DataGridViewCellEventArgs e)
     {
         if (e.RowIndex < 0 || e.RowIndex >= dgvKos.Rows.Count)
@@ -110,7 +115,18 @@ public partial class FormKos : Form
 
     private void RefreshGrid()
     {
+        var keyword = txtCari.Text.Trim();
         var items = _kosService.GetAllKos();
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            items = items.Where(k =>
+                k.Id.ToString().Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                || k.NamaKos.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                || k.Alamat.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                || k.NamaPemilik.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                || k.NomorTelepon.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
         dgvKos.DataSource = null;
         dgvKos.DataSource = items;
 
