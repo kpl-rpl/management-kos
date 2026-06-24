@@ -131,7 +131,7 @@ public class FormLogin : Form
         _btnLogin.Text = "Login";
         _btnLogin.Location = new Point(28, 340);
         _btnLogin.Size = new Size(contentW, 40);
-        _btnLogin.BackColor = Color.FromArgb(37, 99, 235);
+        _btnLogin.BackColor = Color.FromArgb(32, 43, 59);
         _btnLogin.ForeColor = Color.White;
         _btnLogin.FlatStyle = FlatStyle.Flat;
         _btnLogin.FlatAppearance.BorderSize = 0;
