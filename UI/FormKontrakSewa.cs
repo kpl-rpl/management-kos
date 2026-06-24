@@ -52,6 +52,8 @@ namespace management_kos.UI
                 KontrakStatus.Aktif.ToString()
             });
             cmbStatus.SelectedItem = KontrakStatus.Dipesan.ToString();
+            cmbFilterStatus.Items.AddRange(new[] { "Semua", "Dipesan", "Aktif", "Selesai", "Dibatalkan" });
+            cmbFilterStatus.SelectedIndex = 0;
             ApplyDepositState();
 
             LoadPenghuniDropdown();
@@ -230,11 +232,23 @@ namespace management_kos.UI
             if (_selectedId <= 0) return;
             try
             {
+                var summary = _pembayaranService.GetSummary(_selectedId);
+                if (summary.SisaPembayaran > 0)
+                {
+                    _pembayaranService.CatatPembayaran(new Pembayaran
+                    {
+                        KontrakSewaId = _selectedId,
+                        TanggalBayar = DateTime.Today,
+                        JumlahDibayar = summary.SisaPembayaran,
+                        MetodePembayaran = GetDefaultMetodePembayaran(),
+                        Catatan = "Pelunasan otomatis saat kontrak diselesaikan."
+                    });
+                }
+
                 _service.SelesaikanKontrak(_selectedId);
                 RefreshGrid();
-                RefreshPembayaranGrid(_selectedId);
                 ClearInput();
-                MessageBox.Show("Kontrak berhasil diselesaikan.", "Informasi",
+                MessageBox.Show("Kontrak berhasil diselesaikan dan sisa pembayaran dicatat lunas.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -242,6 +256,13 @@ namespace management_kos.UI
                 MessageBox.Show(ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private string GetDefaultMetodePembayaran()
+        {
+            return cmbMetodePembayaran.SelectedItem is MetodePembayaranRef metode
+                ? metode.NamaMetode
+                : "Transfer";
         }
 
         private void btnBatal_Click(object sender, EventArgs e)
@@ -332,7 +353,6 @@ namespace management_kos.UI
 
             // Automata: transisi ke state Selected saat baris dipilih
             ApplyState(FormState.Selected);
-            RefreshPembayaranGrid(_selectedId);
         }
 
         private KontrakSewa BuildFromInput()
@@ -388,15 +408,22 @@ namespace management_kos.UI
             LoadKosDropdown();
             LoadMetodePembayaranDropdown();
             RefreshGrid();
-            RefreshPembayaranGrid();
         }
 
         private void RefreshGrid(string keyword = "")
         {
-            dgvKontrak.DataSource = null;
-            dgvKontrak.DataSource = string.IsNullOrWhiteSpace(keyword)
+            var data = string.IsNullOrWhiteSpace(keyword)
                 ? _service.GetAll()
                 : _service.Search(keyword);
+            var status = cmbFilterStatus.SelectedItem?.ToString();
+            if (!string.IsNullOrWhiteSpace(status) && status != "Semua")
+            {
+                data = data.Where(k => k.Status.ToString() == status).ToList();
+            }
+
+            dgvKontrak.DataSource = null;
+            dgvKontrak.DataSource = data;
+            SetHeader(dgvKontrak, nameof(KontrakSewa.Id), "Nomor");
             HideColumn(dgvKontrak, "Catatan");
             HideColumn(dgvKontrak, nameof(KontrakSewa.IsActive));
             HideColumn(dgvKontrak, nameof(KontrakSewa.PenghuniId));
@@ -425,6 +452,15 @@ namespace management_kos.UI
             }
         }
 
+        private static void SetHeader(DataGridView grid, string columnName, string headerText)
+        {
+            var column = grid.Columns[columnName];
+            if (column is not null)
+            {
+                column.HeaderText = headerText;
+            }
+        }
+
         private void ClearInput()
         {
             if (cmbPenghuni.Items.Count > 0) cmbPenghuni.SelectedIndex = 0;
@@ -442,7 +478,6 @@ namespace management_kos.UI
             if (cmbStatus.Items.Count > 0) cmbStatus.SelectedIndex = 0;
             ApplyDepositState();
             ApplyState(FormState.Idle);
-            RefreshPembayaranGrid();
         }
     }
 }

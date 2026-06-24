@@ -51,6 +51,7 @@ namespace management_kos.UI
             btnPerpanjang     = new Button();
             btnReset          = new Button();
             txtCari           = new TextBox();
+            cmbFilterStatus   = new ComboBox();
             btnCari           = new Button();
             splitData         = new SplitContainer();
             pnlPembayaran     = new Panel();
@@ -247,9 +248,13 @@ namespace management_kos.UI
             txtCari.Size = new Size(300, 24);
             txtCari.PlaceholderText = "Cari kontrak...";
 
+            cmbFilterStatus.Location = new Point(326, 450);
+            cmbFilterStatus.Size = new Size(140, 24);
+            cmbFilterStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+
             btnCari.Name = "btnCari";
             btnCari.Text = "Cari";
-            btnCari.Location = new Point(326, 448);
+            btnCari.Location = new Point(476, 448);
             btnCari.Size = new Size(80, 28);
             btnCari.FlatStyle = FlatStyle.Flat;
             btnCari.Click += btnCari_Click;
@@ -271,16 +276,15 @@ namespace management_kos.UI
                 lblMetodePembayaran, cmbMetodePembayaran,
                 lblCatatan,       txtCatatan,
                 btnTambah, btnUpdate, btnHapus, btnSelesai, btnBatal, btnPerpanjang, btnReset,
-                txtCari, btnCari
+                txtCari, cmbFilterStatus, btnCari
             });
 
             // Split data
             splitData.Dock = DockStyle.Fill;
             splitData.Orientation = Orientation.Horizontal;
             splitData.SplitterDistance = 310;
+            splitData.Panel2Collapsed = true;
             splitData.Panel1.Controls.Add(dgvKontrak);
-            splitData.Panel2.Controls.Add(dgvPembayaran);
-            splitData.Panel2.Controls.Add(pnlPembayaran);
 
             // DataGridView Kontrak
             dgvKontrak.Dock                = DockStyle.Fill;
@@ -384,6 +388,7 @@ namespace management_kos.UI
         private Button          btnPerpanjang;
         private Button          btnReset;
         private TextBox         txtCari;
+        private ComboBox        cmbFilterStatus;
         private Button          btnCari;
         private SplitContainer  splitData;
         private Panel           pnlPembayaran;
