@@ -35,7 +35,7 @@
             //pnlInput
             pnlInput.BackColor = Color.FromArgb(245, 247, 250);
             pnlInput.Dock = DockStyle.Top;
-            pnlInput.Height = 230;
+            pnlInput.Height = 64;
             pnlInput.Padding = new Padding(16);
 
             //Title
@@ -101,12 +101,7 @@
             //Tambah ke pnlInput
             pnlInput.Controls.AddRange(new Control[]
             {
-                lblTitle,
-                label1, txtNama,
-                label2, txtTelpon,
-                label3, txtEmail,
-                label4, txtCatatan,
-                btnTambah, btnUpdate, btnHapus, btnReset
+                lblTitle
             });
 
             //DataGridView

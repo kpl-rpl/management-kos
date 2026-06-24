@@ -64,8 +64,8 @@ namespace management_kos.Services
             yield return new object[]
             {
                 new KontrakSewa { PenghuniId = 1, KamarId = 1, HargaSewaBulanan = 1_000_000,
-                    TanggalMulai = DateTime.Today, TanggalSelesai = DateTime.Today, Status = KontrakStatus.Aktif },
-                "TanggalSelesai sama dengan TanggalMulai harus ditolak"
+                    TanggalMulai = DateTime.Today, DurasiBulanInput = 0, Status = KontrakStatus.Aktif },
+                "Durasi nol harus ditolak"
             };
             yield return new object[]
             {
@@ -100,6 +100,54 @@ namespace management_kos.Services
             _service.TambahKontrak(k);
 
             _mockRepo.Verify(r => r.Insert(k), Times.Once);
+        }
+
+        [Fact]
+        public void TambahKontrak_ShouldRoundDurationUpAndCalculateTotal()
+        {
+            var k = new KontrakSewa
+            {
+                PenghuniId = 1,
+                KamarId = 1,
+                HargaSewaBulanan = 1_500_000,
+                DurasiBulanInput = 2.5m,
+                TanggalMulai = new DateTime(2026, 1, 10),
+                Status = KontrakStatus.Aktif
+            };
+            _mockPenghuniRepo.Setup(r => r.GetById(1)).Returns(new Penghuni { Id = 1 });
+            _mockKamarRepo.Setup(r => r.GetById(1)).Returns(new Kamar { Id = 1, Status = KamarStatus.Kosong });
+            _mockRepo.Setup(r => r.GetByKamarId(1)).Returns(new List<KontrakSewa>());
+
+            _service.TambahKontrak(k);
+
+            Assert.Equal(3, k.JumlahBulanTagihan);
+            Assert.Equal(4_500_000, k.TotalTagihan);
+            Assert.Equal(new DateTime(2026, 4, 10), k.TanggalSelesai);
+        }
+
+        [Fact]
+        public void TambahKontrak_ShouldAllowSamePenghuniForDifferentRooms()
+        {
+            var first = new KontrakSewa { Id = 1, PenghuniId = 1, KamarId = 1, HargaSewaBulanan = 1_000_000, Status = KontrakStatus.Aktif };
+            var second = new KontrakSewa { PenghuniId = 1, KamarId = 2, HargaSewaBulanan = 900_000, Status = KontrakStatus.Aktif };
+            _mockPenghuniRepo.Setup(r => r.GetById(1)).Returns(new Penghuni { Id = 1 });
+            _mockKamarRepo.Setup(r => r.GetById(2)).Returns(new Kamar { Id = 2, Status = KamarStatus.Kosong });
+            _mockRepo.Setup(r => r.GetByKamarId(2)).Returns(new List<KontrakSewa>());
+
+            _service.TambahKontrak(second);
+
+            _mockRepo.Verify(r => r.Insert(second), Times.Once);
+        }
+
+        [Fact]
+        public void Search_ShouldDelegateToRepository()
+        {
+            _mockRepo.Setup(r => r.Search("andi")).Returns(new List<KontrakSewa>());
+
+            var result = _service.Search("andi");
+
+            Assert.Empty(result);
+            _mockRepo.Verify(r => r.Search("andi"), Times.Once);
         }
 
         [Fact]

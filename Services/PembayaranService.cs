@@ -6,10 +6,12 @@ namespace management_kos.Services;
 public class PembayaranService
 {
     private readonly IPembayaranRepository _pembayaranRepository;
+    private readonly IKontrakSewaRepository _kontrakRepository;
 
-    public PembayaranService(IPembayaranRepository pembayaranRepository)
+    public PembayaranService(IPembayaranRepository pembayaranRepository, IKontrakSewaRepository kontrakRepository)
     {
         _pembayaranRepository = pembayaranRepository;
+        _kontrakRepository = kontrakRepository;
     }
 
     public List<Pembayaran> GetAll()
@@ -23,6 +25,26 @@ public class PembayaranService
             throw new ArgumentException("ID Kontrak tidak valid.");
 
         return _pembayaranRepository.GetByKontrakSewaId(kontrakId);
+    }
+
+    public PembayaranSummary GetSummary(int kontrakId)
+    {
+        if (kontrakId <= 0)
+            throw new ArgumentException("ID Kontrak tidak valid.");
+
+        var kontrak = _kontrakRepository.GetById(kontrakId)
+            ?? throw new ArgumentException("Kontrak sewa tidak ditemukan.");
+
+        var totalDibayar = _pembayaranRepository
+            .GetByKontrakSewaId(kontrakId)
+            .Sum(p => p.JumlahDibayar);
+
+        return new PembayaranSummary
+        {
+            KontrakSewaId = kontrakId,
+            TotalTagihan = kontrak.TotalTagihan,
+            TotalDibayar = totalDibayar
+        };
     }
 
     public void CatatPembayaran(Pembayaran pembayaran)

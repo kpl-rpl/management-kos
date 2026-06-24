@@ -37,11 +37,11 @@ namespace management_kos
             IPenghuniRepository penghuniRepository = new PenghuniRepository(dbContext);
             var penghuniService = new PenghuniService(penghuniRepository, kamarRepository);
 
-            IPembayaranRepository pembayaranRepository = new PembayaranRepository(dbContext);
-            var pembayaranService = new PembayaranService(pembayaranRepository);
-
             IKontrakSewaRepository kontrakSewaRepository = new KontrakSewaRepository(dbContext);
             var kontrakSewaService = new KontrakSewaService(kontrakSewaRepository, penghuniRepository, kamarRepository);
+
+            IPembayaranRepository pembayaranRepository = new PembayaranRepository(dbContext);
+            var pembayaranService = new PembayaranService(pembayaranRepository, kontrakSewaRepository);
 
             IRoleRepository roleRepository = new RoleRepository(dbContext);
             IAppUserRepository appUserRepository = new AppUserRepository(dbContext);

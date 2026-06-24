@@ -137,7 +137,6 @@ namespace management_kos.UI
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = items;
 
-            HideColumn(nameof(Penghuni.KamarId));
             HideColumn(nameof(Penghuni.TanggalMasuk));
             HideColumn(nameof(Penghuni.TanggalKeluar));
             HideColumn(nameof(Penghuni.IsActive));
@@ -146,6 +145,9 @@ namespace management_kos.UI
             {
                 dataGridView1.Columns[nameof(Penghuni.InfoKamar)].HeaderText = "Kamar";
             }
+            SetHeader(nameof(Penghuni.Id), "Nomor");
+            SetHeader(nameof(Penghuni.NomorTelepon), "No. Telepon");
+            SetHeader(nameof(Penghuni.Catatan), "Description");
         }
 
         private void FormPenghuni_Load(object sender, EventArgs e)
@@ -159,6 +161,14 @@ namespace management_kos.UI
             if (dataGridView1.Columns[columnName] is not null)
             {
                 dataGridView1.Columns[columnName].Visible = false;
+            }
+        }
+
+        private void SetHeader(string columnName, string headerText)
+        {
+            if (dataGridView1.Columns[columnName] is not null)
+            {
+                dataGridView1.Columns[columnName].HeaderText = headerText;
             }
         }
     }
