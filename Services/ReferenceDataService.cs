@@ -18,7 +18,32 @@ public class ReferenceDataService
 
     public List<Role> GetAllRoles() => _roleRepository.GetAll();
 
-    public List<MetodePembayaranRef> GetAllMetodePembayaran() => _metodePembayaranRepository.GetAll();
+    private static readonly List<MetodePembayaranRef> _metodePembayaranList = new()
+    {
+        new MetodePembayaranRef
+        {
+            Id = 1,
+            NamaMetode = "Transfer",
+            IsActive = true
+        },
+        new MetodePembayaranRef
+        {
+            Id = 2,
+            NamaMetode = "Tunai",
+            IsActive = true
+        },
+        new MetodePembayaranRef
+        {
+            Id = 3,
+            NamaMetode = "QRIS",
+            IsActive = true
+        }
+    };
+
+public List<MetodePembayaranRef> GetAllMetodePembayaran()
+{
+    return _metodePembayaranList;
+}
 
     public void TambahRole(Role role)
     {
