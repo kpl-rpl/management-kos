@@ -7,7 +7,6 @@ namespace management_kos.Models
     public class Penghuni
     {
         public int Id { get; set; }
-        public int? KamarId { get; set; }
         public string Nama { get; set; } = string.Empty;
         public string NomorTelepon { get; set; } = string.Empty;
         public string? Email { get; set; }

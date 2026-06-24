@@ -22,6 +22,12 @@ namespace management_kos.UI
             txtJumlahDibayar = new TextBox();
             lblMetode = new Label();
             cmbMetodePembayaran = new ComboBox();
+            lblTotalTagihan = new Label();
+            lblTotalTagihanValue = new Label();
+            lblTotalDibayar = new Label();
+            lblTotalDibayarValue = new Label();
+            lblSisa = new Label();
+            lblSisaValue = new Label();
             lblCatatan = new Label();
             txtCatatan = new TextBox();
             btnTambah = new Button();
@@ -40,7 +46,7 @@ namespace management_kos.UI
             pnlInput.Padding = new Padding(16);
 
             //Title
-            lblTitle.Text = "Data Pembayaran";
+            lblTitle.Text = "Pembayaran";
             lblTitle.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
             lblTitle.ForeColor = Color.FromArgb(32, 43, 59);
             lblTitle.Location = new Point(16, 12);
@@ -55,6 +61,7 @@ namespace management_kos.UI
             cmbKontrakSewa.Location = new Point(tx, startY);
             cmbKontrakSewa.Size = new Size(380, 24);
             cmbKontrakSewa.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbKontrakSewa.SelectedIndexChanged += cmbKontrakSewa_SelectedIndexChanged;
 
             // Baris 1: Jumlah Dibayar
             lblJumlahDibayar.Text = "Jumlah Dibayar (Rp):"; lblJumlahDibayar.AutoSize = true;
@@ -69,6 +76,30 @@ namespace management_kos.UI
             cmbMetodePembayaran.Location = new Point(tx, startY + rowH * 2);
             cmbMetodePembayaran.Size = new Size(160, 24);
 
+            lblTotalTagihan.Text = "Total Tagihan:";
+            lblTotalTagihan.AutoSize = true;
+            lblTotalTagihan.Location = new Point(430, startY + rowH + 4);
+            lblTotalTagihanValue.Text = "-";
+            lblTotalTagihanValue.AutoSize = true;
+            lblTotalTagihanValue.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblTotalTagihanValue.Location = new Point(560, startY + rowH + 4);
+
+            lblTotalDibayar.Text = "Total Dibayar:";
+            lblTotalDibayar.AutoSize = true;
+            lblTotalDibayar.Location = new Point(430, startY + rowH * 2 + 4);
+            lblTotalDibayarValue.Text = "-";
+            lblTotalDibayarValue.AutoSize = true;
+            lblTotalDibayarValue.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblTotalDibayarValue.Location = new Point(560, startY + rowH * 2 + 4);
+
+            lblSisa.Text = "Sisa:";
+            lblSisa.AutoSize = true;
+            lblSisa.Location = new Point(430, startY + rowH * 3 + 4);
+            lblSisaValue.Text = "-";
+            lblSisaValue.AutoSize = true;
+            lblSisaValue.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblSisaValue.Location = new Point(560, startY + rowH * 3 + 4);
+
             // Baris 3: Catatan
             lblCatatan.Text = "Catatan:"; lblCatatan.AutoSize = true;
             lblCatatan.Location = new Point(lx, startY + rowH * 3 + 4);
@@ -77,7 +108,7 @@ namespace management_kos.UI
             //Tombol kanan atas berwarna
             int bx = 610, by = startY, bw = 120, bh = 32, bg = 8;
 
-            btnTambah.Text = "Tambah";
+            btnTambah.Text = "Catat";
             btnTambah.Location = new Point(bx, by);
             btnTambah.Size = new Size(bw, bh);
             btnTambah.BackColor = Color.FromArgb(37, 99, 235);
@@ -122,6 +153,9 @@ namespace management_kos.UI
                 lblKontrakSewaId, cmbKontrakSewa,
                 lblJumlahDibayar, txtJumlahDibayar,
                 lblMetode,        cmbMetodePembayaran,
+                lblTotalTagihan, lblTotalTagihanValue,
+                lblTotalDibayar, lblTotalDibayarValue,
+                lblSisa, lblSisaValue,
                 lblCatatan,       txtCatatan,
                 btnTambah, btnBayar, btnUpdate, btnHapus, btnReset
             });
@@ -167,6 +201,12 @@ namespace management_kos.UI
         private TextBox txtJumlahDibayar;
         private Label lblMetode;
         private ComboBox cmbMetodePembayaran;
+        private Label lblTotalTagihan;
+        private Label lblTotalTagihanValue;
+        private Label lblTotalDibayar;
+        private Label lblTotalDibayarValue;
+        private Label lblSisa;
+        private Label lblSisaValue;
         private Label lblCatatan;
         private TextBox txtCatatan;
         private Button btnTambah;

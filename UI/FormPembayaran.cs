@@ -26,7 +26,9 @@ namespace management_kos.UI
             cmbMetodePembayaran.SelectedIndex = 0;
 
             LoadKontrakDropdown();
+            HideCrudButtons();
             RefreshGrid();
+            UpdateSummary();
         }
 
         private void LoadKontrakDropdown()
@@ -37,13 +39,23 @@ namespace management_kos.UI
             cmbKontrakSewa.ValueMember = "Id";
         }
 
+        private void cmbKontrakSewa_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateSummary();
+            if (cmbKontrakSewa.SelectedValue is int kontrakId && kontrakId > 0)
+            {
+                RefreshGrid(kontrakId);
+            }
+        }
+
         private void btnTambah_Click(object sender, EventArgs e)
         {
             try
             {
                 var pembayaran = BuildPembayaranFromInput();
                 _pembayaranService.CatatPembayaran(pembayaran);
-                RefreshGrid();
+                RefreshGrid(pembayaran.KontrakSewaId);
+                UpdateSummary();
                 ClearInput();
                 MessageBox.Show("Pembayaran berhasil dicatat.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -57,39 +69,7 @@ namespace management_kos.UI
 
         private void btnBayar_Click(object sender, EventArgs e)
         {
-            if (_selectedPembayaranId <= 0)
-            {
-                MessageBox.Show("Pilih data pembayaran yang akan diubah.", "Validasi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (!decimal.TryParse(txtJumlahDibayar.Text, out decimal nominal) || nominal <= 0)
-            {
-                MessageBox.Show("Masukkan jumlah pembayaran yang valid.", "Validasi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var metode = cmbMetodePembayaran.SelectedItem?.ToString() ?? "Transfer";
-
-            try
-            {
-                var pembayaran = BuildPembayaranFromInput();
-                pembayaran.Id = _selectedPembayaranId;
-                pembayaran.JumlahDibayar = nominal;
-                pembayaran.MetodePembayaran = metode;
-                _pembayaranService.UbahPembayaran(pembayaran);
-                RefreshGrid();
-                ClearInput();
-                MessageBox.Show("Pembayaran berhasil dicatat.", "Informasi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            btnTambah_Click(sender, e);
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
@@ -192,16 +172,51 @@ namespace management_kos.UI
         {
             LoadKontrakDropdown();
             RefreshGrid();
+            UpdateSummary();
         }
 
-        private void RefreshGrid()
+        private void RefreshGrid(int? kontrakId = null)
         {
-            var data = _pembayaranService.GetAll();
+            var data = kontrakId.HasValue && kontrakId.Value > 0
+                ? _pembayaranService.GetByKontrak(kontrakId.Value)
+                : _pembayaranService.GetAll();
             dgvPembayaran.DataSource = null;
             dgvPembayaran.DataSource = data;
 
             HideColumn("Catatan");
             HideColumn(nameof(Pembayaran.IsActive));
+        }
+
+        private void UpdateSummary()
+        {
+            if (cmbKontrakSewa.SelectedValue is not int kontrakId || kontrakId <= 0)
+            {
+                lblTotalTagihanValue.Text = "-";
+                lblTotalDibayarValue.Text = "-";
+                lblSisaValue.Text = "-";
+                return;
+            }
+
+            try
+            {
+                var summary = _pembayaranService.GetSummary(kontrakId);
+                lblTotalTagihanValue.Text = summary.TotalTagihan.ToString("N0");
+                lblTotalDibayarValue.Text = summary.TotalDibayar.ToString("N0");
+                lblSisaValue.Text = summary.SisaPembayaran.ToString("N0");
+            }
+            catch
+            {
+                lblTotalTagihanValue.Text = "-";
+                lblTotalDibayarValue.Text = "-";
+                lblSisaValue.Text = "-";
+            }
+        }
+
+        private void HideCrudButtons()
+        {
+            btnBayar.Visible = false;
+            btnUpdate.Visible = false;
+            btnHapus.Visible = false;
         }
 
         private void HideColumn(string columnName)
@@ -220,6 +235,7 @@ namespace management_kos.UI
             txtJumlahDibayar.Text = string.Empty;
             txtCatatan.Text = string.Empty;
             cmbMetodePembayaran.SelectedIndex = 0;
+            UpdateSummary();
         }
     }
 }

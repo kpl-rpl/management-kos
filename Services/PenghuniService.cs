@@ -7,62 +7,38 @@ namespace management_kos.Services;
 public class PenghuniService
 {
     private readonly IPenghuniRepository _penghuniRepository;
-    private readonly IKamarRepository _kamarRepository;
 
     private static readonly Regex PhoneRegex =
-    new(@"^[0-9+\-\s]{8,20}$", RegexOptions.Compiled);
+        new(@"^[0-9+\-\s]{8,20}$", RegexOptions.Compiled);
 
     private static readonly Regex EmailRegex =
-    new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
+        new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
-    public PenghuniService(IPenghuniRepository penghuniRepository, IKamarRepository kamarRepository)
+    public PenghuniService(IPenghuniRepository penghuniRepository, IKamarRepository _)
     {
         _penghuniRepository = penghuniRepository;
-        _kamarRepository = kamarRepository;
     }
 
-    // Read 
-
-    public List<Penghuni> GetAllPenghuni()
-    {
-        return _penghuniRepository.GetAll();
-    }
+    public List<Penghuni> GetAllPenghuni() => _penghuniRepository.GetAll();
 
     public Penghuni? GetPenghuniById(int id)
     {
         if (id <= 0)
-        {
             throw new ArgumentException("ID Penghuni tidak valid.");
-        }
 
         return _penghuniRepository.GetById(id);
     }
 
-    public List<Penghuni> GetPenghuniByKamarId(int kamarId)
-    {
-        if (kamarId <= 0)
-        {
-            throw new ArgumentException("KamarId tidak valid.");
-        }
-
-        return _penghuniRepository.GetByKamarId(kamarId);
-    }
-
-    // Write 
-
     public void TambahPenghuni(Penghuni penghuni)
     {
         Validate(penghuni);
-
         _penghuniRepository.Insert(penghuni);
     }
 
     public void UbahPenghuni(Penghuni penghuni)
     {
         if (penghuni.Id <= 0)
-        {
             throw new ArgumentException("ID Penghuni tidak valid.");
-        }
 
         Validate(penghuni);
 
@@ -75,9 +51,7 @@ public class PenghuniService
     public void HapusPenghuni(int id)
     {
         if (id <= 0)
-        {
             throw new ArgumentException("ID Penghuni tidak valid.");
-        }
 
         _ = _penghuniRepository.GetById(id)
             ?? throw new ArgumentException("Penghuni tidak ditemukan.");
@@ -88,96 +62,33 @@ public class PenghuniService
     public void CheckOutPenghuni(int id, DateTime tanggalKeluar)
     {
         if (id <= 0)
-        {
             throw new ArgumentException("ID Penghuni tidak valid.");
-        }
 
         var penghuni = _penghuniRepository.GetById(id)
             ?? throw new ArgumentException("Penghuni tidak ditemukan.");
 
         if (penghuni.TanggalMasuk.HasValue && tanggalKeluar < penghuni.TanggalMasuk)
-        {
             throw new ArgumentException("Tanggal keluar tidak boleh sebelum tanggal masuk.");
-        }
 
         penghuni.TanggalKeluar = tanggalKeluar;
         _penghuniRepository.Update(penghuni);
     }
 
-    //Private helpers
-    private void EnsureKamarExists(int kamarId)
-    {
-        var kamar = _kamarRepository.GetById(kamarId);
-        if (kamar is null)
-        {
-            throw new ArgumentException("KamarId tidak ditemukan. Pastikan data kamar sudah ada.");
-        }
-    }
-
-    private void EnsureKamarTersedia(int kamarId)
-    {
-        var kamar = _kamarRepository.GetById(kamarId)!;
-
-        if (kamar.Status == KamarStatus.Perbaikan)
-        {
-            throw new InvalidOperationException(
-                "Kamar sedang dalam perbaikan dan tidak dapat ditempati.");
-        }
-
-        if (kamar.Status == KamarStatus.Terisi)
-        {
-            throw new InvalidOperationException(
-                "Kamar sudah terisi. Pilih kamar lain yang masih kosong.");
-        }
-    }
-
-    /// Hitung ulang status kamar lama berdasarkan apakah masih ada penghuni aktif.
-    /// Penghuni aktif = belum punya TanggalKeluar.
-    private void RecalculateStatusKamarLama(int kamarId)
-    {
-        var penghuniAktif = _penghuniRepository
-            .GetByKamarId(kamarId)
-            .Any(p => p.TanggalKeluar is null);
-
-        var statusBaru = penghuniAktif ? KamarStatus.Terisi : KamarStatus.Kosong;
-        UpdateStatusKamar(kamarId, statusBaru);
-    }
-
-    private void UpdateStatusKamar(int kamarId, KamarStatus status)
-    {
-        var kamar = _kamarRepository.GetById(kamarId);
-        if (kamar is null) return;
-
-        kamar.Status = status;
-        _kamarRepository.Update(kamar);
-    }
-
     private static void Validate(Penghuni p)
     {
-        // Normalisasi dulu sebelum validasi
-        p.Nama = p.Nama?.Trim() ?? "";
-        p.NomorTelepon = p.NomorTelepon?.Trim() ?? "";
-        p.Email = string.IsNullOrWhiteSpace(p.Email)
-            ? null
-            : p.Email.Trim();
+        p.Nama = p.Nama?.Trim() ?? string.Empty;
+        p.NomorTelepon = p.NomorTelepon?.Trim() ?? string.Empty;
+        p.Email = string.IsNullOrWhiteSpace(p.Email) ? null : p.Email.Trim();
 
-        // Tabel aturan validasi
         var rules = new List<(Func<Penghuni, bool> IsInvalid, string Message)>
-    {
-        (x => string.IsNullOrWhiteSpace(x.Nama),
-            "Nama penghuni wajib diisi."),
-
-        (x => string.IsNullOrWhiteSpace(x.NomorTelepon) || !PhoneRegex.IsMatch(x.NomorTelepon),
-            "Nomor Telepon wajib diisi dengan format yang valid."),
-
-        (x => x.Email is not null && !EmailRegex.IsMatch(x.Email),
-            "Format Email tidak valid."),
-
-        (x => x.TanggalKeluar.HasValue &&
-              x.TanggalMasuk.HasValue &&
-              x.TanggalKeluar.Value < x.TanggalMasuk,
-            "Tanggal Keluar tidak boleh sebelum Tanggal Masuk."),
-    };
+        {
+            (x => string.IsNullOrWhiteSpace(x.Nama), "Nama penghuni wajib diisi."),
+            (x => string.IsNullOrWhiteSpace(x.NomorTelepon) || !PhoneRegex.IsMatch(x.NomorTelepon),
+                "Nomor Telepon wajib diisi dengan format yang valid."),
+            (x => x.Email is not null && !EmailRegex.IsMatch(x.Email), "Format Email tidak valid."),
+            (x => x.TanggalKeluar.HasValue && x.TanggalMasuk.HasValue && x.TanggalKeluar.Value < x.TanggalMasuk,
+                "Tanggal Keluar tidak boleh sebelum Tanggal Masuk."),
+        };
 
         foreach (var rule in rules)
         {
