@@ -71,6 +71,7 @@ public class KontrakSewaService
         EnsureKamarExists(k.KamarId);
         EnsureKamarAvailable(k, null);
         PrepareBilling(k);
+        EnsureDepositWithinBill(k);
         _repo.Insert(k);
         UpdateKamarStatusForKontrak(k);
     }
@@ -97,6 +98,7 @@ public class KontrakSewaService
         EnsureKamarExists(k.KamarId);
         EnsureKamarAvailable(k, k.Id);
         PrepareBilling(k);
+        EnsureDepositWithinBill(k);
         _repo.Update(k);
         if (existing.KamarId != k.KamarId)
         {
@@ -160,6 +162,7 @@ public class KontrakSewaService
         EnsurePenghuniExists(perpanjangan.PenghuniId);
         EnsureKamarExists(perpanjangan.KamarId);
         PrepareBilling(perpanjangan);
+        EnsureDepositWithinBill(perpanjangan);
         _repo.Insert(perpanjangan);
         UpdateKamarStatusForKontrak(perpanjangan);
         return perpanjangan;
@@ -187,6 +190,12 @@ public class KontrakSewaService
         k.JumlahBulanTagihan = jumlahBulan;
         k.TotalTagihan = k.HargaSewaBulanan * jumlahBulan;
         k.TanggalSelesai = k.TanggalMulai.Date.AddMonths(jumlahBulan);
+    }
+
+    private static void EnsureDepositWithinBill(KontrakSewa k)
+    {
+        if (k.Deposit.GetValueOrDefault() > k.TotalTagihan)
+            throw new ArgumentException("Deposit tidak boleh lebih besar dari total tagihan.");
     }
 
     private void EnsurePenghuniExists(int id)

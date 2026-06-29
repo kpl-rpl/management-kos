@@ -24,6 +24,7 @@ partial class FormMain
         btnDataKos = new Button();
         btnDataPembayaran = new Button();
         btnDataKontrakSewa = new Button();
+        btnLogout = new Button();
         btnHome = new Button();
         lblAppTitle = new Label();
         pnlTopBar = new Panel();
@@ -41,6 +42,7 @@ partial class FormMain
         pnlSidebar.Controls.Add(btnDataKos);
         pnlSidebar.Controls.Add(btnDataPembayaran);
         pnlSidebar.Controls.Add(btnDataKontrakSewa);
+        pnlSidebar.Controls.Add(btnLogout);
         pnlSidebar.Controls.Add(btnHome);
         pnlSidebar.Controls.Add(lblAppTitle);
         pnlSidebar.Dock = DockStyle.Left;
@@ -97,6 +99,20 @@ partial class FormMain
         btnDataKontrakSewa.Text = "Kontrak Sewa";
         btnDataKontrakSewa.UseVisualStyleBackColor = true;
         btnDataKontrakSewa.Click += btnDataKontrakSewa_Click;
+
+        //
+        // btnLogout
+        //
+        btnLogout.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+        btnLogout.FlatStyle = FlatStyle.Flat;
+        btnLogout.ForeColor = Color.White;
+        btnLogout.Location = new Point(20, 625);
+        btnLogout.Name = "btnLogout";
+        btnLogout.Size = new Size(180, 36);
+        btnLogout.TabIndex = 7;
+        btnLogout.Text = "Logout";
+        btnLogout.UseVisualStyleBackColor = true;
+        btnLogout.Click += btnLogout_Click;
 
         //
         // btnDataKos
@@ -196,4 +212,5 @@ partial class FormMain
     private Button btnDataKamar;
     private Button btnDataPembayaran;
     private Button btnDataKontrakSewa;
+    private Button btnLogout;
 }

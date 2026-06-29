@@ -15,7 +15,7 @@ namespace management_kos.UI
         private static readonly Dictionary<FormState, HashSet<string>> EnabledButtons = new()
         {
             [FormState.Idle]     = new HashSet<string> { "btnTambah", "btnReset", "btnCari" },
-            [FormState.Selected] = new HashSet<string> { "btnTambah", "btnUpdate", "btnHapus", "btnSelesai", "btnBatal", "btnPerpanjang", "btnReset", "btnCari" },
+            [FormState.Selected] = new HashSet<string> { "btnTambah", "btnUpdate", "btnHapus", "btnBatal", "btnPerpanjang", "btnReset", "btnCari" },
         };
 
         private readonly KontrakSewaService _service;
@@ -161,6 +161,7 @@ namespace management_kos.UI
             }
             if (state == FormState.Idle) _selectedId = 0;
             cmbMetodePembayaran.Enabled = state == FormState.Idle;
+            UpdateLunasButtonState();
         }
 
         private void btnTambah_Click(object sender, EventArgs e)
@@ -179,9 +180,10 @@ namespace management_kos.UI
                     LoadPenghuniDropdown();
                 }
 
+                CatatPembayaranAwal(k);
                 RefreshGrid();
                 ClearInput();
-                MessageBox.Show("Kontrak berhasil ditambahkan. Pembayaran dapat dicatat dari menu Pembayaran.", "Informasi",
+                MessageBox.Show("Kontrak berhasil ditambahkan dan pembayaran awal tercatat.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -238,23 +240,26 @@ namespace management_kos.UI
             if (_selectedId <= 0) return;
             try
             {
-                var summary = _pembayaranService.GetSummary(_selectedId);
-                if (summary.SisaPembayaran > 0)
+                if (!CanLunasSelectedContract(out var summary))
                 {
-                    _pembayaranService.CatatPembayaran(new Pembayaran
-                    {
-                        KontrakSewaId = _selectedId,
-                        TanggalBayar = DateTime.Today,
-                        JumlahDibayar = summary.SisaPembayaran,
-                        MetodePembayaran = GetDefaultMetodePembayaran(),
-                        Catatan = "Pelunasan otomatis saat kontrak diselesaikan."
-                    });
+                    MessageBox.Show("Tombol Lunas hanya aktif untuk kontrak dengan deposit dan sisa pembayaran.", "Informasi",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    UpdateLunasButtonState();
+                    return;
                 }
 
-                _service.SelesaikanKontrak(_selectedId);
+                _pembayaranService.CatatPembayaran(new Pembayaran
+                {
+                    KontrakSewaId = _selectedId,
+                    TanggalBayar = DateTime.Today,
+                    JumlahDibayar = summary!.SisaPembayaran,
+                    MetodePembayaran = GetDefaultMetodePembayaran(),
+                    Catatan = "Pelunasan sisa pembayaran kontrak."
+                });
+
                 RefreshGrid();
                 ClearInput();
-                MessageBox.Show("Kontrak berhasil diselesaikan dan sisa pembayaran dicatat lunas.", "Informasi",
+                MessageBox.Show("Sisa pembayaran kontrak berhasil dicatat lunas.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -313,10 +318,11 @@ namespace management_kos.UI
                 if (!decimal.TryParse(txtDurasiBulan.Text.Trim(), out var durasi))
                     throw new ArgumentException("Durasi perpanjangan harus berupa angka.");
 
-                _service.PerpanjangKontrak(_selectedId, durasi, txtCatatan.Text);
+                var perpanjangan = _service.PerpanjangKontrak(_selectedId, durasi, txtCatatan.Text);
+                CatatPembayaranAwal(perpanjangan);
                 RefreshGrid();
                 ClearInput();
-                MessageBox.Show("Perpanjangan kontrak berhasil ditambahkan.", "Informasi",
+                MessageBox.Show("Perpanjangan kontrak berhasil ditambahkan dan pembayaran tercatat.", "Informasi",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -359,6 +365,48 @@ namespace management_kos.UI
 
             // Automata: transisi ke state Selected saat baris dipilih
             ApplyState(FormState.Selected);
+        }
+
+        private void CatatPembayaranAwal(KontrakSewa kontrak)
+        {
+            if (kontrak.Id <= 0)
+                throw new InvalidOperationException("Kontrak belum memiliki nomor sehingga pembayaran tidak bisa dicatat.");
+
+            var deposit = kontrak.Deposit.GetValueOrDefault();
+            var jumlahBayar = deposit > 0
+                ? Math.Min(deposit, kontrak.TotalTagihan)
+                : kontrak.TotalTagihan;
+
+            if (jumlahBayar <= 0) return;
+
+            _pembayaranService.CatatPembayaran(new Pembayaran
+            {
+                KontrakSewaId = kontrak.Id,
+                TanggalBayar = DateTime.Today,
+                JumlahDibayar = jumlahBayar,
+                MetodePembayaran = GetDefaultMetodePembayaran(),
+                Catatan = deposit > 0
+                    ? "Pembayaran deposit kontrak."
+                    : "Pembayaran lunas kontrak."
+            });
+        }
+
+        private bool CanLunasSelectedContract(out PembayaranSummary? summary)
+        {
+            summary = null;
+            if (_selectedId <= 0) return false;
+
+            var kontrak = _service.GetById(_selectedId);
+            if (kontrak is null || kontrak.Deposit.GetValueOrDefault() <= 0)
+                return false;
+
+            summary = _pembayaranService.GetSummary(_selectedId);
+            return summary.SisaPembayaran > 0;
+        }
+
+        private void UpdateLunasButtonState()
+        {
+            btnSelesai.Enabled = CanLunasSelectedContract(out _);
         }
 
         private KontrakSewa BuildFromInput()

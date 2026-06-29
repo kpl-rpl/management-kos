@@ -12,8 +12,10 @@ Arsitektur disusun sederhana agar mudah dipahami, mudah dirawat, dan mudah dikem
 4. Sistem menghitung `JumlahBulanTagihan` dengan pembulatan ke atas. Contoh: 2,5 bulan dihitung menjadi 3 bulan.
 5. `TotalTagihan` dihitung dari `HargaSewaBulanan * JumlahBulanTagihan`.
 6. Pembayaran dikelola dari menu `Pembayaran`, terpisah dari kontrak sewa. Satu kontrak dapat memiliki banyak pembayaran/cicilan.
-7. Menu pembayaran menampilkan total tagihan, total dibayar, dan sisa pembayaran.
-8. Status kamar dikelola oleh service aplikasi, bukan trigger database.
+7. Saat kontrak dibuat, pembayaran awal otomatis tercatat. Jika ada deposit, pembayaran pertama bernilai deposit dan pelunasan dicatat dari tombol `Lunas`; jika tidak ada deposit, pembayaran awal bernilai total tagihan.
+8. Saat kontrak diperpanjang, kontrak perpanjangan juga otomatis membuat pembayaran sesuai tagihannya.
+9. Menu pembayaran menampilkan total tagihan, total dibayar, dan sisa pembayaran.
+10. Status kamar dikelola oleh service aplikasi, bukan trigger database.
 
 ### Design pattern yang digunakan
 

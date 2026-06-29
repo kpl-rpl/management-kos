@@ -49,13 +49,22 @@ namespace management_kos
             var appUserService = new AppUserService(appUserRepository, roleRepository);
             var referenceDataService = new ReferenceDataService(roleRepository, metodePembayaranRepository);
 
-            using var loginForm = new FormLogin(appUserService);
-            if (loginForm.ShowDialog() != DialogResult.OK)
+            while (true)
             {
-                return;
-            }
+                using var loginForm = new FormLogin(appUserService);
+                if (loginForm.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
 
-            Application.Run(new FormMain(kosService, kamarService, penghuniService, pembayaranService, kontrakSewaService, referenceDataService));
+                using var mainForm = new FormMain(kosService, kamarService, penghuniService, pembayaranService, kontrakSewaService, referenceDataService);
+                Application.Run(mainForm);
+
+                if (!mainForm.LogoutRequested)
+                {
+                    return;
+                }
+            }
         }
     }
 }

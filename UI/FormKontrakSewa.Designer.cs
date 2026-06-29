@@ -211,7 +211,7 @@ namespace management_kos.UI
             btnHapus.Click    += btnHapus_Click;
 
             btnSelesai.Name      = "btnSelesai";
-            btnSelesai.Text      = "Selesai";
+            btnSelesai.Text      = "Lunas";
             btnSelesai.Location  = new Point(316, btnY);
             btnSelesai.Size      = new Size(100, 32);
             btnSelesai.BackColor = Color.FromArgb(22, 163, 74);

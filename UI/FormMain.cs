@@ -17,6 +17,8 @@ public partial class FormMain : Form
     private FormPembayaran? _formPembayaran;
     private FormKontrakSewa? _formKontrakSewa;
 
+    public bool LogoutRequested { get; private set; }
+
     public FormMain(KosService kosService, KamarService kamarService, PenghuniService penghuniService, PembayaranService pembayaranService, KontrakSewaService kontrakSewaService, ReferenceDataService referenceDataService)
     {
         _kosService = kosService;
@@ -120,4 +122,18 @@ public partial class FormMain : Form
     private void btnDataPenghuni_Click(object sender, EventArgs e) => ShowDataPenghuniView();
     private void btnDataPembayaran_Click(object sender, EventArgs e) => ShowDataPembayaranView();
     private void btnDataKontrakSewa_Click(object sender, EventArgs e) => ShowDataKontrakSewaView();
+
+    private void btnLogout_Click(object sender, EventArgs e)
+    {
+        var confirm = MessageBox.Show(
+            "Yakin ingin logout?",
+            "Konfirmasi Logout",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question);
+
+        if (confirm != DialogResult.Yes) return;
+
+        LogoutRequested = true;
+        Close();
+    }
 }

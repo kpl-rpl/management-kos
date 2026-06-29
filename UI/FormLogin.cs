@@ -19,7 +19,7 @@ public class FormLogin : Form
         _appUserService = appUserService ?? throw new ArgumentNullException(nameof(appUserService));
 
         const int cardWidth = 360;
-        const int cardHeight = 470;
+        const int cardHeight = 500;
         const int margin = 40;
 
         Text = "Login - Management Kos";
@@ -81,18 +81,29 @@ public class FormLogin : Form
             Location = new Point(0, 122)
         };
 
+        var lblDemoAccount = new Label
+        {
+            Text = "Akun demo: admin / admin123",
+            Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+            ForeColor = Color.FromArgb(32, 43, 59),
+            AutoSize = false,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Size = new Size(cardWidth, 24),
+            Location = new Point(0, 160)
+        };
+
         var lblUsername = new Label
         {
             Text = "Username",
             Font = new Font("Segoe UI", 8.5F),
             ForeColor = Color.FromArgb(75, 85, 99),
             AutoSize = true,
-            Location = new Point(28, 178)
+            Location = new Point(28, 198)
         };
 
         _txtUsername = new TextBox
         {
-            Location = new Point(28, 199),
+            Location = new Point(28, 219),
             Size = new Size(contentW, 28),
             Font = new Font("Segoe UI", 10F),
             TabIndex = 0,
@@ -105,12 +116,12 @@ public class FormLogin : Form
             Font = new Font("Segoe UI", 8.5F),
             ForeColor = Color.FromArgb(75, 85, 99),
             AutoSize = true,
-            Location = new Point(28, 240)
+            Location = new Point(28, 260)
         };
 
         _txtPassword = new TextBox
         {
-            Location = new Point(28, 261),
+            Location = new Point(28, 281),
             Size = new Size(contentW, 28),
             Font = new Font("Segoe UI", 10F),
             UseSystemPasswordChar = true,
@@ -124,12 +135,12 @@ public class FormLogin : Form
             Font = new Font("Segoe UI", 8.5F),
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleLeft,
-            Location = new Point(28, 300),
+            Location = new Point(28, 320),
             Size = new Size(contentW, 32)
         };
 
         _btnLogin.Text = "Login";
-        _btnLogin.Location = new Point(28, 340);
+        _btnLogin.Location = new Point(28, 360);
         _btnLogin.Size = new Size(contentW, 40);
         _btnLogin.BackColor = Color.FromArgb(32, 43, 59);
         _btnLogin.ForeColor = Color.White;
@@ -141,7 +152,7 @@ public class FormLogin : Form
         _btnLogin.Click += btnLogin_Click;
 
         _btnCancel.Text = "Batal";
-        _btnCancel.Location = new Point(28, 388);
+        _btnCancel.Location = new Point(28, 408);
         _btnCancel.Size = new Size(contentW, 36);
         _btnCancel.FlatStyle = FlatStyle.Flat;
         _btnCancel.FlatAppearance.BorderColor = Color.FromArgb(209, 213, 219);
@@ -159,6 +170,7 @@ public class FormLogin : Form
             iconPanel,
             lblTitle,
             lblSubtitle,
+            lblDemoAccount,
             lblUsername,
             _txtUsername,
             lblPassword,
